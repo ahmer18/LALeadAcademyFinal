@@ -1,0 +1,31 @@
+/* Fix for slick-carousel slides stacking vertically when using Tailwind
+   Ensures slides are inline and the track lays them out in a row. */
+.slick-slider {
+  box-sizing: border-box;
+}
+.slick-list {
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.slick-track {
+  display: flex !important;
+  align-items: stretch;
+  justify-content: center !important;
+}
+.slick-slide {
+  display: inline-block !important;
+  float: none !important;
+  height: auto;
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 auto;
+  flex: 0 0 auto;
+}
+.slick-slide > div {
+  height: 100%;
+}
+
+/* Ensure arrows sit above slides (optional) */
+.slick-slider .slick-prev,
+.slick-slider .slick-next {
+  z-index: 20;
+}
