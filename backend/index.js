@@ -16,7 +16,8 @@ app.use(cors({
     "http://localhost:5173", 
     "http://127.0.0.1:5173",
     "https://laleadacademy-final.vercel.app", // Replace with your actual Vercel frontend URL
-    "https://ahmer18.github.io" // Add your GoDaddy domain here once connected
+    "https://laleadacademy.com", 
+  "https://www.laleadacademy.com", // Add your GoDaddy domain here once connected
   ],
   credentials: true
 }));
