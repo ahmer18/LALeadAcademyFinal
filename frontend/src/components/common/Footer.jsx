@@ -26,7 +26,7 @@ export default function Footer() {
         {/* About */}
         <div className="space-y-2">
           <h2 className="text-lg font-black uppercase tracking-tighter italic">
-            LA <span className="text-blue-800">LEAD Academy</span>
+            LA<span className="text-blue-800">LEAD Academy</span>
           </h2>
           <p className={`text-xs leading-relaxed ${isLight ? "text-gray-500" : "text-gray-400"}`}>
             Shaping confident leaders and effective educators for today’s schools through research-informed training.
@@ -37,7 +37,7 @@ export default function Footer() {
         <div>
           <h2 className="text-xs font-bold uppercase tracking-widest mb-3 text-blue-800">Navigation</h2>
           <ul className={`space-y-1.5 text-xs font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>
-            <li><a href="/about" className={linkClass}>Our Story</a></li>
+            <li><a href="/about" className={linkClass}>About us</a></li>
             <li><a href="/courses" className={linkClass}>All Courses</a></li>
             <li><a href="/#" className={linkClass}>Help & FAQ</a></li>
             <li><a href="/about" className={linkClass}>Contact Us</a></li>

@@ -1,37 +1,43 @@
-import img1 from "../../assets/images/1.jpg";
-import img2 from "../../assets/images/2.png";
-import img3 from "../../assets/images/3.jpg";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { GraduationCap, Globe, LineChart } from "lucide-react"; 
 import bannerImg from "../../assets/images/section2bg.png";
 
-const partners = [
-  { name: "Asya Dilem", href: "http://asyadilem.com/", logoSrc: img1 },
-  { name: "Master England And Training", href: "https://masterenglishtraining.com/", logoSrc: img2 },
-  { name: "Cambridge Academy Istanbul", href: "http://www.cambridgeistanbul.com/", logoSrc: img3 },
+const highlights = [
+  {
+    title: "UK Leadership",
+    desc: "UK educational leadership & teacher development experience",
+    icon: <GraduationCap className="w-8 h-8 text-green-400" />,
+  },
+  {
+    title: "Global Curriculum",
+    desc: "International curriculum IB & Cambridge exposure",
+    icon: <Globe className="w-8 h-8 text-blue-400" />,
+  },
+  {
+    title: "School Transformation",
+    desc: "Research-based school transformation practices",
+    icon: <LineChart className="w-8 h-8 text-emerald-400" />,
+  },
 ];
 
 export default function TrustedClients() {
   const sectionRef = useRef(null);
   const bgRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const observerEl = sectionRef.current;
-    const animationEl = bgRef.current;
-
-    if (!observerEl || !animationEl) return;
+    if (!observerEl) return;
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Restart bottom-to-top fade animation
-            animationEl.classList.remove("animate-bg-slide-up-fade");
-            void animationEl.offsetWidth; // Force reflow
-            animationEl.classList.add("animate-bg-slide-up-fade");
-          }
-        });
+      ([entry]) => {
+        // Toggle isVisible based on intersection status to allow re-triggering
+        setIsVisible(entry.isIntersecting);
       },
-      { threshold: 0.6 }
+      { 
+        threshold: 0.2,
+        rootMargin: "-50px" // Slight margin to ensure it triggers cleanly
+      }
     );
 
     observer.observe(observerEl);
@@ -42,63 +48,57 @@ export default function TrustedClients() {
     <section
       id="section2"
       ref={sectionRef}
-      className="relative w-full h-screen snap-start overflow-hidden bg-black"
+      className="relative w-full min-h-screen snap-start overflow-hidden bg-[#050505] flex flex-col justify-center"
     >
       {/* BACKGROUND */}
-      {/* BACKGROUND */}
-<div
-  ref={bgRef}
-  className="absolute inset-0 bg-black bg-cover bg-center z-0"
-  style={{ backgroundImage: `url(${bannerImg})` }}
-/>
-<div className="absolute inset-0 bg-black/60 z-[1]" />
+      <div
+        ref={bgRef}
+        className="absolute inset-0 bg-cover bg-center z-0 opacity-40"
+        style={{ backgroundImage: `url(${bannerImg})` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-tr from-black via-transparent to-black z-[1]" />
 
-
-      {/* CONTENT */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">
-        <div className="p-10 rounded-xl max-w-4xl">
-          <h1 className="text-6xl font-bold text-[#FAF9F6] mb-8">
-            Our Global Footprint
-          </h1>
-          <h3 className="text-lg text-white">
-            A globally recognized institution with decades of excellence in education and leadership development,
-            trained 500+ Teachers across the globe.
-          </h3>
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 flex flex-col items-center">
+        
+        {/* HEADER - Slides up smoothly */}
+        <div className={`text-center mb-10 max-w-4xl transition-all duration-1000 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <span className="text-green-400 font-bold tracking-[0.3em] uppercase text-sm mb-4 block animate-pulse">
+            25+ Years of Excellence
+          </span>
+          <h2 className="text-5xl md:text-7xl font-extrabold text-white mb-6 tracking-tight">
+            Global <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1B365D]  to-cyan-700 text-glow"
+      style={{ 
+        WebkitTextStroke: "0.5px #FAF9F6",
+        paintOrder: "stroke fill"
+      }}>
+  Expertise
+</span>
+          </h2>
+          <p className="text-gray-300 text-lg md:text-2xl leading-relaxed font-light">
+            Our trainers bring unmatched classroom experience across the UK, Middle East, and international systems, 
+            blending global standards with cultural intelligence.
+          </p>
         </div>
 
-        <div className="py-4 text-center">
-          <h4 className="text-sm sm:text-lg font-extrabold uppercase tracking-widest text-green-300 mb-6 animate-fadeInUp">
-            Our Global Education Network
-          </h4>
-
-          <div className="flex justify-center items-center flex-wrap gap-6 sm:gap-10 md:gap-30 max-w-7xl mx-auto">
-            {partners.map((partner) => (
-              <a
-                key={partner.name}
-                href={partner.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center group w-20 sm:w-24 transition-transform duration-500 hover:scale-110 hover:shadow-2xl hover:z-20 transform hover:-translate-y-1"
-              >
-                <img
-                  src={partner.logoSrc}
-                  alt={`${partner.name} Logo`}
-                  className="object-contain w-16 h-16 sm:w-20 sm:h-20 rounded-full p-2 bg-white ring-4 ring-blue-400/50 shadow-xl"
-                />
-                <p className="mt-2 text-xs font-semibold text-white/80 group-hover:text-white transition-colors duration-300">
-                  {partner.name}
-                </p>
-              </a>
-            ))}
-          </div>
-
-          <div className="flex justify-center mt-8">
-            <div className="flex items-center gap-3 bg-green-300/50 border border-blue-400/40 px-5 py-2 rounded-full shadow-md backdrop-blur-sm">
-              <span className="text-sm font-semibold text-white tracking-wide">
-                &#9989; Licensed by the Turkish Ministry of Education
-              </span>
+        {/* FEATURE GRID - Staggered entrance */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+          {highlights.map((item, index) => (
+            <div 
+              key={index}
+              style={{ transitionDelay: `${index * 300}ms` }} // Staggers the cards
+              className={`group p-6 rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-2xl hover:bg-white/[0.07] hover:border-green-400/40 transition-all duration-700 flex flex-col items-center text-center transform ${isVisible ? 'opacity-100 translate-y-12' : 'opacity-0 translate-y-0'}`}
+            >
+              <div className="mb-6 p-4 inline-block rounded-2xl bg-white/5 border border-white/10 group-hover:bg-green-400/10 transition-colors duration-500">
+                {item.icon}
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3 transition-transform duration-500 group-hover:scale-105">
+                {item.title}
+              </h3>
+              <p className="text-gray-400 text-sm leading-relaxed transition-colors duration-500 group-hover:text-gray-200">
+                {item.desc}
+              </p>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>

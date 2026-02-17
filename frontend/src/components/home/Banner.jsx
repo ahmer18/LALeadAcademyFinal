@@ -1,127 +1,118 @@
-import React, { useEffect, useRef } from "react";
-import { Link } from "react-router";
+import React, { useEffect, useRef, useState } from "react";
 import bannerImg from "../../assets/images/Hero.png";
 
-export default function Banner() { 
-  // Refs for scroll-triggered animation
+export default function Banner() {
   const sectionRef = useRef(null);
-  const bgRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const observerEl = sectionRef.current;
-    const animationEl = bgRef.current;
-
-    if (!observerEl || !animationEl) return;
-
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Re-trigger the CSS animation
-            animationEl.classList.remove("animate-bg-slide-in");
-            void animationEl.offsetWidth; // Force reflow
-            animationEl.classList.add("animate-bg-slide-in");
-          }
-        });
+      ([entry]) => {
+        // This is the key: it sets visibility to true when entering, 
+        // and false when leaving, so animations can restart.
+        setIsVisible(entry.isIntersecting);
       },
-      { threshold: 0.5 }
+      { 
+        threshold: 0.2, // Trigger slightly earlier for a smoother feel
+        rootMargin: "0px" 
+      }
     );
 
-    observer.observe(observerEl);
+    if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
   return (
     <header
-      id="banner"
       ref={sectionRef}
-      className="relative w-full h-screen snap-start bg-black overflow-hidden"
+      className="relative w-full h-screen snap-start bg-[#020617] overflow-hidden flex items-center justify-center"
     >
-      {/* Background Layer - Animated */}
+      {/* BACKGROUND: Cinematic Slow Zoom */}
       <div
-        ref={bgRef}
-        className="absolute inset-0 bg-cover bg-center animate-bg-slide-in"
+        className={`absolute inset-0 bg-cover bg-center transition-transform duration-[6000ms] ease-out z-0 ${
+          isVisible ? "scale-110 opacity-100" : "scale-100 opacity-0"
+        }`}
         style={{ 
-          backgroundImage: `url(${bannerImg})`,
-          backgroundRepeat: "no-repeat" 
+            backgroundImage: `url(${bannerImg})`,
+            transitionProperty: "transform, opacity" 
         }}
       >
-        {/* Gradient Overlay for text contrast */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#020617] z-10" />
+        <div className="absolute inset-0 bg-black/40 z-10" />
       </div>
 
-      {/* Content Layer */}
-      <div className="relative z-30 flex flex-col items-center justify-center h-full text-center px-4 max-w-7xl mx-auto">
-        <h1 className="text-6xl md:text-8xl font-extrabold text-[#FAF9F6] mb-4 custom-text-shadow tracking-tight">
-          La LEAD Academy
-        </h1>
+      {/* CONTENT: Staggered Reveal */}
+      <div className="relative z-30 flex flex-col items-center text-center px-6 max-w-7xl mx-auto">
         
-        <h2 className="text-3xl md:text-4xl font-bold text-[#FAF9F6] mb-4 custom-text-shadow mt-5 opacity-90">
-          Shine. Grow. Succeed!
-        </h2>
-
-        <p className="text-lg md:text-2xl max-w-3xl text-white drop-shadow-md custom-text-shadow mt-10 leading-relaxed">
-          World-class English and Leadership programs built on <span className="font-bold border-b-2 border-amber-400">28 years</span> of
-          expertise from Harvard, Cambridge, and The Aga Khan Academy.
+        {/* SMALL TOP LABEL */}
+        <p className={`text-blue-400 font-bold tracking-[0.4em] uppercase text-xs mt-5 mb-10 transition-all duration-700 delay-100 ${
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+        }`}>
+          Elite Educator Training
         </p>
 
-        <div className="mt-12">
-          {/* DaisyUI Button with your custom hex styling */}
-          <Link
-            to="/courses"
-            className="
-              btn btn-lg border-none normal-case text-lg px-10 py-4
-              bg-[#0b0d11] text-[#7BF1A8]
-              hover:bg-gradient-to-r hover:from-[rgba(72,112,142,0.9)] hover:to-[rgba(20,35,62,0.9)]
-              hover:text-white transition-all duration-500
-              transform hover:scale-105 shadow-2xl
-            "
-          >
-            Explore Our Signature Courses
-          </Link>
-        </div>
+        <h1 className={`text-6xl md:text-9xl font-black text-[#FAF9F6] mb-8 tracking-tighter transition-all duration-1000 delay-300 ${
+  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+}`}>
+  LALEAD <span className="academy-animated-text">Academy</span>
+</h1>
+        
+        <h2 className={`text-3xl md:text-3xl font-bold text-white/90 mb-12 transition-all duration-1000 delay-500 ${
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+        }`}>
+          Grow. Shine. Succeed!
+        </h2>
+
+        <p className={`text-lg md:text-4xl mt-5 max-w-5xl text-gray-300 leading-relaxed font-light transition-all duration-1000 delay-700 ${
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+        }`}>
+          Shaping <span className="text-white font-medium">confident leaders</span> and  
+          <span className="text-white font-medium"> effective educators</span> for today’s global school systems.
+        </p>
       </div>
 
-      {/* Animation & Custom Styles */}
-      <style>{`
-        .custom-text-shadow {
-          text-shadow: 2px 4px 12px rgba(0, 0, 0, 0.9);
-        }
+     <style>{`
+  .academy-animated-text {
+    /* 1. The Gradient Fill */
+    background: linear-gradient(
+      to right, 
+      #FAF9F6 20%, 
+      #22d3ee 40%, 
+      #3b82f6 60%, 
+      #FAF9F6 80%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    text-transparent: border-box;
+    color: transparent;
+    -webkit-text-stroke: 1.5px #FAF9F6;
+    
+    /* 2. The Animated Flow */
+    animation: shine-flow 5s linear infinite;
 
-        @keyframes slideInFromBottom {
-  0% {
-    transform: translateY(80px);
-    opacity: 0; /* Start from off-screen bottom */
-    filter: brightness(0.2);
-  }
-  25% {
-    opacity: 0.2;
-    filter: brightness(0.4);
+    /* 3. The Shadow-Stroke Fix (Ensures perfect fill) */
+    text-shadow: 
+      -1px -1px 0 #1B365D,  
+       1px -1px 0 #1B365D,
+      -1px  1px 0 #1B365D,
+       1px  1px 0 #1B365D;
     
+    filter: drop-shadow(0 0 20px rgba(34, 211, 238, 0.3));
+    display: inline-block;
   }
-  50% {
-    opacity: 0.6;
-    filter: brightness(0.6);
-    
-  }
-  75% {
-    opacity: 0.8;
-    filter: brightness(0.8);
-    
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1; /* End at normal position */
-    filter: brightness(1);
-  }
-}
 
-.animate-bg-slide-in {
-  animation: slideInFromBottom 1s ease-out forwards;
-  opacity: 0;
-  transform: translateY(100%);
-}
-      `}</style>
+  @keyframes shine-flow {
+    to {
+      background-position: 200% center;
+    }
+  }
+
+  /* Keeping your existing shine for the overall glow */
+  @keyframes shine {
+    0%, 100% { filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.4)); }
+    50% { filter: drop-shadow(0 0 25px rgba(59, 130, 246, 0.6)); }
+  }
+`}</style>
     </header>
   );
 }
