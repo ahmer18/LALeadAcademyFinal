@@ -56,7 +56,7 @@ export default function PopularCourses() {
   ];
 
   const settings = {
-    dots: true,
+    dots: false,
     infinite: true,
     speed: 800,
     slidesToShow: 3, 
@@ -77,7 +77,7 @@ export default function PopularCourses() {
       className="relative py-16 md:py-24 overflow-hidden snap-start snap-always min-h-screen flex flex-col justify-center"
       style={{ background: 'linear-gradient(to bottom, #020617 0%, #0f172a 35%, #FAF9F6 100%)' }}
     >
-      <div className="max-w-7xl mx-auto px-8 md:px-12 relative z-10 w-full">
+      <div className="max-w-7xl mx-auto px-8 md:px-12 relative z-10 w-full ">
         
         {/* HEADER */}
         <div className="mb-12 text-left md:text-center">
