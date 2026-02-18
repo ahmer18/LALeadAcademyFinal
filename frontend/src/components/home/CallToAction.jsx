@@ -74,7 +74,7 @@ export default function CallToAction() {
             <div className="flex items-center gap-8 pt-8 border-t border-white/10 w-full justify-center">
   {/* Email Link */}
   <a 
-    href="mailto:info@lalead.academy" 
+    href="mailto:info@laleadacademy.com" 
     className="flex items-center gap-2 text-gray-400 hover:text-cyan-400 transition-colors text-xs font-bold uppercase tracking-widest"
   >
     <Mail size={18} /> Email
