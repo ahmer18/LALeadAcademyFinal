@@ -66,7 +66,7 @@ export default function Banner() {
           Grow. Shine. Succeed!
         </h2>
 
-        <p className={`text-2xl md:text-4xl max-w-4xl text-gray-300 leading-relaxed font-light transition-all duration-1000 delay-500 ${
+        <p className={`text-2xl md:text-5xl max-w-7xl text-gray-300 leading-relaxed font-light transition-all duration-1000 delay-500 ${
           contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         }`}>
           Shaping <span className="text-white font-medium">confident leaders</span> and  
