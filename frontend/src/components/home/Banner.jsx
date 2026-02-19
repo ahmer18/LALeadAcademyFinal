@@ -60,13 +60,13 @@ export default function Banner() {
           <span className="brand-lead">LEAD Academy</span>
         </h1>
         
-        <h2 className={`brand-slogan text-2xl md:text-5xl mb-20 transition-all duration-1000 delay-300 ${
+        <h2 className={`brand-slogan text-2xl md:text-3xl mb-20 transition-all duration-1000 delay-300 ${
           contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         }`}>
           Grow. Shine. Succeed!
         </h2>
 
-        <p className={`text-2xl md:text-3xl max-w-4xl text-gray-300 leading-relaxed font-light transition-all duration-1000 delay-500 ${
+        <p className={`text-2xl md:text-4xl max-w-4xl text-gray-300 leading-relaxed font-light transition-all duration-1000 delay-500 ${
           contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         }`}>
           Shaping <span className="text-white font-medium">confident leaders</span> and  
