@@ -8,7 +8,7 @@ import useAuth from "../../hooks/useAuth";
 import { useSystemTheme } from "../../hooks/useSystemTheme";
 
 // Import your logo from assets
-import logoImg from "../../assets/images/Logo1.png";
+import logoImg from "../../assets/images/logoagain.png";
 
 const handleComingSoon = (e) => {
   e.preventDefault(); 
