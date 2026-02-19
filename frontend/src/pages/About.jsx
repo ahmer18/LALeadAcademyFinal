@@ -15,7 +15,7 @@ export default function About() {
           <div className="absolute inset-0 bg-[#f8fafc]" />
 
           {/* Soft Mesh Glows */}
-          <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-100 rounded-full blur-[100px] opacity-60" />
+          <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-200 rounded-full blur-[100px] opacity-60" />
           <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-100 rounded-full blur-[100px] opacity-60" />
 
           {/* Optional: Subtle Dot Grid Pattern */}
@@ -25,7 +25,7 @@ export default function About() {
 
         <div className="relative z-10 px-4">
           <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-gray-900 leading-tight tracking-tight">
-            Shaping <span className="text-blue-800">confident leaders</span> and <br className="hidden md:block" />
+            Shaping <span className="text-blue-900">confident leaders</span> and <br className="hidden md:block" />
             effective educators for today’s schools.
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed font-medium">
@@ -35,7 +35,7 @@ export default function About() {
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="#contact"
-              className="px-8 py-4 bg-blue-800 text-white font-bold rounded-xl shadow-xl shadow-blue-200 hover:bg-blue-700 hover:-translate-y-1 transition-all duration-300"
+              className="px-8 py-4 bg-blue-900 text-white font-bold rounded-xl shadow-xl shadow-blue-200 hover:bg-blue-700 hover:-translate-y-1 transition-all duration-300"
             >
               Request Programme Details
             </a>
@@ -59,9 +59,10 @@ export default function About() {
           />
         </div>
         <div className="md:w-2/3">
-          <h2 className="text-3xl font-bold text-gray-900">Muhammad Ahmed</h2>
-          <p className="text-lg text-blue-600 font-medium mb-4">
-            Founder, La LEAD Academy — MA Education (UK)
+          <h2 className="text-3xl font-bold text-blue-900">Muhammad Ahmed</h2>
+          <p className="text-lg font-medium mb-4 italic text-grey-900">
+            Founder, <span className="brand-la font-black">LA</span><span className="text-blue-900 font-black">LEAD Academy</span>
+            <span className="text-blue-900 ml-2">— MA Education (UK)</span>
           </p>
           <div className="space-y-4 text-gray-700 text-lg leading-relaxed">
             <p>
@@ -91,14 +92,14 @@ export default function About() {
         <div className="max-w-6xl mx-auto px-8 grid md:grid-cols-2 gap-16 relative z-10">
           {/* About Column */}
           <div className="space-y-6">
-            <div className="inline-block px-4 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold tracking-widest uppercase">
+            <div className="inline-block px-4 py-1 bg-blue-50 text-blue-900 rounded-full text-xs font-bold tracking-widest uppercase">
               Discovery
             </div>
             <h3 className="text-3xl font-black text-gray-900 uppercase tracking-tight">
               About La LEAD Academy
             </h3>
-            <p className="text-gray-600 leading-relaxed text-lg border-l-4 border-blue-600 pl-6 py-2 bg-white/50 backdrop-blur-sm rounded-r-xl">
-              La LEAD Academy (Leadership, Education, and Development) supports schools through
+            <p className="text-gray-600 leading-relaxed text-lg border-l-4 border-blue-900 pl-6 py-2 bg-white/50 backdrop-blur-sm rounded-r-xl">
+              LALEAD Academy (Leadership, Education, and Development) supports schools through
               leadership formation and effective teaching practices designed for today’s
               complex educational environments.
             </p>
@@ -106,7 +107,7 @@ export default function About() {
 
           {/* Purpose Column */}
           <div className="space-y-6">
-            <div className="inline-block px-4 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold tracking-widest uppercase">
+            <div className="inline-block px-4 py-1 bg-indigo-50 text-blue-900 rounded-full text-xs font-bold tracking-widest uppercase">
               Our Mission
             </div>
             <h3 className="text-3xl font-black text-gray-900 uppercase tracking-tight">
@@ -122,7 +123,7 @@ export default function About() {
                 "To support schools in building cultures of clarity and accountability"
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-4 group">
-                  <div className="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] shadow-lg shadow-blue-200 group-hover:scale-110 transition-transform">
+                  <div className="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-blue-900 text-white flex items-center justify-center text-[10px] shadow-lg shadow-blue-200 group-hover:scale-110 transition-transform">
                     ✓
                   </div>
                   <span className="text-gray-700 text-lg leading-snug">{item}</span>

@@ -24,19 +24,21 @@ const handleComingSoon = (e) => {
 };
 
 const AppLogo = ({ isLight }) => (
-  <div className="flex items-center space-x-4 transition-opacity duration-500 ease-in-out">
+  <div className="flex items-center space-x-2 sm:space-x-4 transition-all duration-500 ease-in-out">
     <img
       src={logoImg}
       alt="LA Lead Academy Logo"
-      className="h-16 w-auto object-contain" 
+      className="h-10 w-auto sm:h-16 object-contain" 
     />
     <div className="flex flex-col leading-tight">
-      <span className={`text-xl font-bold font-logo-headline custom-text-shadow2 ${
-        isLight ? "text-white" : "text-base-content"
-      }`}>
-        LALEAD Academy
-      </span>
-      <span className={`text-sm italic font-logo-headline opacity-70 custom-text-shadow2 ${
+      <div className="text-sm sm:text-xl brand-text custom-text-shadow2 whitespace-nowrap">
+        <span className="brand-la">LA</span>
+        <span className={isLight ? "brand-lead" : "brand-lead2"}>LEAD</span>
+        <span className={`ml-1 ${isLight ? "text-white" : "text-gray-900"}`}>
+          Academy
+        </span>
+      </div>
+      <span className={`text-[9px] sm:text-sm italic font-logo-headline opacity-70 custom-text-shadow2 ${
         isLight ? "text-white/70" : "text-base-content"
       }`}>
         Grow, Shine, Succeed!
@@ -88,64 +90,57 @@ export default function Navbar() {
     return () => observer.disconnect();
   }, []);
 
-  // Updated linkStyle with Green/Emerald colors
   const linkStyle = ({ isActive }) => {
-  const baseStyle = `text-xs font-black uppercase tracking-widest transition-all duration-300 h-full flex items-center border-b-2 py-1`;
-  
-  if (isLight) {
-    return `${baseStyle} ${
-      isActive
-        ? "text-cyan-400 border-cyan-400"
-        : "text-white/70 border-transparent hover:text-white hover:border-white/20"
-    }`;
-  }
-  
-  return `${baseStyle} ${
-    isActive
-      ? "text-[#1B365D] border-[#1B365D]"
-      : "text-gray-500 border-transparent hover:text-[#1B365D] hover:border-[#1B365D]/20"
-  }`;
-};
+    const baseStyle = `text-xs font-black uppercase tracking-widest transition-all duration-300 h-full flex items-center border-b-2 py-1`;
+    if (isLight) {
+      return `${baseStyle} ${isActive ? "text-[#8d6e3e] border-[#8d6e3e]" : "text-white border-transparent hover:text-white"}`;
+    }
+    return `${baseStyle} ${isActive ? "text-[#8d6e3e] border-[#8d6e3e]" : "text-gray-500 border-transparent hover:text-[#1B365D]"}`;
+  };
 
   return (
     <nav
-      className={`fixed top-0 left-0 w-full h-18 flex items-center z-50 transition-all duration-500 backdrop-blur-md ${
-        isLight
-          ? "bg-gray-900/90 text-white"
-          : "bg-white/10 text-base-content"
-      } ${
-        showHeader ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
-      }`}
+      className={`navbar-container fixed top-0 left-0 w-full z-50 transition-all duration-500 flex items-center ${
+        isLight ? "bg-gray-900 text-white" : "bg-white/10 text-base-content"
+      } ${showHeader ? "opacity-100 scale-100 h-16 sm:h-20" : "opacity-0 scale-95 pointer-events-none h-16 sm:h-20"}`}
     >
-      <div className="px-6 w-full flex items-center justify-between mx-auto max-w-7xl">
-        
+      <div className="px-4 sm:px-6 w-full flex items-center justify-between mx-auto max-w-7xl">
         <div className="flex items-center h-full">
-          <div className="dropdown lg:hidden mr-2">
-            <div tabIndex={0} role="button" className="btn btn-ghost text-2xl p-2 hover:bg-green-500/20">
+          {/* MOBILE DROPDOWN */}
+          <div className="dropdown lg:hidden mr-1 sm:mr-2">
+            <div tabIndex={0} role="button" className="btn btn-ghost text-xl sm:text-2xl p-1 sm:p-2 hover:bg-green-500/20">
               <TiThMenu />
             </div>
             <ul
               tabIndex={0}
-              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow mt-4 border border-white/10"
+              className="menu menu-sm dropdown-content bg-white rounded-box z-[1] w-64 p-4 shadow-2xl mt-4 border border-gray-200"
             >
-              <li><NavLink to="/">Home</NavLink></li>
-              <li><NavLink to="/courses">Courses</NavLink></li>
+              {/* Force text-slate-900 so links are visible against white bg */}
+              <li className="mb-2 text-slate-900">
+                <NavLink to="/" className={({isActive}) => `py-4 text-lg font-bold ${isActive ? "text-[#8d6e3e]" : "text-slate-900"}`}>Home</NavLink>
+              </li>
+              <li className="mb-2 text-slate-900">
+                <NavLink to="/courses" className={({isActive}) => `py-4 text-lg font-bold ${isActive ? "text-[#8d6e3e]" : "text-slate-900"}`}>Courses</NavLink>
+              </li>
+              <li className="mb-2 text-slate-900">
+                <NavLink to="/about" className={({isActive}) => `py-4 text-lg font-bold ${isActive ? "text-[#8d6e3e]" : "text-slate-900"}`}>About</NavLink>
+              </li>
               {user && (
                 <>
-                  <div className="divider my-0"></div>
-                  <li><NavLink to="/dashboard/profile">Profile</NavLink></li>
-                  <li><NavLink to="/dashboard">Dashboard</NavLink></li>
+                  <div className="divider my-2"></div>
+                  <li className="text-slate-900"><NavLink to="/dashboard/profile" className="py-4 text-lg font-bold">Profile</NavLink></li>
+                  <li className="text-slate-900"><NavLink to="/dashboard" className="py-4 text-lg font-bold">Dashboard</NavLink></li>
                 </>
               )}
             </ul>
           </div>
 
-          <Link to="/" aria-label="Home" className="flex items-center h-full">
+          <Link to="/" className="flex items-center h-full">
             <AppLogo isLight={isLight} />
           </Link>
         </div>
 
-        <div className="flex items-center space-x-8 h-full">
+        <div className="flex items-center space-x-3 sm:space-x-8 h-full">
           <div className="hidden lg:flex items-center space-x-6 h-full">
             <NavLink to="/" className={linkStyle}>Home</NavLink>
             <NavLink to="/courses" className={linkStyle}>Courses</NavLink>
@@ -165,64 +160,41 @@ export default function Navbar() {
 }
 
 const UserData = ({ user, isUserLoading, logoutMutation, isLight }) => {
-  if (isUserLoading) return <span className="loading loading-spinner loading-md text-green-400"></span>;
+  if (isUserLoading) return <span className="loading loading-spinner loading-md text-[#8d6e3e]"></span>;
 
   if (!user) {
-  return (
-    <Link
-      to="/login"
-      onClick={handleComingSoon}
-      className={`btn font-black px-8 rounded-xl transition-all duration-300 transform hover:scale-105 border uppercase tracking-widest text-xs h-auto py-3 min-h-0 ${
-        isLight
-          ? "bg-white-100 hover:bg-white/20 text-blue-600 border-[#E9DFD5] backdrop-blur-md shadow-lg"
-          : "bg-white-100 hover:bg-white-700 text-blue-600 border-[#E9DFD5] shadow-md shadow-cyan-900/10"
-      }`}
-    >
-      Login
-    </Link>
-  );
-}
+    return (
+      <Link
+        to="/login"
+        onClick={handleComingSoon}
+        className={`btn font-black px-4 sm:px-8 rounded-xl transition-all duration-300 transform hover:scale-105 border uppercase tracking-tighter sm:tracking-widest text-[10px] sm:text-xs h-auto py-2 sm:py-3 min-h-0 ${
+          isLight
+            ? "bg-white-100 hover:bg-white/20 text-blue-600 border-[#E9DFD5] shadow-lg"
+            : "bg-white-100 hover:bg-white-700 text-blue-600 border-[#E9DFD5] shadow-md shadow-cyan-900/10"
+        }`}
+      >
+        Login
+      </Link>
+    );
+  }
 
   return (
     <div className="dropdown dropdown-end">
-      <div
-        tabIndex={1}
-        role="button"
-        className={`btn btn-ghost btn-circle avatar border-2 transition-colors ${
-          isLight ? "border-green-400" : "border-emerald-500"
-        }`}
-      >
-        <div className="w-10 rounded-full">
+      <div tabIndex={1} role="button" className="btn btn-ghost btn-circle btn-sm sm:btn-md avatar border-2 border-[#8d6e3e]">
+        <div className="w-8 sm:w-10 rounded-full">
           <img src={user.photoURL || "https://via.placeholder.com/150"} alt="User profile" />
         </div>
       </div>
-      <ul
-        tabIndex={1}
-        className={`menu menu-sm dropdown-content rounded-xl z-[1] mt-3 w-52 p-2 shadow-2xl border border-white/10 ${
-          isLight
-            ? "bg-gray-800 text-white"
-            : "bg-base-100 text-base-content"
-        }`}
-      >
-        <li className={`menu-title text-center border-b border-white/10 pb-2 mb-2 ${
-          isLight ? "text-green-400" : "text-emerald-500"
+      <ul tabIndex={1} className={`menu menu-sm dropdown-content rounded-xl z-[1] mt-3 w-52 p-2 shadow-2xl border border-white/10 ${
+          isLight ? "bg-gray-800 text-white" : "bg-white text-slate-900"
         }`}>
+        <li className="menu-title text-center border-b border-gray-200 pb-2 mb-2 text-[#8d6e3e]">
           {user?.displayName}
         </li>
+        <li><Link to="/dashboard/profile" className="hover:text-[#8d6e3e] py-3 text-slate-900"><MdArrowRight className="text-xl" /> Profile</Link></li>
+        <li><Link to="/dashboard" className="hover:text-[#8d6e3e] py-3 text-slate-900"><MdArrowRight className="text-xl" /> Dashboard</Link></li>
         <li>
-          <Link to="/dashboard/profile" className="hover:text-green-400">
-            <MdArrowRight className="text-xl" /> Profile
-          </Link>
-        </li>
-        <li>
-          <Link to="/dashboard" className="hover:text-green-400">
-            <MdArrowRight className="text-xl" /> Dashboard
-          </Link>
-        </li>
-        <li>
-          <button onClick={() => logoutMutation.mutate()} className={`font-semibold transition-colors ${
-            isLight ? "text-red-400 hover:bg-red-500/10" : "text-error hover:bg-error/10"
-          }`}>
+          <button onClick={() => logoutMutation.mutate()} className="font-semibold py-3 text-red-500 hover:bg-red-50/50">
             <MdArrowRight className="text-xl" /> Logout
           </button>
         </li>

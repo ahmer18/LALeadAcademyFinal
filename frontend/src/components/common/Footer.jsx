@@ -1,4 +1,4 @@
-import { FaFacebookF, FaInstagram, FaLinkedin, FaTiktok, FaWhatsapp } from "react-icons/fa";
+import { FaFacebookF, FaInstagram, FaLinkedin, FaTiktok, FaWhatsapp, FaYoutube } from "react-icons/fa";
 import { useSystemTheme } from "../../hooks/useSystemTheme";
 
 export default function Footer() {
@@ -10,32 +10,33 @@ export default function Footer() {
     { name: "Student Focus in the Digital Age", id: "698f23e5257f6c85b07b0850" },
   ];
 
-  const linkClass = `transition-all duration-300 relative after:content-[''] after:absolute after:w-0 after:h-[1px] after:bottom-0 after:left-0 after:bg-blue-500 hover:after:w-full after:transition-all ${
+  // Updated underline color to brand brown (#8d6e3e)
+  const linkClass = `transition-all duration-300 relative after:content-[''] after:absolute after:w-0 after:h-[1px] after:bottom-0 after:left-0 after:bg-[#8d6e3e] hover:after:w-full after:transition-all ${
     isLight ? "hover:text-gray-900" : "hover:text-white"
   }`;
 
   return (
     <footer
-      // Reduced py-12/py-4 to py-6
       className={`py-6 px-6 transition-colors duration-500 border-t ${
         isLight ? "bg-white text-gray-900 border-gray-100" : "bg-gray-950 text-white border-gray-800"
       }`}
     >
-      {/* Reduced gap-12 to gap-8 and mt-5 to mt-2 */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 mt-2 md:grid-cols-4 gap-8">
-        {/* About */}
+        
+        {/* About: Updated with Global Brand Classes */}
         <div className="space-y-2">
-          <h2 className="text-lg font-black uppercase tracking-tighter italic">
-            LA<span className="text-blue-800">LEAD Academy</span>
+          <h2 className="brand-text text-lg leading-none">
+            <span className="brand-la">LA</span>
+            <span className={isLight ? "text-blue-900" : "brand-lead"}>LEAD Academy</span>
           </h2>
           <p className={`text-xs leading-relaxed ${isLight ? "text-gray-500" : "text-gray-400"}`}>
             Shaping confident leaders and effective educators for today’s schools through research-informed training.
           </p>
         </div>
 
-        {/* Quick Links */}
+        {/* Quick Links: Updated heading to Brand Brown */}
         <div>
-          <h2 className="text-xs font-bold uppercase tracking-widest mb-3 text-blue-800">Navigation</h2>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-3 text-blue-900">Navigation</h2>
           <ul className={`space-y-1.5 text-xs font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>
             <li><a href="/about" className={linkClass}>About us</a></li>
             <li><a href="/courses" className={linkClass}>All Courses</a></li>
@@ -44,9 +45,9 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Top Courses */}
+        {/* Top Courses: Updated heading to Brand Brown */}
         <div>
-          <h2 className="text-xs font-bold uppercase tracking-widest mb-3 text-blue-800">Popular Courses</h2>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-3 text-blue-900">Popular Courses</h2>
           <ul className={`space-y-1.5 text-xs font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>
             {topCourses.map((course) => (
               <li key={course.id}>
@@ -60,7 +61,7 @@ export default function Footer() {
 
         {/* Social Media */}
         <div>
-          <h2 className="text-xs font-bold uppercase tracking-widest mb-3 text-blue-800">Connect</h2>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-3 text-blue-900">Connect</h2>
           <div className="flex space-x-2">
             <SocialIcon 
               href="https://www.facebook.com/share/17FoaG5Xd6/?mibextid=wwXIfr" 
@@ -83,25 +84,30 @@ export default function Footer() {
             <SocialIcon 
               href="https://www.tiktok.com/@laleadacademytiktok?_r=1&_t=ZS-93vYoAGGC8q" 
               icon={<FaTiktok />} 
-              hoverClass="hover:bg-green-500"
+              hoverClass="hover:bg-black"
               isLight={isLight}
             />
             <SocialIcon 
               href="https://www.linkedin.com/company/la-lead-academy/8" 
               icon={<FaLinkedin />} 
-              hoverClass="hover:bg-green-500"
+              hoverClass="hover:bg-blue-700"
+              isLight={isLight}
+            />
+            <SocialIcon 
+              href="https://www.youtube.com/@LALEADacademyYT" 
+              icon={<FaYoutube />} 
+              hoverClass="hover:bg-blue-700"
               isLight={isLight}
             />
           </div>
         </div>
       </div>
 
-      {/* Reduced mt-16 to mt-8 and pt-8 to pt-4 */}
-      <div className={`mt-4 border-t pt-4 text-center text-[10px] tracking-widest font-bold uppercase ${
+      <div className={`mt-4 border-t pt-4 text-center text-[10px] tracking-widest font-bold  ${
           isLight ? "border-gray-100 text-gray-400" : "border-gray-800 text-gray-600"
         }`}
       >
-        &copy; {new Date().getFullYear()} La LEAD Academy. Crafted for Excellence.
+        &copy; {new Date().getFullYear()} <span className="brand-la">LA</span><span className="text-blue-900">LEAD Academy.</span> CRAFTED FOR EXCELLENCE.
       </div>
     </footer>
   );
@@ -113,7 +119,6 @@ function SocialIcon({ href, icon, hoverClass, isLight }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      // Shrink icon box from w-10 h-10 to w-8 h-8
       className={`w-8 h-8 flex items-center justify-center rounded-full transition-all duration-300 border ${
         isLight 
           ? "border-gray-200 text-gray-600 hover:border-transparent hover:text-white shadow-sm" 

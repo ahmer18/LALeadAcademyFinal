@@ -4,41 +4,51 @@
     themes: light --default;
 }
 
+/* Animations */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
 }
-
-
 
 .animate-fadeIn {
     animation: fadeIn 0.3s ease-out forwards;
 }
 
-
 @keyframes bg-slide-up-fade {
-   0% {
-    transform: translateY(-100%); /* start above */
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0%); /* end at normal position */
-    opacity: 1;
-  }
+   0% { transform: translateY(-100%); opacity: 0; }
+   100% { transform: translateY(0%); opacity: 1; }
 }
 
 .animate-bg-slide-up-fade {
-animation: bg-slide-up-fade 1.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;}
+    animation: bg-slide-up-fade 1.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 
+/* Global Brand Styles - RESTORED */
+.brand-text {
+  font-style: italic;
+  font-weight: 900; 
+  letter-spacing: -0.05em;
+}
 
+.brand-la {
+  color: #8d6e3e; 
+}
 
+.brand-lead {
+  color: #FAF9F6; 
+}
 
+.brand-slogan {
+  color: #8d6e3e;
+  font-weight: 900;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+}
 
-
+/* Fix for long duration transitions in Tailwind */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
