@@ -86,7 +86,7 @@ export default function PopularCourses() {
               className="text-transparent bg-clip-text bg-gradient-to-r from-[#1B365D] via-cyan-600 to-[#1B365D] text-glow"
               style={{ WebkitTextStroke: "1px #FAF9F6", paintOrder: "stroke fill" }}
             >
-              Our Signature Courses
+              Our Signature Programmes
             </span>
           </h2>
         </div>
@@ -129,7 +129,7 @@ export default function PopularCourses() {
 
                   {/* Button Block - Anchored to bottom */}
                   <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between group/btn">
-                    <span className="text-[10px] font-black tracking-widest text-[#1B365D]/40 uppercase">View Course Details</span>
+                    <span className="text-[10px] font-black tracking-widest text-[#1B365D]/40 uppercase">View Programmes Details</span>
                     <div className="bg-[#1B365D] text-white p-3 rounded-xl transition-all group-hover:bg-cyan-600 group-hover:translate-x-1 shadow-md">
                         <FaArrowRight size={12} />
                     </div>

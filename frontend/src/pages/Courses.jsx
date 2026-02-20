@@ -47,7 +47,7 @@ const AllCourses = () => {
 
   return (
     <>
-      <HeadTag title="All Courses | LA Lead Academy" />
+      <HeadTag title="All Programmes | LA Lead Academy" />
       
       {/* 1. PREMIUM HEADER SECTION */}
       <div className="relative overflow-hidden w-full py-20 lg:py-28">
@@ -64,7 +64,7 @@ const AllCourses = () => {
             Our Catalog
           </span>
           <h2 className="text-5xl md:text-7xl font-black text-gray-900 mb-6 leading-tight">
-            All <span className="text-blue-900">Courses</span>
+            All <span className="text-blue-900">Programmes</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-12">
             Professional leadership and educator training designed to transform your school's impact.

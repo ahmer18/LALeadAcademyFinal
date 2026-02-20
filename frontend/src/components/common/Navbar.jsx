@@ -120,7 +120,7 @@ export default function Navbar() {
                 <NavLink to="/" className={({isActive}) => `py-4 text-lg font-bold ${isActive ? "text-[#8d6e3e]" : "text-slate-900"}`}>Home</NavLink>
               </li>
               <li className="mb-2 text-slate-900">
-                <NavLink to="/courses" className={({isActive}) => `py-4 text-lg font-bold ${isActive ? "text-[#8d6e3e]" : "text-slate-900"}`}>Courses</NavLink>
+                <NavLink to="/courses" className={({isActive}) => `py-4 text-lg font-bold ${isActive ? "text-[#8d6e3e]" : "text-slate-900"}`}>Programmes</NavLink>
               </li>
               <li className="mb-2 text-slate-900">
                 <NavLink to="/about" className={({isActive}) => `py-4 text-lg font-bold ${isActive ? "text-[#8d6e3e]" : "text-slate-900"}`}>About</NavLink>
@@ -143,7 +143,7 @@ export default function Navbar() {
         <div className="flex items-center space-x-3 sm:space-x-8 h-full">
           <div className="hidden lg:flex items-center space-x-6 h-full">
             <NavLink to="/" className={linkStyle}>Home</NavLink>
-            <NavLink to="/courses" className={linkStyle}>Courses</NavLink>
+            <NavLink to="/courses" className={linkStyle}>Programmes</NavLink>
             <NavLink to="/about" className={linkStyle}>About</NavLink>
           </div>
 

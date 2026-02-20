@@ -39,7 +39,7 @@ export default function Footer() {
           <h2 className="text-xs font-bold uppercase tracking-widest mb-3 text-blue-900">Navigation</h2>
           <ul className={`space-y-1.5 text-xs font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>
             <li><a href="/about" className={linkClass}>About us</a></li>
-            <li><a href="/courses" className={linkClass}>All Courses</a></li>
+            <li><a href="/courses" className={linkClass}>All Programmes</a></li>
             <li><a href="/#" className={linkClass}>Help & FAQ</a></li>
             <li><a href="/about" className={linkClass}>Contact Us</a></li>
           </ul>
@@ -47,7 +47,7 @@ export default function Footer() {
 
         {/* Top Courses: Updated heading to Brand Brown */}
         <div>
-          <h2 className="text-xs font-bold uppercase tracking-widest mb-3 text-blue-900">Popular Courses</h2>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-3 text-blue-900">Popular Programmes</h2>
           <ul className={`space-y-1.5 text-xs font-medium ${isLight ? "text-gray-600" : "text-gray-400"}`}>
             {topCourses.map((course) => (
               <li key={course.id}>

@@ -139,7 +139,7 @@ const CourseDetails = () => {
       {/* Course Vision Header */}
       <h3 className="flex items-center justify-center gap-3 text-2xl font-black mb-8 text-gray-900 uppercase tracking-tight">
         <FaBookOpen className="text-blue-900" />
-        Course Vision
+        Programme Vision
       </h3>
 
       {/* Course Description */}
