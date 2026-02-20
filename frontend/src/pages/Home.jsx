@@ -27,7 +27,7 @@ export default function Home() {
       `}} />
 
       <div className="h-screen overflow-y-scroll snap-y snap-mandatory">
-        <HeadTag title="LA Lead Academy" />
+        <HeadTag title="LALEAD Academy" />
         <Banner />
         <TrustedClients />
         <PopularCourses />

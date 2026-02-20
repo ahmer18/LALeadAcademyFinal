@@ -27,7 +27,7 @@ const AppLogo = ({ isLight }) => (
   <div className="flex items-center space-x-2 sm:space-x-4 transition-all duration-500 ease-in-out">
     <img
       src={logoImg}
-      alt="LA Lead Academy Logo"
+      alt="LALEAD Academy Logo"
       className="h-10 w-auto sm:h-16 object-contain" 
     />
     <div className="flex flex-col leading-tight">

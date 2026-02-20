@@ -96,7 +96,7 @@ export default function About() {
               Discovery
             </div>
             <h3 className="text-3xl font-black text-gray-900 uppercase tracking-tight">
-              About La LEAD Academy
+              About LALEAD Academy
             </h3>
             <p className="text-gray-600 leading-relaxed text-lg border-l-4 border-blue-900 pl-6 py-2 bg-white/50 backdrop-blur-sm rounded-r-xl">
               LALEAD Academy (Leadership, Education, and Development) supports schools through
