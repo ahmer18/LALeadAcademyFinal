@@ -11,7 +11,7 @@ const testimonials = [
   },
   {
     quote: "I was deeply impressed by the clarity with which he articulated the essence of my leadership approach.",
-    author: "Mrs Yasmeen Raza Minha",
+    author: "Mrs Yasmeen Raza Minhas",
     role: "Owner Principal, Foundation Public School",
     location: "Karachi, Pakistan",
     id: "02"
