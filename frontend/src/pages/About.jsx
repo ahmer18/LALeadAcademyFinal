@@ -183,7 +183,7 @@ export default function About() {
 
             {/* 2. WhatsApp Link - Schedule Consultation */}
             <a
-              href="https://wa.me/905078648498"
+              href="https://wa.me/905346053958"
               target="_blank"
               rel="noreferrer"
               className="inline-block bg-blue-500 text-white px-10 py-4 rounded-full font-extrabold text-lg hover:bg-blue-400 hover:-translate-y-1 transition-all duration-300 shadow-xl shadow-blue-900/20 active:scale-95"
@@ -193,7 +193,7 @@ export default function About() {
 
             {/* 3. WhatsApp Link - Contact Us */}
             <a
-              href="https://wa.me/905078648498"
+              href="https://wa.me/905346053958"
               target="_blank"
               rel="noreferrer"
               className="inline-block border-2 border-white/20 text-white px-10 py-4 rounded-full font-extrabold text-lg hover:bg-white/10 hover:border-white/50 transition-all duration-300 active:scale-95"

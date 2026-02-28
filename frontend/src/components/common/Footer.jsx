@@ -76,7 +76,7 @@ export default function Footer() {
               isLight={isLight}
             />
             <SocialIcon 
-              href="https://wa.me/905078648498" 
+              href="https://wa.me/905346053958" 
               icon={<FaWhatsapp />} 
               hoverClass="hover:bg-green-500"
               isLight={isLight}
