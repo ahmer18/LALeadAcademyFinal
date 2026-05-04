@@ -1,12 +1,9 @@
 require("dotenv").config();
 const dns = require("dns");
-// Set default result order to ipv4first to avoid potential IPv6 resolution issues
-if (dns.setDefaultResultOrder) {
+// Only set result order for local IPv6 issues, avoid setting custom servers on Vercel
+if (dns.setDefaultResultOrder && !process.env.VERCEL) {
   dns.setDefaultResultOrder('ipv4first');
 }
-// Optionally set DNS servers if the system ones are failing SRV lookups
-dns.setServers(['8.8.8.8', '8.8.4.4']); 
-
 const express = require("express");
 const cors = require("cors");
 const router = require("./routes/router");
@@ -57,9 +54,11 @@ app.get("/", (req, res) => {
 });
 
 // Only run app.listen when NOT on Vercel (local development)
-app.listen(port, () => {
-  console.log(`✅ Server is running on port ${port}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`✅ Server is running on port ${port}`);
+  });
+}
 
 // CRITICAL: Export the app for Vercel Serverless Functions
 module.exports = app;
