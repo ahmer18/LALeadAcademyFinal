@@ -5,7 +5,6 @@ let serviceAccount;
 if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   try {
     serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-    // Fix for Vercel/Docker newline issues in private key
     if (serviceAccount.private_key) {
       serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
     }
@@ -13,16 +12,22 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT) {
     console.error("❌ Failed to parse FIREBASE_SERVICE_ACCOUNT env var:", err);
   }
 } else {
-  try {
-    serviceAccount = require("./serviceAccountKey.json");
-  } catch (err) {
-    console.warn("⚠️ Firebase serviceAccountKey.json not found. Auth will fail unless FIREBASE_SERVICE_ACCOUNT env var is set.");
+  // Try to load local file only if not on Vercel
+  if (!process.env.VERCEL) {
+    try {
+      serviceAccount = require("./serviceAccountKey.json");
+    } catch (err) {
+      console.warn("⚠️ Local serviceAccountKey.json not found.");
+    }
   }
 }
-if (!admin.apps.length) {
+
+if (serviceAccount && !admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
   });
+} else if (!serviceAccount) {
+  console.warn("⚠️ Firebase Admin not initialized: Missing Service Account configuration.");
 }
 
 module.exports = admin;

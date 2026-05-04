@@ -36,13 +36,21 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.log("❌ MongoDB Connection Error:", err));
 
 app.use(cors({
-  origin: [
-    "http://localhost:5173", 
-    "http://127.0.0.1:5173", 
-    "https://lalead-academy-frontend.vercel.app",
-    "https://www.laleadacademy.com",
-    "https://laleadacademy.com"
-  ],
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+      "https://lalead-academy-frontend.vercel.app",
+      "https://www.laleadacademy.com",
+      "https://laleadacademy.com"
+    ];
+    // Allow if origin is in the list, or if it matches a vercel.app subdomain
+    if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true
 }));
 
