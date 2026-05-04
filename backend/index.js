@@ -36,7 +36,13 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.log("❌ MongoDB Connection Error:", err));
 
 app.use(cors({
-  origin: ["http://localhost:5173", "http://127.0.0.1:5173", "https://lalead-academy-frontend.vercel.app"],
+  origin: [
+    "http://localhost:5173", 
+    "http://127.0.0.1:5173", 
+    "https://lalead-academy-frontend.vercel.app",
+    "https://www.laleadacademy.com",
+    "https://laleadacademy.com"
+  ],
   credentials: true
 }));
 
