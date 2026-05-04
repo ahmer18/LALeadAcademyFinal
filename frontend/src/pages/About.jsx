@@ -5,10 +5,10 @@ import { Link } from "react-router";
 
 export default function About() {
   return (
-    <div className="space-y-20 max-w-7xl mx-auto px-6 pb-20">
+    <div className="space-y-20 pb-20">
 
       {/* 1. HERO SECTION */}
-      <section className="relative text-center py-32 overflow-hidden rounded-3xl mt-10">
+      <section className="relative text-center py-32 overflow-hidden">
         {/* Premium Background Layer */}
         <div className="absolute inset-0 -z-10">
           {/* Base Light Background */}
@@ -23,7 +23,7 @@ export default function About() {
             style={{ backgroundImage: `radial-gradient(#4f46e5 0.5px, transparent 0.5px)`, strokeWidth: '1', backgroundSize: '24px 24px' }} />
         </div>
 
-        <div className="relative z-10 px-4">
+        <div className="relative z-10 px-6 max-w-7xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-gray-900 leading-tight tracking-tight">
             Shaping <span className="text-blue-900">confident leaders</span> and <br className="hidden md:block" />
             effective educators for today’s schools.
@@ -50,7 +50,7 @@ export default function About() {
       </section>
 
       {/* 2. TRAINER PROFILE */}
-      <section id="trainer" className="md:flex md:items-center md:gap-16 py-8  border-gray-400">
+      <section id="trainer" className="md:flex md:items-center md:gap-16 py-8 max-w-7xl mx-auto px-6">
         <div className="md:w-1/3 mb-8 md:mb-0">
           <img
             src={trainerImage}
@@ -135,7 +135,7 @@ export default function About() {
       </section>
 
       {/* 4. FINAL CALL TO ACTION */}
-      <section id="contact" className="relative overflow-hidden py-14 rounded-[3rem] text-white px-6 shadow-2xl mx-auto max-w-7xl mb-10">
+      <section id="contact" className="relative overflow-hidden py-14 rounded-[3rem] text-white px-6 shadow-2xl mx-auto max-w-7xl">
 
         {/* Premium Background Logic */}
         <div className="absolute inset-0 -z-10">
@@ -175,7 +175,7 @@ export default function About() {
           <div className="flex flex-wrap justify-center gap-6">
             {/* 1. Programme Details */}
             <Link
-              to="/courses"
+              to="/programmes"
               className="inline-block bg-white text-blue-900 px-10 py-4 rounded-full font-extrabold text-lg hover:bg-gray-100 hover:-translate-y-1 transition-all duration-300 shadow-xl shadow-blue-900/20 active:scale-95"
             >
               Programme Details

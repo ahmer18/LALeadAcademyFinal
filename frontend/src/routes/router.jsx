@@ -22,8 +22,9 @@ import CourseSummery from "../pages/teacher/CourseSummery";
 import Unauthorized from "../pages/Unauthorized";
 import PrivateRoute from "./PrivateRoute";
 import RoleBasedRoute from "./RoleBasedRoute";
-import QuizPlayer from "../pages/student/QuizPlayer"; 
-import VideoPlayer from "../pages/student/VideoPlayer";
+import ModulePlayer from "../pages/student/ModulePlayer";
+import Programmes from "../pages/Programmes";
+import ProgrammeDetails from "../pages/ProgrammeDetails";
 
 
 const router = createBrowserRouter([
@@ -46,6 +47,14 @@ const router = createBrowserRouter([
       {
         path: "/courses",
         element: <Courses />,
+      },
+      {
+        path: "/Programmes",
+        element: <Programmes />,
+      },
+      {
+        path: "/Programmes/:id", 
+        element: <ProgrammeDetails />,
       },
       {
         path: "/login",
@@ -78,13 +87,9 @@ const router = createBrowserRouter([
         ),
       },
       {
-  path: "course/:courseId/quiz/:order",
-  element: <QuizPlayer /> 
-},
-{
-  path: "course/:courseId/video/:order",
-  element: <VideoPlayer />
-},
+        path: "course/:courseId/module/:order",
+        element: <ModulePlayer />
+      },
       {
         path: "/dashboard",
         element: (
@@ -123,6 +128,14 @@ const router = createBrowserRouter([
           },
           {
             path: "courses/add",
+            element: (
+              <RoleBasedRoute allowedRoles={["teacher"]}>
+                <AddCourse />
+              </RoleBasedRoute>
+            ),
+          },
+          {
+            path: "courses/update/:id",
             element: (
               <RoleBasedRoute allowedRoles={["teacher"]}>
                 <AddCourse />

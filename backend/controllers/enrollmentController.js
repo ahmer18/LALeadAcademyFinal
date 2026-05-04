@@ -91,23 +91,62 @@ exports.getCourseProgressForTeacher = async (req, res) => {
 // 5. Add Enrollment
 exports.addEnrollment = async (req, res) => {
   try {
+    const { paymentId, courseId, email, price, paymentStatus } = req.body;
+    
+    if (!paymentId) {
+      return res.status(400).json({ message: "Payment ID is required" });
+    }
+
+    // Verify the payment intent exists and is successful
+    const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentId);
+    
+    if (paymentIntent.status !== 'succeeded') {
+      return res.status(400).json({ message: "Payment was not successful" });
+    }
+
+    // Ensure this paymentId hasn't been used before
+    const existingEnrollment = await enrollmentsCollection.findOne({ paymentId });
+    if (existingEnrollment) {
+      return res.status(400).json({ message: "Enrollment already exists for this payment" });
+    }
+
     const enrollment = {
-      ...req.body,
-      courseId: new ObjectId(req.body.courseId),
+      courseId: new ObjectId(courseId),
+      email,
+      price,
+      paymentId,
+      paymentStatus: paymentIntent.status,
       createdAt: new Date(),
     };
+    
     const result = await enrollmentsCollection.insertOne(enrollment);
     res.status(200).json({ success: true, message: "Enrolled successfully", data: result });
   } catch (err) {
-    res.status(500).send({ message: "Internal server error" });
+    res.status(500).send({ message: err.message || "Internal server error" });
   }
 };
 
 // 6. Stripe Payment Intent
 exports.createPaymentIntent = async (req, res) => {
   const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-  const { amount } = req.body;
+  const { courseId } = req.body;
   try {
+    if (!courseId) {
+      return res.status(400).send({ error: "courseId is required" });
+    }
+    
+    const course = await coursesCollection.findOne({ _id: new ObjectId(courseId) });
+    if (!course) {
+      return res.status(404).send({ error: "Course not found" });
+    }
+
+    const amount = Number(course.price);
+    
+    if (isNaN(amount) || amount <= 0) {
+      return res.status(400).send({ error: "Invalid course price" });
+    }
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100),
       currency: "usd",

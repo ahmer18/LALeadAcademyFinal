@@ -2,15 +2,15 @@ import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useNavigate } from "react-router";
-import { toast } from "react-toastify";
+import { useFeedback } from "../../providers/FeedbackProvider";
 import useAuth from "../../hooks/useAuth";
 
-// Create Payment Intent when component mounts or amount changes
+// Create Payment Intent when component mounts or course changes
 const createPaymentIntent = async ({ queryKey }) => {
-  const [_id, { amount }] = queryKey;
+  const [_id, { courseId }] = queryKey;
   const response = await axios.post(
     `${import.meta.env.VITE_BASE_URL}/create-payment-intent`,
-    { amount }
+    { courseId }
   );
   return response.data.clientSecret;
 };
@@ -20,10 +20,11 @@ const StripeCheckoutForm = ({ courseDetails }) => {
   const stripe = useStripe();
   const elements = useElements();
   const navigate = useNavigate();
+  const { showFeedback } = useFeedback();
 
   const { data: clientSecret } = useQuery({
-    enabled: !!courseDetails?.price,
-    queryKey: ["stripeAmount", { amount: Number(courseDetails?.price) }],
+    enabled: !!courseDetails?._id,
+    queryKey: ["stripePaymentIntent", { courseId: courseDetails?._id }],
     queryFn: createPaymentIntent,
   });
 
@@ -57,7 +58,7 @@ const StripeCheckoutForm = ({ courseDetails }) => {
 
     if (error) {
       console.log("Payment Error:", error.message);
-      toast.error("Payment failed: " + error.message);
+      showFeedback("Payment failed: " + error.message, "error");
     } else {
       const enrollmentData = {
         courseId: courseDetails._id,
@@ -69,7 +70,7 @@ const StripeCheckoutForm = ({ courseDetails }) => {
       };
       // Save payment info to the server
       await savePaymentMutation.mutateAsync(enrollmentData);
-      toast.success("Payment successful!");
+      showFeedback("Payment successful!, Continue Learning", "success");
       navigate("/dashboard/courses");
     }
   };

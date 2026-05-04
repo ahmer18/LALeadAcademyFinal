@@ -1,0 +1,31 @@
+﻿[dotenv@17.1.0] injecting env (4) from .env (tip: ΓÜÖ∩╕Å  load multiple .env files with { path: ['.env.local', '.env'] })
+Latest Course Info:
+{
+  "_id": "69b1bca64e4dd019a35242db",
+  "outcomes": [
+    "ΓÇó\tUnderstand professional English used in teaching worldwide",
+    "ΓÇó\tSpeak confidently in class, meetings, observations, reports, and training",
+    "ΓÇó\tLearn Educational Terms in small, easy, effective & manageable Modules",
+    "ΓÇó\tStay engaged through MCQs, Reading, reflections, and Quizzes"
+  ],
+  "title": "ENGLISH FOR EVERY TEACHER ",
+  "price": "100",
+  "duration": "9 Modules",
+  "image": "https://i.ibb.co/27rF5wHL/3.jpg",
+  "description": "Professional English Used by Teachers Worldwide",
+  "rating": 2,
+  "instructorEmail": "joji@yahoo.com",
+  "status": "approved",
+  "createdAt": "2026-03-11T19:04:06.724Z",
+  "modules": [
+    {
+      "title": "PLANNING THE LESSON",
+      "contentType": null,
+      "order": 2,
+      "videoUrl": null,
+      "quizData": null,
+      "assignmentDetails": null,
+      "createdAt": "2026-03-11T20:29:36.964Z"
+    }
+  ]
+}

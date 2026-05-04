@@ -1,13 +1,14 @@
 import { useLocation, useNavigate, useParams } from "react-router";
 import { FaArrowLeft, FaCheckCircle } from "react-icons/fa";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
-import { toast } from "react-toastify";
+import { useFeedback } from "../../providers/FeedbackProvider";
 
 const VideoPlayer = () => {
   const { state } = useLocation();
   const { courseId } = useParams();
   const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
+  const { showFeedback } = useFeedback();
   const module = state?.module;
 
   const handleComplete = async () => {
@@ -16,10 +17,10 @@ const VideoPlayer = () => {
       await axiosSecure.patch(`/update-progress/${courseId}`, {
         completedModuleOrder: module.order
       });
-      toast.success("Progress saved!");
+      showFeedback("Progress saved!", "success");
       navigate(-1); // Go back to the learning path
     } catch (err) {
-      toast.error("Error updating progress");
+      showFeedback("Error updating progress", "error");
     }
   };
 

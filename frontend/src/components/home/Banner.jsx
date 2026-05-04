@@ -16,9 +16,9 @@ export default function Banner() {
           setContentVisible(true);
         }
       },
-      { 
+      {
         threshold: 0.05, // Trigger as soon as 5% is visible
-        rootMargin: "0px" 
+        rootMargin: "0px"
       }
     );
 
@@ -34,13 +34,13 @@ export default function Banner() {
       {/* BACKGROUND: Zoom + Slide Up */}
       <div
         className={`absolute inset-0 bg-cover bg-center z-0 transition-all ease-out`}
-        style={{ 
+        style={{
           backgroundImage: `url(${bannerImg})`,
           // Using inline style for duration to bypass Tailwind v4 JIT issues
           transitionDuration: '3000ms',
           opacity: bgVisible ? 1 : 0,
-          transform: bgVisible 
-            ? 'scale(1.1) translateY(0)' 
+          transform: bgVisible
+            ? 'scale(1.1) translateY(0)'
             : 'scale(1) translateY(20%)', // Moves from 20% down to 0
         }}
       >
@@ -48,28 +48,25 @@ export default function Banner() {
       </div>
 
       {/* CONTENT: Bottom-to-Top (Stays visible) */}
-      <div 
-        className={`relative z-30 flex flex-col items-center text-center px-6 max-w-7xl mx-auto transition-all duration-1000 ease-out ${
-          contentVisible 
-            ? "scale-90 translate-y-0 opacity-100" 
-            : "scale-75 translate-y-10 opacity-0"
-        }`}
+      <div
+        className={`relative z-30 flex flex-col items-center text-center px-6 max-w-7xl mx-auto transition-all duration-1000 ease-out ${contentVisible
+          ? "scale-90 translate-y-0 opacity-100"
+          : "scale-75 translate-y-10 opacity-0"
+          }`}
       >
-        <h1 className="brand-text text-7xl md:text-9xl mb-10 leading-none">
+        <h1 className="brand-text text-7xl md:text-9xl mb-6 md:mb-10 leading-none">
           <span className="brand-la">LA</span>
           <span className="brand-lead">LEAD Academy</span>
         </h1>
-        
-        <h2 className={`brand-slogan text-2xl md:text-3xl mb-20 transition-all duration-1000 delay-300 ${
-          contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}>
+
+        <h2 className={`brand-slogan text-lg md:text-3xl mb-10 md:mb-20 transition-all duration-1000 delay-300 ${contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          }`}>
           Grow. Shine. Succeed!
         </h2>
 
-        <p className={`text-2xl md:text-5xl max-w-7xl text-gray-300 leading-relaxed font-light transition-all duration-1000 delay-500 ${
-          contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}>
-          Shaping <span className="text-white font-medium">confident leaders</span> and  
+        <p className={`text-2xl md:text-4xl max-w-7xl text-gray-300 leading-relaxed font-light transition-all duration-1000 delay-500 ${contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          }`}>
+          Shaping <span className="text-white font-medium">confident leaders</span> and
           <span className="text-white font-medium"> effective educators</span> for today’s global school systems.
         </p>
       </div>

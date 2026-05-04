@@ -1,10 +1,10 @@
 import React from "react";
-import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "../../styles/slick-fix.css";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import Slider from "react-slick";
-import { useNavigate } from "react-router"; 
+import { useNavigate } from "react-router";
 import courseimage1 from "../../assets/images/1.jpeg";
 import courseimage2 from "../../assets/images/2.jpeg";
 import courseimage3 from "../../assets/images/3.jpeg";
@@ -51,7 +51,7 @@ export default function PopularCourses() {
       title: "Student Focus in the Digital Age",
       subtitle: "Restoring human depth in a digital world.",
       duration: "3 hrs",
-      image: courseimage1 
+      image: courseimage1
     }
   ];
 
@@ -59,7 +59,7 @@ export default function PopularCourses() {
     dots: false,
     infinite: true,
     speed: 800,
-    slidesToShow: 3, 
+    slidesToShow: 3,
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 4000,
@@ -73,20 +73,34 @@ export default function PopularCourses() {
   };
 
   return (
-    <section 
-      className="relative py-16 md:py-24 overflow-hidden snap-start snap-always min-h-screen flex flex-col justify-center"
-      style={{ background: 'linear-gradient(to bottom, #020617 0%, #0f172a 35%, #FAF9F6 100%)' }}
+    <section
+      className="relative min-h-screen overflow-hidden snap-start snap-always flex flex-col justify-center py-20"
+      style={{ background: 'linear-gradient(to bottom, #050505 0%, #0a192f 40%, #FAF9F6 100%)' }}
     >
-      <div className="max-w-7xl mx-auto px-8 md:px-12 relative z-10 w-full ">
-        
-        {/* HEADER */}
-        <div className="mb-12 text-left md:text-center">
-          <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic">
-            <span 
-              className="text-transparent bg-clip-text bg-gradient-to-r from-[#1B365D] via-cyan-600 to-[#1B365D] text-glow"
-              style={{ WebkitTextStroke: "1px #FAF9F6", paintOrder: "stroke fill" }}
+      {/* --- CLEAN ELITE BACKGROUND --- */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        {/* Soft Ambient Glows */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] -mr-32 -mt-32" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-cyan-600/5 rounded-full blur-[100px] -ml-20 -mb-20" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 md:px-12 relative z-10 w-full">
+
+        {/* HEADER - Single Line & Clean */}
+        <div className="mb-12 text-center">
+          <h2 className="text-3xl md:text-6xl font-black tracking-tighter uppercase italic leading-none whitespace-normal md:whitespace-nowrap">
+            <span
+              className="text-white block md:inline-block mb-2 md:mb-0 md:mr-4"
+              style={{ WebkitTextStroke: "1px rgba(255,255,255,0.1)", paintOrder: "stroke fill" }}
             >
-              Our Signature Programmes
+              Our Signature
+            </span>
+            <span className="text-transparent tracking-wide bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-500 md:from-[#1B365D] md:to-cyan-700 text-glow block md:inline-block"
+              style={{
+                WebkitTextStroke: "0.5px #FAF9F6",
+                paintOrder: "stroke fill"
+              }}>
+              Programmes
             </span>
           </h2>
         </div>
@@ -95,8 +109,8 @@ export default function PopularCourses() {
           {staticCourses.map((course, index) => (
             <div key={index} className="px-4 outline-none">
               <div
-                onClick={() => navigate(`/courses/${course._id}`)}
-                className="bg-white rounded-[24px] overflow-hidden border border-gray-100 transition-all duration-500 hover:-translate-y-3 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_40px_80px_rgba(27,54,93,0.15)] flex flex-col cursor-pointer h-[440px] group relative"
+                onClick={() => navigate(`/Programmes/${course._id}`)}
+                className="bg-white rounded-[24px] overflow-hidden border border-gray-100 transition-all duration-700 hover:-translate-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.06)] hover:shadow-[0_60px_120px_rgba(27,54,93,0.2)] flex flex-col cursor-pointer h-[440px] group relative"
               >
                 {/* IMAGE AREA - FIXED HEIGHT */}
                 <div className="relative w-full h-[230px] overflow-hidden shrink-0">
@@ -112,7 +126,7 @@ export default function PopularCourses() {
 
                 {/* CONTENT AREA - DISCIPLINED LEFT ALIGNMENT */}
                 <div className="p-6 flex-grow flex flex-col text-left">
-                  
+
                   {/* Title Block - Reserved height for 2 lines */}
                   <div className="min-h-[56px] mb-2">
                     <h3 className="text-xl font-black text-[#1B365D] leading-tight line-clamp-2 uppercase tracking-tight group-hover:text-cyan-600 transition-colors">
@@ -131,7 +145,7 @@ export default function PopularCourses() {
                   <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between group/btn">
                     <span className="text-[10px] font-black tracking-widest text-[#1B365D]/40 uppercase">View Programmes Details</span>
                     <div className="bg-[#1B365D] text-white p-3 rounded-xl transition-all group-hover:bg-cyan-600 group-hover:translate-x-1 shadow-md">
-                        <FaArrowRight size={12} />
+                      <FaArrowRight size={12} />
                     </div>
                   </div>
 

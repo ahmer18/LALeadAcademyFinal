@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { toast } from "react-toastify";
+import { useFeedback } from "../../providers/FeedbackProvider";
 import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 
@@ -13,6 +13,7 @@ export default function AssignmentModal({
   const { user } = useAuth();
   const { register, handleSubmit, reset } = useForm();
   const axiosSecure = useAxiosSecure();
+  const { showFeedback } = useFeedback();
 
   // feedback submit mutation
   const submitAssignmentMutation = useMutation({
@@ -22,11 +23,11 @@ export default function AssignmentModal({
     onSuccess: () => {
       queryClient.invalidateQueries(["assignments", courseId]);
       resetTheModal();
-      toast.success("Assignment submitted successfully.");
+      showFeedback("Assignment submitted successfully.", "success");
     },
     onError: (error) => {
       resetTheModal();
-      toast.error("Failed to submit feedback.");
+      showFeedback("Failed to submit feedback.", "error");
       console.error(error);
     },
   });

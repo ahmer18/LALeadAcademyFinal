@@ -1,12 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { FaImage, FaLock, FaMailBulk, FaUser } from "react-icons/fa";
-import { Link, useLocation, useNavigate } from "react-router";
-import { toast } from "react-toastify";
+import { Link, Navigate, useLocation, useNavigate } from "react-router";
 import HeadTag from "../components/common/HeadTag";
 import LoaderDotted from "../components/common/LoaderDotted";
 import useAuth from "../hooks/useAuth";
 import useAxiosSecure from "../hooks/useAxiosSecure";
+import { useFeedback } from "../providers/FeedbackProvider";
 import handleUpload from "../utils/ImageUploadApi";
 
 const errorMap = {
@@ -20,6 +20,7 @@ export default function Signup() {
   const navigate = useNavigate();
   const location = useLocation();
   const axiosSecure = useAxiosSecure();
+  const { showFeedback } = useFeedback();
 
   const { userSignup, setUser, updateUserProfile, isUserLoading } = useAuth();
 
@@ -75,14 +76,14 @@ const signupMutation = useMutation({
     });
 
     reset();
-    toast.success("Signup successful!");
-    navigate(location.state?.from || "/");
+    showFeedback("Signup successful!", "success");
+    navigate(location.state?.from || "/dashboard");
   } catch (err) {
     console.error("MongoDB Save Error:", err);
-    toast.error("Account created, but database sync failed.");
+    showFeedback("Account created, but database sync failed.", "error");
   }
 },
-});    
+});
   
   const handleSubmitForm = (data) => {
     if (signupMutation.isPending) return;
@@ -90,15 +91,24 @@ const signupMutation = useMutation({
   };
 
   if (isUserLoading) return <LoaderDotted />;
+  if (user) return <Navigate to="/dashboard" replace />;
 
   return (
     <>
       <HeadTag title="LA Lead Academy | Signup" />
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 px-4">
-        <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
-          <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-            Create an account
-          </h2>
+      <div className="min-h-screen flex items-center justify-center bg-[#0a192f] relative overflow-hidden px-4 py-12">
+        {/* Subtle Brand Accents */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#8d6e3e] rounded-full blur-[150px] opacity-10" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-900 rounded-full blur-[150px] opacity-10" />
+
+        <div className="bg-white shadow-2xl rounded-[2.5rem] p-10 w-full max-w-md relative z-10 border border-white/10">
+          <div className="text-center mb-8">
+             <h1 className="brand-text text-4xl mb-2">
+                <span className="brand-la">LA</span>
+                <span className="text-gray-900">LEAD Academy</span>
+             </h1>
+             <p className="text-gray-500 font-medium italic">Create Your Account</p>
+          </div>
 
           <form onSubmit={handleSubmit(handleSubmitForm)}>
             {/* Name */}
@@ -177,7 +187,7 @@ const signupMutation = useMutation({
       type="file"
       accept="image/*"
       {...register("image", { required: "Image is required" })}
-      className="w-full outline-none text-sm text-gray-500 file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-sm file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+      className="w-full outline-none text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[#8d6e3e]/10 file:text-[#8d6e3e] hover:file:bg-[#8d6e3e]/20 cursor-pointer"
     />
   </div>
   {errors.image && (
@@ -188,7 +198,7 @@ const signupMutation = useMutation({
             {/* Sign Up Button */}
             <button
               type="submit"
-              className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition duration-300"
+              className="w-full bg-[#8d6e3e] text-white py-3 rounded-xl hover:bg-[#725a32] transition-all duration-300 font-black text-lg shadow-lg shadow-[#8d6e3e]/20"
               disabled={signupMutation.isPending}
             >
               {signupMutation.isPending ? "Signing up..." : "Sign Up"}
@@ -200,7 +210,7 @@ const signupMutation = useMutation({
             Already have an account?{" "}
             <Link
               to="/login"
-              className="text-indigo-600 hover:underline font-semibold"
+              className="text-[#8d6e3e] hover:underline font-bold"
             >
               Log in
             </Link>

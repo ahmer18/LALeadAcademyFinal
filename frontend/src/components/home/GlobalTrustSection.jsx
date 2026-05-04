@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Quote, Globe, MapPin, ChevronRight, ChevronLeft } from "lucide-react";
 
 const testimonials = [
@@ -43,9 +43,16 @@ export default function PremiumLightUI() {
 
   const next = () => setIndex((prev) => (prev + 1) % testimonials.length);
   const prev = () => setIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      next();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <section className="h-screen w-full bg-[#FAF9F6] snap-start relative flex flex-col items-center justify-center overflow-hidden pt-20 px-6">
+    <section className="min-h-screen w-full bg-[#FAF9F6] snap-start relative flex flex-col items-center justify-center overflow-hidden py-20 px-4 md:px-6">
       
       {/* BACKGROUND ACCENTS */}
       <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-gray-100/50 to-transparent" />
@@ -53,11 +60,11 @@ export default function PremiumLightUI() {
         <Globe size={650} className="text-[#1B365D]" />
       </div>
 
-      <div className="max-w-7xl w-full h-full max-h-[750px] flex flex-col relative z-10">
+      <div className="max-w-7xl w-full h-full lg:max-h-[750px] flex flex-col relative z-10">
         
         {/* UPDATED HEADING: SINGLE LINE WITH SYNCED GRADIENT */}
         <div className="mb-10 mt-10">
-           <h2 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter uppercase italic leading-none whitespace-nowrap">
+           <h2 className="text-3xl md:text-6xl lg:text-7xl font-black tracking-tighter uppercase italic leading-none whitespace-normal lg:whitespace-nowrap">
             <span 
               className="text-transparent bg-clip-text bg-gradient-to-r from-[#1B365D] via-cyan-600 to-[#1B365D] animate-gradient-x"
               style={{ 
@@ -80,7 +87,7 @@ export default function PremiumLightUI() {
             <Quote className="absolute -top-14 -left-10 w-24 h-24 text-[#1B365D]/5 -rotate-12" />
             
             <div key={index} className="animate-in fade-in slide-in-from-right-8 duration-700">
-              <p className="text-2xl md:text-5xl font-serif text-[#1B365D] leading-tight mb-12 tracking-tight">
+              <p className="text-lg md:text-4xl lg:text-5xl font-serif text-[#1B365D] leading-tight mb-12 tracking-tight">
                 "{testimonials[index].quote}"
               </p>
               

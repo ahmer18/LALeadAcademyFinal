@@ -3,31 +3,12 @@ import { Mail, MessageCircle, FileText, Calendar, Check } from "lucide-react";
 import bgImage from "../../assets/images/c2a.jpg";
 import Footer from "../../components/common/Footer";
 
-export default function CallToAction({ onVisible }) {
+export default function CallToAction() {
   const [copied, setCopied] = useState(false);
   const sectionRef = useRef(null);
   const emailAddress = "info@laleadacademy.com";
 
-  // ✅ Intersection Observer to hide/show Navbar
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (onVisible) {
-          // If isIntersecting is true, it means we are in this section
-          onVisible(entry.isIntersecting);
-        }
-      },
-      { threshold: 0.3 } // Triggers when 30% of the section is visible
-    );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) observer.unobserve(sectionRef.current);
-    };
-  }, [onVisible]);
 
   const handleEmailClick = () => {
     navigator.clipboard.writeText(emailAddress);
@@ -36,9 +17,9 @@ export default function CallToAction({ onVisible }) {
   };
 
   return (
-    <div 
+    <div
       ref={sectionRef}
-      className="h-screen w-full flex flex-col snap-start snap-always overflow-hidden bg-[#020617]"
+      className="min-h-screen w-full flex flex-col snap-start snap-always bg-[#020617]"
     >
       <section
         className="relative flex-grow w-full flex items-center justify-center px-6 text-white text-center"
@@ -53,13 +34,13 @@ export default function CallToAction({ onVisible }) {
 
         {/* Content Container - No Scale to prevent top clipping */}
         <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center justify-center py-10">
-          
+
           <div className="mb-10">
             <h2 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter uppercase italic leading-[0.9] mb-8">
               <span className="text-white opacity-60 block mb-2">Ready to strengthen your</span>
-              <span 
-                className="text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-400 to-white inline-block"
-                style={{ 
+              <span
+                className="text-transparent tracking-wide bg-clip-text bg-gradient-to-r from-white via-cyan-400 to-white inline-block"
+                style={{
                   textShadow: `-1px -1px 0 #FAF9F6, 1px -1px 0 #FAF9F6, -1px 1px 0 #FAF9F6, 1px 1px 0 #FAF9F6`,
                   filter: "drop-shadow(0 0 15px rgba(34, 211, 238, 0.4))"
                 }}
@@ -69,7 +50,7 @@ export default function CallToAction({ onVisible }) {
             </h2>
 
             <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto font-medium leading-relaxed">
-              Partner with LALEAD Academy to implement evidence-based coaching and 
+              Partner with LALEAD Academy to implement evidence-based coaching and
               rigorous international standards in your institution.
             </p>
           </div>
@@ -82,15 +63,15 @@ export default function CallToAction({ onVisible }) {
               rel="noopener noreferrer"
               className="group relative flex items-center justify-center gap-4 bg-cyan-600 hover:bg-cyan-500 text-white font-black px-12 py-5 rounded-2xl shadow-[0_20px_50px_rgba(8,145,178,0.3)] transition-all hover:-translate-y-1 tracking-[0.2em] uppercase text-xs md:text-sm w-full md:w-auto"
             >
-              <FileText size={20} className="group-hover:rotate-12 transition-transform" /> 
+              <FileText size={20} className="group-hover:rotate-12 transition-transform" />
               Request a School Proposal
             </a>
 
             {/* Quick Contact Links */}
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <a 
-                href="https://wa.me/905346053958" 
-                target="_blank" 
+              <a
+                href="https://wa.me/905346053958"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 px-5 py-3 rounded-full transition-all hover:scale-105 font-bold uppercase tracking-widest text-[10px]"
               >
@@ -99,7 +80,7 @@ export default function CallToAction({ onVisible }) {
               </a>
 
               <div className="relative">
-                <button 
+                <button
                   onClick={handleEmailClick}
                   className="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-5 py-3 rounded-full transition-all hover:scale-105 font-bold uppercase tracking-widest text-[10px]"
                 >

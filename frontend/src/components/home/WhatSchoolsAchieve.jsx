@@ -17,7 +17,7 @@ export default function AchievementLightGallery() {
   const [active, setActive] = useState(achievements[0]);
 
   return (
-    <section className="h-screen w-full bg-[#FAF9F6] snap-start relative flex items-center justify-center overflow-hidden pt-10">
+    <section className="h-screen w-full bg-[#FAF9F6] snap-start relative flex items-center justify-center overflow-hidden">
       
       {/* BACKGROUND GRAPHIC ACCENT (Full screen, outside the scale) */}
       <div className="absolute -right-20 -top-20 opacity-[0.03] pointer-events-none">
@@ -25,14 +25,14 @@ export default function AchievementLightGallery() {
       </div>
 
       {/* SCALE WRAPPER: Matches your FounderSection zoom */}
-      <div className="w-full h-full flex items-center justify-center transform scale-90 origin-center transition-transform duration-500">
+      <div className="w-full h-full flex items-center justify-center transform scale-[0.8] lg:scale-90 origin-center transition-transform duration-500">
         
-        <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10 px-6">
+        <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-12 items-center relative z-10 px-4 md:px-6">
           
           {/* LEFT SIDE: HEADER & MENU */}
           <div className="lg:col-span-5 flex flex-col h-full justify-center">
-            <div className="mb-10">
-              <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic leading-none">
+            <div className="mb-4 lg:mb-10">
+              <h2 className="text-3xl md:text-6xl font-black tracking-tighter uppercase italic leading-none">
                 <span className="text-[#1B365D] opacity-40 block">What Schools</span>
                 <span 
                   className="text-transparent bg-clip-text bg-gradient-to-r from-[#1B365D] via-cyan-600 to-[#1B365D] block"
@@ -47,7 +47,7 @@ export default function AchievementLightGallery() {
               </h2>
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-0">
               {achievements.map((item) => (
                 <button
                   key={item.id}
@@ -75,22 +75,22 @@ export default function AchievementLightGallery() {
             <div className="relative w-full max-w-[550px] p-1 bg-gradient-to-br from-gray-200 to-transparent rounded-[50px]">
               <div 
                 key={active.id}
-                className="relative z-10 w-full p-10 md:p-16 rounded-[48px] bg-white shadow-2xl flex flex-col items-center text-center animate-in fade-in zoom-in slide-in-from-right-10 duration-700"
+                className="relative z-10 w-full p-6 md:p-16 rounded-[48px] bg-white shadow-2xl flex flex-col items-center text-center animate-in fade-in zoom-in slide-in-from-right-10 duration-700"
               >
-                <div className="w-24 h-24 rounded-[32px] bg-[#1B365D] flex items-center justify-center text-white mb-10 shadow-[0_20px_40px_rgba(27,54,93,0.2)]">
-                  {React.cloneElement(active.icon, { size: 48, strokeWidth: 1.5 })}
+                <div className="w-16 h-16 md:w-24 md:h-24 rounded-[24px] md:rounded-[32px] bg-[#1B365D] flex items-center justify-center text-white mb-6 md:mb-10 shadow-[0_20px_40px_rgba(27,54,93,0.2)]">
+                  {React.cloneElement(active.icon, { size: 32, strokeWidth: 1.5 })}
                 </div>
                 
                 <h3 className="text-3xl md:text-4xl font-black text-[#1B365D] mb-6 uppercase tracking-tighter italic">
                   {active.title}
                 </h3>
                 
-                <p className="text-gray-600 text-lg md:text-xl leading-relaxed font-serif italic">
+                <p className="text-gray-600 text-base md:text-xl leading-relaxed font-serif italic">
                   "{active.desc}"
                 </p>
-
+                
                 {/* PROGRESS DASHES */}
-                <div className="mt-12 flex gap-2">
+                <div className="mt-6 md:mt-12 flex gap-2">
                   {achievements.map((dot) => (
                     <div 
                       key={dot.id} 

@@ -11,33 +11,15 @@ import {
   FaShieldAlt,
 } from "react-icons/fa";
 import LoaderSpinner from "../../components/common/LoaderSpinner";
-import { toast } from "react-toastify";
-import courseimage1 from "../../assets/images/1.jpeg";
-import courseimage2 from "../../assets/images/2.jpeg";
-import courseimage3 from "../../assets/images/3.jpeg";
-
-// ✅ STATIC OUTCOMES
-const COURSE_OUTCOMES = {
-  "698f22e6257f6c85b07b084e": [
-    "Strategic decision-making under pressure",
-    "Knowing when to act and when to delay decisions",
-    "Developing leadership presence, discretion, and clarity",
-  ],
-  "698f236a257f6c85b07b084f": [
-    "Inquiry-driven classroom strategies",
-    "Deeper student understanding beyond surface learning",
-    "Practical teaching frameworks for modern classrooms",
-  ],
-  "698f23e5257f6c85b07b0850": [
-    "Understanding digital distraction and learning",
-    "Classroom strategies to improve focus",
-    "Building healthy learning habits",
-  ],
-};
+import useAuth from "../../hooks/useAuth";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const CourseDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
 
   const { data: course = null, isLoading } = useQuery({
     queryKey: ["course", id],
@@ -47,38 +29,40 @@ const CourseDetails = () => {
     },
   });
 
+  const { data: enrollment = null, isLoading: isStatusLoading } = useQuery({
+    queryKey: ["enrollment-status", id, user?.email],
+    queryFn: async () => {
+      const response = await axiosSecure.get(`/enrollment-status/${id}`);
+      return response.data;
+    },
+    enabled: !!user?.email && !!id,
+  });
+
+  const isEnrolled = !!enrollment?.email;
+  const isStaff = user?.role === "teacher" || user?.role === "admin";
+
   const handlePay = () => {
-    toast.info("Enrollment is coming soon! We are currently finalizing the course content.", {
-      position: "top-center",
-      autoClose: 5000,
-      theme: "colored",
-    });
+    navigate(`/payment/${id}`);
   };
 
   if (isLoading) return <LoaderSpinner />;
   if (!course) return <div className="text-center py-20 text-xl font-semibold">Course not found</div>;
 
-  const outcomes = COURSE_OUTCOMES[course._id] || [];
-
-  // ✅ Image Mapping Logic
-  const getStaticImage = (courseId) => {
-    if (courseId === "698f22e6257f6c85b07b084e") return courseimage3;
-    if (courseId === "698f236a257f6c85b07b084f") return courseimage2;
-    if (courseId === "698f23e5257f6c85b07b0850") return courseimage1;
-    return course.image;
-  };
-
   return (
-    <div className="min-h-screen bg-white pb-20">
-      {/* 1. PREMIUM HERO HEADER */}
-      <div className="relative overflow-hidden pt-24 pb-16 lg:pt-32 lg:pb-24">
+    <div className="min-h-screen pb-20">
+
+      {/* 1. HERO SECTION: TITLE ON LEFT, IMAGE INDEPENDENT ON RIGHT */}
+      <div className="relative overflow-hidden pt-24 pb-16 lg:pt-32 lg:pb-40 z-0">
         <div className="absolute inset-0 -z-10">
           <div className="absolute inset-0 bg-slate-50" />
-          <div className="absolute top-0 right-0 w-[600px] h-[400px] bg-blue-100/40 rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 left-0 w-[600px] h-[400px] bg-indigo-100/30 rounded-full blur-[120px]" />
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-100/50 rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-100/50 rounded-full blur-[120px]" />
+          <div className="absolute inset-0 opacity-[0.03]"
+            style={{ backgroundImage: `radial-gradient(#4f46e5 0.5px, transparent 0.5px)`, backgroundSize: '30px 30px' }} />
         </div>
 
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Left: Title & Info */}
           <div>
             <span className="inline-block px-4 py-1 bg-blue-900 text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-6 shadow-lg shadow-blue-300">
               Professional Certification
@@ -86,94 +70,128 @@ const CourseDetails = () => {
             <h1 className="text-4xl md:text-6xl font-black text-gray-900 mb-8 leading-tight tracking-tight">
               {course.title}
             </h1>
-            
+
             <div className="flex flex-wrap gap-8">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-white shadow-sm border border-gray-100 flex items-center justify-center">
                   <FaUserTie className="text-blue-900 text-xl" />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase text-gray-400 font-bold tracking-widest">Expert Instructor</p>
-                  <p className="font-bold text-gray-900">{course.instructor?.displayName || "N/A"}</p>
+                  <p className="text-[10px] uppercase text-gray-400 font-bold tracking-widest">Instructor</p>
+                  <p className="font-bold text-gray-900">{course.instructor?.displayName || "Lead Faculty"}</p>
                 </div>
               </div>
-
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-white shadow-sm border border-gray-100 flex items-center justify-center">
-                  <FaClock className="text-blue-900 text-xl" />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase text-gray-400 font-bold tracking-widest">Course Duration</p>
-                  <p className="font-bold text-gray-900">
-                    {course._id === "698f236a257f6c85b07b084f" && "7 Hours"}
-                    {course._id === "698f23e5257f6c85b07b0850" && "3 Hours"}
-                    {course._id === "698f22e6257f6c85b07b084e" && "5 Hours"}
-                    {!["698f236a257f6c85b07b084f", "698f23e5257f6c85b07b0850", "698f22e6257f6c85b07b084e"].includes(course._id) && "TBA"}
-                  </p>
-                </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 rounded-xl border border-amber-100">
+                <FaStar className="text-amber-500" />
+                <span className="font-bold text-amber-900">{course.rating || "4.9"}</span>
               </div>
             </div>
           </div>
 
-          <div className="relative group">
+          {/* Right: Independent Course Image */}
+          <div className="relative group justify-self-center lg:justify-self-end w-full max-w-md">
             <div className="absolute -inset-4 bg-blue-600/5 rounded-[2.5rem] blur-2xl group-hover:bg-blue-600/10 transition-all duration-500" />
             <img
-              /* src={course.image} */
-              src={getStaticImage(course._id)} 
+              src={course.image}
               alt={course.title}
-              className="relative w-full h-[300px] lg:h-[450px] object-cover rounded-[2rem] shadow-2xl border-4 border-white"
+              className="relative w-full h-[300px] lg:h-[400px] object-cover rounded-[2rem] shadow-2xl border-4 border-white"
             />
           </div>
         </div>
       </div>
 
-      {/* 2. CONTENT GRID */}
-      {/* Main Wrapper: flex and justify-center added to center the inner card */}
-<div className="max-w-7xl mx-auto px-6 -mt-8 relative z-20 flex justify-center">
-  
-  {/* Inner Container: Changed grid to flex and restricted width so it's not too wide */}
-  <div className="w-full max-w-4xl space-y-10">
-    
-    <div className="bg-white p-10 rounded-[2rem] shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1),0_20px_25px_-5px_rgba(0,0,0,0.1)] border border-gray-50">
-      
-      {/* Course Vision Header */}
-      <h3 className="flex items-center justify-center gap-3 text-2xl font-black mb-8 text-gray-900 uppercase tracking-tight">
-        <FaBookOpen className="text-blue-900" />
-        Programme Vision
-      </h3>
+      {/* 2. CONTENT SECTION: PRICE CARD BENEATH THE HERO */}
+      <div className="max-w-7xl mx-auto px-6 -mt-20 relative z-20">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
-      {/* Course Description */}
-      <div className="prose prose-lg text-gray-600 mb-12 text-center">
-        <p className="leading-relaxed whitespace-pre-line italic text-xl">
-          {course.description}
-        </p>
-        <div className="w-16 h-1 bg-blue-900 mx-auto mt-6 rounded-full" />
-      </div>
+          {/* LEFT: UNIFIED COURSE OVERVIEW CARD */}
+          <div className="lg:col-span-2">
+            <div className="bg-white p-10 lg:p-12 rounded-[2.5rem] shadow-xl border border-gray-50 h-full">
 
-      {/* Learning Outcomes Header */}
-      <h4 className="text-xl font-bold text-gray-900 mb-6 flex items-center justify-center gap-4">
-        <span className="w-12 h-px bg-gray-200" />
-        Learning Outcomes
-        <span className="w-12 h-px bg-gray-200" />
-      </h4>
+              {/* 1. Course Vision Section */}
+              <div className="mb-10">
+                <h3 className="flex items-center gap-3 text-2xl font-black mb-6 text-gray-900 uppercase tracking-tight">
+                  <FaBookOpen className="text-blue-900" />
+                  Course Vision
+                </h3>
+                <p className="text-xl text-gray-600 leading-relaxed italic whitespace-pre-line">
+                  {course.description}
+                </p>
+              </div>
 
-      {outcomes.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {outcomes.map((item, i) => (
-            <div key={i} className="flex items-start gap-4 p-5 bg-slate-50 rounded-2xl border border-transparent hover:border-blue-100 hover:bg-white transition-all group">
-              <FaCheckCircle className="text-blue-900 mt-1 group-hover:scale-125 transition-transform" />
-              <span className="text-gray-700 font-semibold leading-snug">{item}</span>
+              {/* Horizontal Divider */}
+              <div className="border-t border-gray-100 my-10" />
+
+
+
+              {/* Horizontal Divider */}
+              <div className="border-t border-gray-100 my-10" />
+
+              {/* 3. Learning Outcomes Section */}
+              <div>
+                <h4 className="text-xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+
+                  Learning Outcomes:
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {(course.outcomes || []).map((item, i) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-4 p-5 bg-slate-50 rounded-2xl border border-transparent hover:border-blue-100 hover:bg-white transition-all group"
+                    >
+                      <FaCheckCircle className="text-blue-900 mt-1 group-hover:scale-110 transition-transform shrink-0" />
+                      <span className="text-gray-700 font-semibold leading-snug">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
             </div>
-          ))}
+          </div>
+          {/* RIGHT: PRICE & ACTION CARD (BENEATH THE IMAGE AREA) */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-[2.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] border border-gray-100 p-8 sticky top-28">
+              <div className="flex items-end gap-2 mb-8">
+                <span className="text-5xl font-black text-gray-900">£{course.price || "199"}</span>
+                <span className="text-gray-400 font-bold mb-2 line-through opacity-50">£{Math.round((course.price || 199) * 1.3)}</span>
+              </div>
+
+              <button
+                onClick={handlePay}
+                disabled={isEnrolled || isStaff}
+                className={`w-full py-5 rounded-2xl font-black text-lg shadow-xl transition-all mb-8 ${isEnrolled || isStaff
+                  ? isStaff ? "bg-amber-50 text-amber-600 cursor-not-allowed border border-amber-200" : "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none border border-gray-200"
+                  : "bg-blue-900 text-white shadow-blue-200 hover:bg-blue-800 active:scale-[0.98]"
+                  }`}
+              >
+                {isEnrolled ? "Already Enrolled" : isStaff ? "You are not a Student" : "Enroll Now"}
+              </button>
+
+              <div className="space-y-5 border-t border-gray-50 pt-8">
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-3 text-gray-500 font-bold uppercase tracking-wider">
+                    <FaClock className="text-blue-900" /> Duration
+                  </div>
+                  <span className="font-black text-gray-900">{course.duration || "TBA"}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-3 text-gray-500 font-bold uppercase tracking-wider">
+                    <FaUsers className="text-blue-900" /> Enrolled
+                  </div>
+                  <span className="font-black text-gray-900">{course.totalEnrolled || "0"} Students</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-3 text-gray-500 font-bold uppercase tracking-wider">
+                    <FaShieldAlt className="text-blue-900" /> Security
+                  </div>
+                  <span className="font-black text-gray-900">Encrypted Payment</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
-      ) : (
-        <div className="p-8 border-2 border-dashed border-gray-100 rounded-3xl text-center text-gray-400 italic">
-          Advanced outcomes curriculum being finalized.
-        </div>
-      )}
-    </div>
-  </div>
-</div>
+      </div>
     </div>
   );
 };

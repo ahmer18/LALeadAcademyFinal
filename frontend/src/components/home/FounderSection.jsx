@@ -4,7 +4,7 @@ import trainerImage from "../../assets/images/teacher.jpeg";
 
 export default function FounderSection() {
   return (
-    <section className="h-screen w-full bg-[#FAF9F6] snap-start relative flex items-center justify-center overflow-hidden pt-10">
+    <section className="min-h-screen w-full bg-[#FAF9F6] snap-start relative flex items-center justify-center overflow-hidden py-20">
       
       {/* BACKGROUND ACCENTS (Full screen) */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none flex items-center justify-center">
@@ -12,7 +12,7 @@ export default function FounderSection() {
       </div>
 
       {/* SCALE WRAPPER: This creates the "90% Zoom" effect */}
-      <div className="w-full h-full flex items-center justify-center transform scale-90 origin-center transition-transform duration-500">
+      <div className="w-full h-full flex items-center justify-center lg:transform lg:scale-90 origin-center transition-transform duration-500">
         
         <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10 px-6">
           
@@ -39,7 +39,7 @@ export default function FounderSection() {
               Founder & Visionary
             </div>
 
-            <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase italic leading-[0.8] mb-4">
+            <h2 className="text-4xl md:text-8xl font-black tracking-tighter uppercase italic leading-[0.8] mb-4">
               <span className="text-[#1B365D] block">Muhammad</span>
               <span 
                 className="text-transparent bg-clip-text bg-gradient-to-r from-[#1B365D] to-cyan-600 block"
@@ -59,7 +59,7 @@ export default function FounderSection() {
             </div>
 
             <div className="space-y-6 max-w-2xl">
-              <p className="text-xl md:text-2xl font-serif text-[#1B365D] leading-relaxed italic border-l-4 border-cyan-500 pl-6">
+              <p className="text-lg md:text-2xl font-serif text-[#1B365D] leading-relaxed italic border-l-4 border-cyan-500 pl-6">
                 "An education consultant and leadership trainer with over 28 years of experience across the UK, Turkey, Saudi Arabia, and Pakistan."
               </p>
               

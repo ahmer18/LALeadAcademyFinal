@@ -11,75 +11,75 @@ export default function DashboardSidebar() {
   const { user } = useAuth();
 
   const linkStyle = ({ isActive }) =>
-    isActive ? "text-yellow-300" : "hover:text-yellow-200";
+    `flex items-center gap-3 p-3 rounded-xl transition-all duration-300 ${
+      isActive 
+        ? "bg-blue-900 text-white shadow-lg shadow-blue-500/20" 
+        : "text-slate-300 hover:bg-slate-700/50 hover:text-white"
+    }`;
 
   return (
-    <div className="w-3/12 bg-gray-800 text-white p-10 space-y-4 hidden md:block">
-      <h2 className="text-2xl font-semibold mb-4">Dashboard</h2>
-      <nav className="flex flex-col space-y-2">
-        {user?.role === "admin" && (
-          <NavLink to="/dashboard/teachers" className={linkStyle}>
-            <LinkTile title="All Teachers">
-              <PiChalkboardTeacherBold />
-            </LinkTile>
-          </NavLink>
-        )}
+    <div className="drawer-side z-50">
+      {/* The Overlay allows users to tap outside the menu to close it on mobile */}
+      <label htmlFor="dashboard-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
+      
+      <div className="w-72 min-h-full bg-[#1B2635] text-white p-6 shadow-2xl flex flex-col">
+        {/* Branding */}
+        <div className="mb-10 mt-4 px-2">
+          <h2 className="text-2xl font-black tracking-tighter uppercase italic text-[#8D6E3E]">
+            LALEAD <span className="text-white not-italic">Dashboard</span>
+          </h2>
+          <p className="text-[10px] text-slate-500 uppercase tracking-[0.3em] font-bold mt-1">
+            {user?.role} Portal
+          </p>
+        </div>
 
-        {user?.role === "admin" && (
-          <NavLink to="/dashboard/users" className={linkStyle}>
-            <LinkTile title="All Users">
-              <LuBookUser />
-            </LinkTile>
-          </NavLink>
-        )}
+        {/* Navigation Links */}
+        <nav className="flex flex-col space-y-2 flex-grow">
+          {user?.role === "admin" && (
+            <>
+              <NavLink to="/dashboard/teachers" className={linkStyle}>
+                <PiChalkboardTeacherBold size={20} /> <span>All Teachers</span>
+              </NavLink>
+              <NavLink to="/dashboard/users" className={linkStyle}>
+                <LuBookUser size={20} /> <span>All Users</span>
+              </NavLink>
+              <NavLink to="/dashboard/courses" className={linkStyle}>
+                <FaBookOpen size={20} /> <span>All Courses</span>
+              </NavLink>
+            </>
+          )}
 
-        {user?.role === "admin" && (
-          <NavLink to="/dashboard/courses" className={linkStyle}>
-            <LinkTile title="All Courses">
-              <FaBookOpen />
-            </LinkTile>
-          </NavLink>
-        )}
+          {user?.role === "student" && (
+            <NavLink to="/dashboard/courses" className={linkStyle}>
+              <IoDocumentsSharp size={20} /> <span>Enrolled Courses</span>
+            </NavLink>
+          )}
 
-        {user?.role === "student" && (
-          <NavLink to="/dashboard/courses" className={linkStyle}>
-            <LinkTile title="Enrolled Courses">
-              <IoDocumentsSharp />
-            </LinkTile>
-          </NavLink>
-        )}
+          {user?.role === "teacher" && (
+            <>
+              <NavLink to="/dashboard/courses" className={linkStyle}>
+                <IoDocumentsSharp size={20} /> <span>My Courses</span>
+              </NavLink>
+              <NavLink to="/dashboard/courses/add" className={linkStyle}>
+                <MdAddToPhotos size={20} /> <span>Add Course</span>
+              </NavLink>
+            </>
+          )}
 
-        {user?.role === "teacher" && (
-          <NavLink to="/dashboard/courses" className={linkStyle}>
-            <LinkTile title="My Courses">
-              <IoDocumentsSharp />
-            </LinkTile>
+          <NavLink to="/dashboard/profile" className={linkStyle}>
+            <IoIosPerson size={20} /> <span>My Profile</span>
           </NavLink>
-        )}
+        </nav>
 
-        {user?.role === "teacher" && (
-          <NavLink to="/dashboard/courses/add" className={linkStyle}>
-            <LinkTile title="Add Course">
-              <MdAddToPhotos />
-            </LinkTile>
-          </NavLink>
-        )}
-
-        <NavLink to="/dashboard/profile" className={linkStyle}>
-          <LinkTile title="My Profile">
-            <IoIosPerson />
-          </LinkTile>
-        </NavLink>
-      </nav>
+        {/* Footer info inside sidebar */}
+        <div className="mt-auto pt-6 border-t border-slate-700/50">
+          <div className="p-4 rounded-2xl bg-slate-800/50 border border-slate-700 text-center">
+            <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+              v2.0 
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
-
-const LinkTile = ({ title, children }) => {
-  return (
-    <span className="flex items-center gap-2 text-lg">
-      {children}
-      {title}
-    </span>
-  );
-};

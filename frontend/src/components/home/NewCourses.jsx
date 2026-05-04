@@ -59,11 +59,11 @@ export default function NewCourses() {
     ],
   };
 
-  if (NewCourses.length === 0) 
+  if (NewCourses.length === 0)
     return <ContentNotFound title="No Recent Courses available" />;
 
   return (
-    <section 
+    <section
       className="relative pt-16 pb-16 md:pt-32 md:pb-32 overflow-hidden snap-start snap-always"
       // USING YOUR EXACT BG FROM WHY CHOOSE
       style={{
@@ -82,13 +82,13 @@ export default function NewCourses() {
         </h2>
 
         <Slider {...settings}>
-  {NewCourses.map((course, index) => (
-    /* Wrap the card in a div with padding */
-    <div key={index} className="px-3 pb-4 flex-shrink-0 w-80 h-96"> 
-      <CourseCard course={course} />
-    </div>
-  ))}
-</Slider>
+          {NewCourses.map((course, index) => (
+            /* Wrap the card in a div with padding */
+            <div key={index} className="px-3 pb-4 flex-shrink-0 w-80 h-96">
+              <CourseCard course={course} />
+            </div>
+          ))}
+        </Slider>
       </div>
     </section>
   );

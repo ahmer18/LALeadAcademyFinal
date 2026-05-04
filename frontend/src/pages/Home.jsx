@@ -14,33 +14,23 @@ import FounderSection from "../components/home/FounderSection";
 import { useState } from "react";
 
 export default function Home() {
-  const [hideNav, setHideNav] = useState(false);
-
   return (
     <section className="relative">
-      {/* 1. We apply the style globally here */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        .navbar-container { 
-          transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
-          transform: ${hideNav ? 'translateY(-100%)' : 'translateY(0)'} !important;
-        }
-      `}} />
-
       <div className="h-screen overflow-y-scroll snap-y snap-mandatory">
         <HeadTag title="LALEAD Academy" />
         <Banner />
         <TrustedClients />
         <PopularCourses />
-        <WhatSchoolsAchieve/>
+        <WhatSchoolsAchieve />
         <GlobalTrustSection />
         <FounderSection />
-      {/* <WhyChoose /> */}
-      
-      {/* <NewCourses /> 
+        {/* <WhyChoose /> */}
+
+        {/* <NewCourses /> 
       <Feedback /> 
       <PlatformStats /> */}
-      {/* <JoinAsTeacher /> */}
-      <CallToAction onVisible={setHideNav} /> </div>
+        {/* <JoinAsTeacher /> */}
+        <CallToAction /> </div>
     </section>
   );
 } 

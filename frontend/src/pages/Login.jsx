@@ -2,12 +2,12 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { FaLock, FaUser } from "react-icons/fa";
 import { Link, Navigate, useLocation, useNavigate } from "react-router";
-import { toast } from "react-toastify";
 import GoogleLogo from "../assets/icons/google.svg";
 import HeadTag from "../components/common/HeadTag";
 import LoaderDotted from "../components/common/LoaderDotted";
 import useAuth from "../hooks/useAuth";
 import useAxiosSecure from "../hooks/useAxiosSecure";
+import { useFeedback } from "../providers/FeedbackProvider";
 
 const errorMap = {
   "auth/invalid-email": "Invalid email address.",
@@ -22,6 +22,7 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const axiosSecure = useAxiosSecure();
+  const { showFeedback } = useFeedback();
 
   const {
     register,
@@ -36,16 +37,16 @@ export default function Login() {
     },
     onSuccess: async (user) => { 
       setUser(user);
-      toast.success("Login successful!");
+      showFeedback("Login successful! , Welcome", "success");
       if (location.state?.from) {
         navigate(location.state.from);
       } else {
-        navigate("/");
+        navigate("/dashboard");
       }
     },
     onError: (error) => {
       const message = errorMap[error.code] || "Login failed.";
-      toast.error(message);
+      showFeedback(message, "error");
       console.log(error);
     },
   });
@@ -60,35 +61,43 @@ export default function Login() {
       // Save user in database on MongoDB
       await axiosSecure.post(`/users`, {
         email: user.email,
-    displayName: user.displayName,
-    photoURL: user.photoURL,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
       });
-      toast.success("Login successful!");
+      showFeedback("Login successful! , Welcome", "success");
       if (location.state?.from) {
         navigate(location.state.from);
       } else {
-        navigate("/");
+        navigate("/dashboard");
       }
     },
     onError: (error) => {
       const message = errorMap[error.code] || "Login failed.";
-      toast.error(message);
+      showFeedback(message, "error");
       console.log(error);
     },
   });
 
   if (isUserLoading) return <LoaderDotted />;
 
-  if (user) return <Navigate to="/" replace />;
+  if (user) return <Navigate to="/dashboard" replace />;
 
   return (
     <>
       <HeadTag title="LA Lead Academy | Login" />
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-4">
-        <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
-          <h2 className="text-3xl font-bold text-center text-gray-600 mb-6">
-            Welcome Back to
-          </h2>
+      <div className="min-h-screen flex items-center justify-center bg-[#0a192f] relative overflow-hidden px-4">
+        {/* Subtle Brand Accents */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#8d6e3e] rounded-full blur-[150px] opacity-20" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-900 rounded-full blur-[150px] opacity-20" />
+        
+        <div className="bg-white shadow-2xl rounded-[2rem] p-10 w-full max-w-md relative z-10 border border-white/10">
+          <div className="text-center mb-8">
+             <h1 className="brand-text text-4xl mb-2">
+                <span className="brand-la">LA</span>
+                <span className="text-gray-900">LEAD Academy</span>
+             </h1>
+             <p className="text-gray-500 font-medium">Welcome Back!</p>
+          </div>
 
           <form onSubmit={handleSubmit(loginMutation.mutate)}>
             {/* Email */}
@@ -138,7 +147,7 @@ export default function Login() {
             {/* Login Button */}
             <button
               type="submit"
-              className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition duration-300"
+              className="w-full bg-[#8d6e3e] text-white py-3 rounded-xl hover:bg-[#725a32] transition-all duration-300 font-bold shadow-lg shadow-[#8d6e3e]/20"
               disabled={loginMutation.isPending}
             >
               {loginMutation.isPending ? "Logging in..." : "Log In"}
@@ -151,7 +160,7 @@ export default function Login() {
             <Link
               to="/signup"
               state={{ from: location.state?.from || "/" }}
-              className="text-indigo-600 hover:underline font-semibold"
+              className="text-[#8d6e3e] hover:underline font-bold"
             >
               Register here
             </Link>

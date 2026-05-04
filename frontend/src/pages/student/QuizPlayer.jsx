@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
-import { toast } from "react-toastify";
+import { useFeedback } from "../../providers/FeedbackProvider";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { FaArrowLeft, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
@@ -9,6 +9,7 @@ const QuizPlayer = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
+  const { showFeedback } = useFeedback();
   
   const module = state?.module;
   const questions = module?.quizData || [];
@@ -50,12 +51,12 @@ const QuizPlayer = () => {
       });
       
       if (res.data.success) {
-        toast.success("Module Completed! Next module unlocked.");
+        showFeedback("Module Completed! Next module unlocked.", "success");
         navigate(-1); // Go back to learning path
       }
     } catch (err) {
       console.error("Patch failed:", err.response?.data);
-      toast.error("Failed to save progress. Please try again.");
+      showFeedback("Failed to save progress. Please try again.", "error");
     }
   };
 

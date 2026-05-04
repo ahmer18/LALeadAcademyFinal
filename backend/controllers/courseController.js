@@ -300,38 +300,73 @@ exports.addCourse = async (req, res) => {
   }
 };
 
-// Add a specific module to an existing course - video, quiz, or assignment
+// Add a specific module to an existing course - now supports blocks array
 exports.addModuleToCourse = async (req, res) => {
   const id = req.params.id;
-  const { title, contentType, order, videoUrl, quizData, assignmentDetails } = req.body;
-
+  const { title, order, blocks, completionMessage } = req.body;
+  
   const newModule = {
     title,
-    contentType, // 'video', 'quiz', or 'assignment'
     order: parseInt(order),
-    videoUrl: videoUrl || null,
-    quizData: quizData || null,
-    assignmentDetails: assignmentDetails || null,
+    blocks: Array.isArray(blocks) ? blocks : [],
+    completionMessage: completionMessage || "",
     createdAt: new Date()
   };
 
   try {
     const filter = { _id: new ObjectId(id) };
     // Use $push to add the new module to the modules array in MongoDB
-    const update = { 
-  $push: { 
-    modules: {
-      $each: [newModule],
-      $sort: { order: 1 } // Automatically keeps modules 1, 2, 3... in order
-    } 
-  } 
-};
+    const update = {
+      $push: {
+        modules: {
+          $each: [newModule],
+          $sort: { order: 1 } // Automatically keeps modules 1, 2, 3... in order
+        }
+      }
+    };
 
     const result = await coursesCollection.updateOne(filter, update);
-    
+
     res.status(200).json({
       success: true,
-      message: `${contentType} module added successfully`,
+      message: `Module added successfully with ${newModule.blocks.length} blocks`,
+      data: result,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Update a specific module in an existing course
+exports.updateModuleInCourse = async (req, res) => {
+  const id = req.params.id;
+  const { oldOrder, title, order, blocks, completionMessage } = req.body;
+  
+  const updatedModule = {
+    title,
+    order: parseInt(order),
+    blocks: Array.isArray(blocks) ? blocks : [],
+    completionMessage: completionMessage || "",
+    updatedAt: new Date()
+  };
+
+  try {
+    const filter = { _id: new ObjectId(id), "modules.order": parseInt(oldOrder) };
+    const update = {
+      $set: {
+        "modules.$": updatedModule
+      }
+    };
+
+    const result = await coursesCollection.updateOne(filter, update);
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ success: false, message: "Module not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Module updated successfully",
       data: result,
     });
   } catch (err) {
@@ -435,5 +470,7 @@ exports.getEnrolledCourses = async (req, res) => {
     });
   }
 };
+
+
 
 
