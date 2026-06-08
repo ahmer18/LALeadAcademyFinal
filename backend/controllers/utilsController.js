@@ -1,16 +1,7 @@
 const ImageKit = require("imagekit");
 const connectDB = require("../config/dbConnection");
 
-let usersCollection;
-let coursesCollection;
-let enrollmentsCollection;
-
-(async () => {
-  const db = await connectDB();
-  usersCollection = db.collection("users");
-  coursesCollection = db.collection("courses");
-  enrollmentsCollection = db.collection("enrollments");
-})();
+const getCollection = async (name) => { const db = await connectDB(); return db.collection(name); };
 
 // GET ImageKit signature
 const getIKSignature = async (req, res) => {
@@ -32,10 +23,10 @@ const getIKSignature = async (req, res) => {
 // GET statistics (users, courses, enrollments)
 const getStatistics = async (req, res) => {
   try {
-    const totalUsers = await usersCollection.estimatedDocumentCount();
-    const totalCourses = await coursesCollection.countDocuments({ status: "approved" });
+    const totalUsers = await (await getCollection("users")).estimatedDocumentCount();
+    const totalCourses = await (await getCollection("courses")).countDocuments({ status: "approved" });
     const totalEnrollments =
-      await enrollmentsCollection.estimatedDocumentCount();
+      await (await getCollection("enrollments")).estimatedDocumentCount();
 
     res.status(200).json({
       success: true,

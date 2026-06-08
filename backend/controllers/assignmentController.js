@@ -1,14 +1,7 @@
 const { ObjectId } = require("mongodb");
 const connectDB = require("../config/dbConnection");
 
-let (await getCollection("assignments"));
-let (await getCollection("submissions"));
-
-(async () => {
-  const db = await connectDB();
-  (await getCollection("assignments")) = db.collection("assignments");
-  (await getCollection("submissions")) = db.collection("submissions");
-})();
+const getCollection = async (name) => { const db = await connectDB(); return db.collection(name); };
 
 // POST /assignments (Add a new assignment by Teacher)
 const addAssignment = async (req, res) => {
