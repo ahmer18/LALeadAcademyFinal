@@ -86,27 +86,17 @@ exports.deleteModuleFromCourse = async (req, res) => {
   }
 };
 
-// OPTIMIZED: Get approved courses with search + pagination (Users)
+// Get approved courses with search + pagination (Users) - CLEAN VERSION
 exports.getApprovedCourses = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 9;
   const search = req.query.searchTerm || "";
   const skip = (page - 1) * limit;
 
-  // Read from Memory Cache if available (Resolves fast repeated hits)
-  const cacheKey = `approved-p${page}-l${limit}-s${search}`;
-  if (courseCache.has(cacheKey)) {
-    const cachedEntry = courseCache.get(cacheKey);
-    if (Date.now() - cachedEntry.timestamp < CACHE_TTL) {
-      return res.status(200).json(cachedEntry.data);
-    }
-  }
-
   try {
     // Construct search filter utilizing the database index mappings
     const matchFilter = { status: "approved" };
     if (search) {
-      // Fast indexing text search
       matchFilter.$text = { $search: search };
     }
 
@@ -142,7 +132,8 @@ exports.getApprovedCourses = async (req, res) => {
 
     const courses = await coursesCollection.aggregate(pipeline).toArray();
 
-    const responseData = {
+    // Send data natively back to the router middleware
+    res.status(200).json({
       success: true,
       message: "Courses fetched successfully",
       currentPage: page,
@@ -150,15 +141,7 @@ exports.getApprovedCourses = async (req, res) => {
       totalCourses,
       totalPages,
       hasNextPage: page < totalPages,
-    };
-
-    // Store in internal cache
-    courseCache.set(cacheKey, {
-      timestamp: Date.now(),
-      data: responseData,
     });
-
-    res.status(200).json(responseData);
   } catch (err) {
     res.status(500).json({
       success: false,

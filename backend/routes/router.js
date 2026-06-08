@@ -30,7 +30,7 @@ const cachePublicCourses = (req, res, next) => {
         }
     }
 
-    // Override BOTH res.json and res.send to ensure data is never swallowed
+    // Override BOTH res.json and res.send safely
     const nativeJson = res.json;
     res.json = function (body) {
         if (res.statusCode === 200) {
@@ -41,7 +41,6 @@ const cachePublicCourses = (req, res, next) => {
 
     const nativeSend = res.send;
     res.send = function (body) {
-        // If it's a stringified JSON body, track it too
         if (res.statusCode === 200 && typeof body === 'string') {
             try {
                 courseCache.set(cacheKey, { timestamp: Date.now(), data: JSON.parse(body) });
@@ -81,7 +80,7 @@ router.patch("/courses/:id", verifyToken, verifyRole(["teacher"]), courseControl
 router.delete("/courses/:id", verifyToken, verifyRole(["teacher"]), courseController.deleteCourse);
 router.get("/instructor/course-progress/:courseId", verifyToken, verifyRole(["teacher"]), enrollmentController.getCourseProgressForTeacher);
 
-// Public Section (Cache injected here)
+// Public Section (Cleaned up duplicate route here)
 router.get("/courses", cachePublicCourses, courseController.getApprovedCourses);
 router.get("/courses/popular", courseController.getPopularCourses);
 router.get("/courses/new", courseController.getNewCourses);
