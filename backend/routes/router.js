@@ -41,8 +41,8 @@ router.get("/instructor/course-progress/:courseId", verifyToken, verifyRole(["te
 
 // Cache Middleware for Public Routes
 const setCache = (req, res, next) => {
-  // Cache at Edge for 60 seconds, serve stale content for up to 30 seconds while revalidating
-  res.set("Cache-Control", "public, s-maxage=60, stale-while-revalidate=30");
+  // Cache at Browser (max-age) and Edge (s-maxage) for 60 seconds
+  res.set("Cache-Control", "public, max-age=60, s-maxage=60, stale-while-revalidate=30");
   next();
 };
 
