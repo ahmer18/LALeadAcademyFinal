@@ -18,13 +18,11 @@ const courseCache = new Map();
 const CACHE_TTL = 2 * 60 * 1000; // Cache data for 2 minutes
 
 const cachePublicCourses = (req, res, next) => {
-    // Generate a distinct key tracking pagination and search queries
     const page = req.query.page || "1";
     const limit = req.query.limit || "9";
     const search = req.query.searchTerm || "";
     const cacheKey = `approved_p${page}_l${limit}_s_${search}`;
 
-    // If valid data exists in memory, serve it instantly without hitting MongoDB
     if (courseCache.has(cacheKey)) {
         const cachedItem = courseCache.get(cacheKey);
         if (Date.now() - cachedItem.timestamp < CACHE_TTL) {
@@ -32,21 +30,28 @@ const cachePublicCourses = (req, res, next) => {
         }
     }
 
-    // Overwrite res.json temporarily to harvest the fresh DB data payload
+    // Override BOTH res.json and res.send to ensure data is never swallowed
     const nativeJson = res.json;
     res.json = function (body) {
         if (res.statusCode === 200) {
-            courseCache.set(cacheKey, {
-                timestamp: Date.now(),
-                data: body
-            });
+            courseCache.set(cacheKey, { timestamp: Date.now(), data: body });
         }
-        nativeJson.call(this, body);
+        return nativeJson.call(this, body);
+    };
+
+    const nativeSend = res.send;
+    res.send = function (body) {
+        // If it's a stringified JSON body, track it too
+        if (res.statusCode === 200 && typeof body === 'string') {
+            try {
+                courseCache.set(cacheKey, { timestamp: Date.now(), data: JSON.parse(body) });
+            } catch (e) { }
+        }
+        return nativeSend.call(this, body);
     };
 
     next();
 };
-// ==========================================
 
 // --- Progress ---
 router.patch('/update-progress/:courseId', verifyToken, enrollmentController.updateModuleProgress);
