@@ -39,10 +39,17 @@ router.patch("/courses/:id", verifyToken, verifyRole(["teacher"]), courseControl
 router.delete("/courses/:id", verifyToken, verifyRole(["teacher"]), courseController.deleteCourse);
 router.get("/instructor/course-progress/:courseId", verifyToken, verifyRole(["teacher"]), enrollmentController.getCourseProgressForTeacher);
 
+// Cache Middleware for Public Routes
+const setCache = (req, res, next) => {
+  // Cache at Edge for 60 seconds, serve stale content for up to 30 seconds while revalidating
+  res.set("Cache-Control", "public, s-maxage=60, stale-while-revalidate=30");
+  next();
+};
+
 // Public Section
-router.get("/courses", courseController.getApprovedCourses);
-router.get("/courses/popular", courseController.getPopularCourses);
-router.get("/courses/new", courseController.getNewCourses);
+router.get("/courses", setCache, courseController.getApprovedCourses);
+router.get("/courses/popular", setCache, courseController.getPopularCourses);
+router.get("/courses/new", setCache, courseController.getNewCourses);
 router.get("/courses/:id", courseController.getCourseById);
 router.get("/courses/enrolled/:email", verifyToken, courseController.getEnrolledCourses);
 

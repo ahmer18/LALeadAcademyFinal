@@ -1,14 +1,7 @@
 const { ObjectId } = require("mongodb");
 const connectDB = require("../config/dbConnection");
 
-let db, usersCollection, coursesCollection, enrollmentsCollection;
-
-(async () => {
-  db = await connectDB();
-  usersCollection = db.collection("users");
-  coursesCollection = db.collection("courses");
-  enrollmentsCollection = db.collection("enrollments");
-})();
+const getCollection = async (name) => { const db = await connectDB(); return db.collection(name); };
 
 // ------------------- CONTROLLER FUNCTIONS -------------------
 
@@ -19,10 +12,10 @@ exports.getAllCoursesAdmin = async (req, res) => {
   const skip = (page - 1) * limit;
 
   try {
-    const totalCourses = await coursesCollection.countDocuments();
+    const totalCourses = await (await getCollection("courses")).countDocuments();
     const totalPages = Math.ceil(totalCourses / limit);
 
-    const courses = await coursesCollection
+    const courses = await (await getCollection("courses"))
       .find()
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -53,7 +46,7 @@ exports.deleteModuleFromCourse = async (req, res) => {
     const { order } = req.body;
     if (!order) return res.status(400).send({ message: "Module order is required" });
 
-    const result = await coursesCollection.updateOne(
+    const result = await (await getCollection("courses")).updateOne(
       { _id: new ObjectId(id) },
       { $pull: { modules: { order: parseInt(order) } } }
     );
@@ -77,6 +70,8 @@ exports.getApprovedCourses = async (req, res) => {
 
   const pipeline = [
     { $match: { status: "approved" } },
+    { $skip: skip },
+    { $limit: limit },
     {
       $lookup: {
         from: "users",
@@ -94,8 +89,6 @@ exports.getApprovedCourses = async (req, res) => {
       },
     },
     { $addFields: { totalEnrollments: { $size: "$enrollments" } } },
-    { $skip: skip },
-    { $limit: limit },
   ];
 
   if (search) {
@@ -103,13 +96,13 @@ exports.getApprovedCourses = async (req, res) => {
   }
 
   try {
-    let totalCourses = await coursesCollection.countDocuments({
+    let totalCourses = await (await getCollection("courses")).countDocuments({
       status: "approved",
       ...(search && { title: { $regex: search, $options: "i" } }),
     });
 
     const totalPages = Math.ceil(totalCourses / limit);
-    const courses = await coursesCollection.aggregate(pipeline).toArray();
+    const courses = await (await getCollection("courses")).aggregate(pipeline).toArray();
 
     res.status(200).json({
       success: true,
@@ -138,10 +131,10 @@ exports.getCoursesByTeacher = async (req, res) => {
   const query = { instructorEmail: email };
 
   try {
-    const totalCourses = await coursesCollection.countDocuments(query);
+    const totalCourses = await (await getCollection("courses")).countDocuments(query);
     const totalPages = Math.ceil(totalCourses / limit);
 
-    const result = await coursesCollection
+    const result = await (await getCollection("courses"))
       .find(query)
       .skip(skip)
       .limit(limit)
@@ -188,7 +181,7 @@ exports.getPopularCourses = async (req, res) => {
       { $limit: 6 },
     ];
 
-    const popularCourses = await coursesCollection
+    const popularCourses = await (await getCollection("courses"))
       .aggregate(pipeline)
       .toArray();
     res.status(200).json({
@@ -206,6 +199,8 @@ exports.getNewCourses = async (req, res) => {
   try {
     const pipeline = [
       { $match: { status: "approved" } },
+      { $sort: { createdAt: -1 } },
+      { $limit: 6 },
       {
         $lookup: {
           from: "users",
@@ -223,11 +218,9 @@ exports.getNewCourses = async (req, res) => {
         },
       },
       { $addFields: { totalEnrollments: { $size: "$enrollments" } } },
-      { $sort: { createdAt: -1 } },
-      { $limit: 6 },
     ];
 
-    const newCourses = await coursesCollection.aggregate(pipeline).toArray();
+    const newCourses = await (await getCollection("courses")).aggregate(pipeline).toArray();
     res.status(200).json({
       success: true,
       message: "New courses fetched successfully",
@@ -264,7 +257,7 @@ exports.getCourseById = async (req, res) => {
       { $addFields: { totalEnrollments: { $size: "$enrollments" } } },
     ];
 
-    const result = await coursesCollection.aggregate(pipeline).toArray();
+    const result = await (await getCollection("courses")).aggregate(pipeline).toArray();
     if (!result.length)
       return res
         .status(404)
@@ -289,7 +282,7 @@ exports.addCourse = async (req, res) => {
       createdAt: new Date(),
     };
 
-    const result = await coursesCollection.insertOne(course);
+    const result = await (await getCollection("courses")).insertOne(course);
     res.status(200).json({
       success: true,
       message: "Course added successfully",
@@ -325,7 +318,7 @@ exports.addModuleToCourse = async (req, res) => {
       }
     };
 
-    const result = await coursesCollection.updateOne(filter, update);
+    const result = await (await getCollection("courses")).updateOne(filter, update);
 
     res.status(200).json({
       success: true,
@@ -358,7 +351,7 @@ exports.updateModuleInCourse = async (req, res) => {
       }
     };
 
-    const result = await coursesCollection.updateOne(filter, update);
+    const result = await (await getCollection("courses")).updateOne(filter, update);
 
     if (result.matchedCount === 0) {
       return res.status(404).json({ success: false, message: "Module not found" });
@@ -382,7 +375,7 @@ exports.changeCourseStatus = async (req, res) => {
   const doc = { $set: { status } };
 
   try {
-    const result = await coursesCollection.updateOne(filter, doc);
+    const result = await (await getCollection("courses")).updateOne(filter, doc);
     res.status(200).json({
       success: true,
       message: "Course status updated",
@@ -399,7 +392,7 @@ exports.deleteCourse = async (req, res) => {
   const filter = { _id: new ObjectId(id) };
 
   try {
-    const result = await coursesCollection.deleteOne(filter);
+    const result = await (await getCollection("courses")).deleteOne(filter);
     res.status(200).json({
       success: true,
       message: "Course deleted successfully",
@@ -417,7 +410,7 @@ exports.updateCourse = async (req, res) => {
   const doc = { $set: req.body };
 
   try {
-    const result = await coursesCollection.updateOne(filter, doc);
+    const result = await (await getCollection("courses")).updateOne(filter, doc);
     res.status(200).json({
       success: true,
       message: "Course updated successfully",
@@ -455,7 +448,7 @@ exports.getEnrolledCourses = async (req, res) => {
       { $sort: { createdAt: -1 } },
     ];
 
-    const enrolledCourses = await enrollmentsCollection
+    const enrolledCourses = await (await getCollection("enrollments"))
       .aggregate(pipeline)
       .toArray();
     res.status(200).json({
