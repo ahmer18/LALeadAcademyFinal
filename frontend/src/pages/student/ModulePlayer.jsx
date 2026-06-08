@@ -350,12 +350,17 @@ const ModulePlayer = () => {
           {module.blocks?.map((block, index) => {
             if (block.type === 'text') {
               return (
-                <div key={index} className="prose prose-lg max-w-none bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative">
-                  <FaAlignLeft className="absolute top-8 right-8 text-gray-200 text-3xl" />
-                  <div
-                    className="ql-editor-content text-gray-700 leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: block.content }}
-                  />
+                <div key={index} className="space-y-4">
+                  {block.heading && (
+                    <h3 className="text-2xl font-black text-slate-800 tracking-tight">{block.heading}</h3>
+                  )}
+                  <div className="prose prose-lg max-w-none bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative">
+                    <FaAlignLeft className="absolute top-8 right-8 text-gray-200 text-3xl" />
+                    <div
+                      className="ql-editor-content text-gray-700 leading-relaxed"
+                      dangerouslySetInnerHTML={{ __html: block.content }}
+                    />
+                  </div>
                 </div>
               );
             }
@@ -363,45 +368,79 @@ const ModulePlayer = () => {
             if (block.type === 'video') {
               const embedUrl = block.videoUrl?.replace("watch?v=", "embed/");
               return (
-                <div key={index} className="bg-black p-2 md:p-4 rounded-3xl shadow-2xl">
-                  <div className="aspect-video w-full rounded-2xl overflow-hidden relative group">
-                    <iframe
-                      width="100%"
-                      height="100%"
-                      src={embedUrl}
-                      title="Video Player"
-                      frameBorder="0"
-                      allowFullScreen
-                      className="absolute inset-0 z-10"
-                    ></iframe>
+                <div key={index} className="space-y-4">
+                  {block.heading && (
+                    <h3 className="text-2xl font-black text-slate-800 tracking-tight">{block.heading}</h3>
+                  )}
+                  <div className="bg-black p-2 md:p-4 rounded-3xl shadow-2xl">
+                    <div className="aspect-video w-full rounded-2xl overflow-hidden relative group">
+                      <iframe
+                        width="100%"
+                        height="100%"
+                        src={embedUrl}
+                        title="Video Player"
+                        frameBorder="0"
+                        allowFullScreen
+                        className="absolute inset-0 z-10"
+                      ></iframe>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            if (block.type === 'photo') {
+              return (
+                <div key={index} className="space-y-4">
+                  {block.heading && (
+                    <h3 className="text-2xl font-black text-slate-800 tracking-tight">{block.heading}</h3>
+                  )}
+                  <div className="bg-white p-6 rounded-3xl shadow-md border border-slate-100 flex justify-center overflow-hidden">
+                    <img
+                      src={block.photoUrl}
+                      alt={block.heading || "Module Image"}
+                      className="max-w-full h-auto rounded-2xl object-contain max-h-[600px] shadow-sm"
+                    />
                   </div>
                 </div>
               );
             }
 
             if (block.type === 'quiz') {
-              return <InlineQuiz key={index} block={block} onPass={(passed) => handleQuizPass(block.id, passed)} />;
+              return (
+                <div key={index} className="space-y-4">
+                  {block.heading && (
+                    <h3 className="text-2xl font-black text-slate-800 tracking-tight">{block.heading}</h3>
+                  )}
+                  <InlineQuiz block={block} onPass={(passed) => handleQuizPass(block.id, passed)} />
+                </div>
+              );
             }
 
             if (block.type === 'assignment') {
               return (
-                <div key={index} className="bg-amber-50 p-6 md:p-8 rounded-2xl border border-amber-200 relative overflow-hidden">
-                  <FaFileAlt className="absolute -bottom-4 -right-4 text-amber-200/50 text-9xl" />
-                  <div className="relative z-10 flex items-center gap-3 mb-4">
-                    <span className="w-10 h-10 rounded-xl bg-amber-200 flex items-center justify-center text-amber-800 shadow-inner">
-                      <FaFileAlt />
-                    </span>
-                    <h3 className="text-xl font-bold text-amber-900">Assignment Task</h3>
+                <div key={index} className="space-y-4">
+                  {block.heading && (
+                    <h3 className="text-2xl font-black text-slate-800 tracking-tight">{block.heading}</h3>
+                  )}
+                  <div className="bg-amber-50 p-6 md:p-8 rounded-2xl border border-amber-200 relative overflow-hidden">
+                    <FaFileAlt className="absolute -bottom-4 -right-4 text-amber-200/50 text-9xl" />
+                    <div className="relative z-10 flex items-center gap-3 mb-4">
+                      <span className="w-10 h-10 rounded-xl bg-amber-200 flex items-center justify-center text-amber-800 shadow-inner">
+                        <FaFileAlt />
+                      </span>
+                      <h3 className="text-xl font-bold text-amber-900">Assignment Task</h3>
+                    </div>
+                    <div className="relative z-10 prose prose-amber">
+                      <p className="whitespace-pre-wrap text-amber-900/80 font-medium">{block.assignmentDetails?.description || block.description}</p>
+                    </div>
+                    <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-amber-900 text-white text-xs font-bold rounded-lg tracking-wider">
+                      DUE DATE: <span className="text-amber-300">{block.assignmentDetails?.deadline || block.deadline}</span>
+                    </div>
+                    <p className="text-xs text-amber-700/60 mt-4 relative z-10 font-bold italic">
+                      * Return to the Course Dashboard to submit this assignment file when ready.
+                    </p>
                   </div>
-                  <div className="relative z-10 prose prose-amber">
-                    <p className="whitespace-pre-wrap text-amber-900/80 font-medium">{block.assignmentDetails?.description || block.description}</p>
-                  </div>
-                  <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-amber-900 text-white text-xs font-bold rounded-lg tracking-wider">
-                    DUE DATE: <span className="text-amber-300">{block.assignmentDetails?.deadline || block.deadline}</span>
-                  </div>
-                  <p className="text-xs text-amber-700/60 mt-4 relative z-10 font-bold italic">
-                    * Return to the Course Dashboard to submit this assignment file when ready.
-                  </p>
                 </div>
               );
             }

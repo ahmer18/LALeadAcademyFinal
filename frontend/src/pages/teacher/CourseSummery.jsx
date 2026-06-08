@@ -10,7 +10,8 @@ import LoaderDotted from "../../components/common/LoaderDotted";
 import RichTextEditor from "../../components/common/RichTextEditor";
 import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
-import { FaTrash, FaVideo, FaQuestionCircle, FaFileAlt, FaCommentAlt, FaPlus, FaUserGraduate, FaEdit, FaAlignLeft, FaTimes } from "react-icons/fa";
+import { FaTrash, FaVideo, FaQuestionCircle, FaFileAlt, FaCommentAlt, FaPlus, FaUserGraduate, FaEdit, FaAlignLeft, FaTimes, FaImage } from "react-icons/fa";
+import handleUpload from "../../utils/ImageUploadApi";
 
 const CourseSummery = () => {
   const { courseId } = useParams();
@@ -182,15 +183,20 @@ const CourseSummery = () => {
 
     // Format blocks for backend payload
     const formattedBlocks = blocks.map(block => {
+      const heading = block.heading || "";
       if (block.type === 'text') {
-        return { type: 'text', content: block.content };
+        return { type: 'text', heading, content: block.content };
       }
       if (block.type === 'video') {
-        return { type: 'video', videoUrl: block.videoUrl };
+        return { type: 'video', heading, videoUrl: block.videoUrl };
+      }
+      if (block.type === 'photo') {
+        return { type: 'photo', heading, photoUrl: block.photoUrl };
       }
       if (block.type === 'assignment') {
         return {
           type: 'assignment',
+          heading,
           assignmentDetails: { description: block.description, deadline: block.deadline }
         };
       }
@@ -214,9 +220,9 @@ const CourseSummery = () => {
             correctAnswerIndex: newCorrectIndex !== -1 ? newCorrectIndex : 0
           };
         });
-        return { type: 'quiz', quizData };
+        return { type: 'quiz', heading, quizData };
       }
-      return block;
+      return { ...block, heading };
     });
 
     const finalModuleData = {
@@ -267,6 +273,24 @@ const CourseSummery = () => {
 
   const updateBlock = (id, field, value) => {
     setBlocks(blocks.map(b => b.id === id ? { ...b, [field]: value } : b));
+  };
+
+  const handlePhotoChange = async (blockId, file) => {
+    if (!file) return;
+    setBlocks(prev => prev.map(b => b.id === blockId ? { ...b, uploading: true } : b));
+    try {
+      const url = await handleUpload(file);
+      if (url) {
+        setBlocks(prev => prev.map(b => b.id === blockId ? { ...b, photoUrl: url, uploading: false } : b));
+        showFeedback("Photo uploaded successfully!", "success");
+      } else {
+        throw new Error("Failed to get image URL");
+      }
+    } catch (err) {
+      console.error("Photo upload failed:", err);
+      setBlocks(prev => prev.map(b => b.id === blockId ? { ...b, uploading: false } : b));
+      showFeedback("Photo upload failed. Please try again.", "error");
+    }
   };
 
   const updateQuizQuestion = (blockId, qIndex, field, value) => {
@@ -351,6 +375,7 @@ const CourseSummery = () => {
                       if (block.type === 'quiz') { Icon = FaQuestionCircle; label = "Quiz"; color = "text-[#8d6e3e]"; bg = "bg-[#8d6e3e]/10"; }
                       if (block.type === 'assignment') { Icon = FaFileAlt; label = "Assignment"; color = "text-amber-600"; bg = "bg-amber-50"; }
                       if (block.type === 'text') { Icon = FaAlignLeft; label = "Text"; color = "text-emerald-600"; bg = "bg-emerald-50"; }
+                      if (block.type === 'photo') { Icon = FaImage; label = "Photo"; color = "text-purple-600"; bg = "bg-purple-50"; }
 
                       return (
                         <span key={bIdx} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest ${color} ${bg} border border-slate-100/50`}>
@@ -531,6 +556,7 @@ const CourseSummery = () => {
                                 {block.type === 'text' && <FaAlignLeft />}
                                 {block.type === 'quiz' && <FaQuestionCircle />}
                                 {block.type === 'assignment' && <FaFileAlt />}
+                                {block.type === 'photo' && <FaImage />}
                                 {block.type} UNIT
                               </span>
                             </div>
@@ -538,7 +564,17 @@ const CourseSummery = () => {
                           </div>
 
                           {/* Block Content Inputs */}
-                          <div className="p-4 space-y-3">
+                          <div className="p-4 space-y-4">
+                            <div>
+                              <label className="label text-[10px] text-slate-400 font-black uppercase tracking-widest px-0 pt-0">Section Heading (Optional)</label>
+                              <input
+                                type="text"
+                                value={block.heading || ""}
+                                onChange={(e) => updateBlock(block.id, "heading", e.target.value)}
+                                placeholder="e.g. Section Title"
+                                className="input input-bordered w-full bg-slate-50 border-slate-200 rounded-xl font-medium focus:border-blue-900 text-slate-900"
+                              />
+                            </div>
                             {block.type === 'text' && (
                               <RichTextEditor
                                 value={block.content || ""}
@@ -641,6 +677,51 @@ const CourseSummery = () => {
                                 <button type="button" onClick={() => addQuizQuestion(block.id)} className="btn btn-xs bg-slate-50 border-2 border-dashed border-slate-200 text-slate-400 hover:bg-slate-100 hover:text-slate-600 w-full py-4 h-auto rounded-xl font-bold">+ New Question</button>
                               </div>
                             )}
+
+                            {block.type === 'photo' && (
+                              <div className="space-y-4">
+                                <label className="label text-[10px] text-slate-400 font-black uppercase tracking-widest px-0 pt-0">Module Photo</label>
+                                {block.photoUrl ? (
+                                  <div className="relative rounded-2xl overflow-hidden border border-slate-200 group max-h-[300px] flex justify-center bg-slate-50">
+                                    <img src={block.photoUrl} alt="Module Preview" className="object-contain max-h-[300px]" />
+                                    <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                                      <label className="btn btn-sm bg-white text-blue-900 hover:bg-slate-100 rounded-lg cursor-pointer font-bold">
+                                        Change Photo
+                                        <input
+                                          type="file"
+                                          accept="image/*"
+                                          className="hidden"
+                                          onChange={(e) => handlePhotoChange(block.id, e.target.files[0])}
+                                          disabled={block.uploading}
+                                        />
+                                      </label>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <label className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-blue-50/30 ${block.uploading ? 'border-blue-400 bg-blue-50/10' : 'border-slate-300'}`}>
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      className="hidden"
+                                      onChange={(e) => handlePhotoChange(block.id, e.target.files[0])}
+                                      disabled={block.uploading}
+                                    />
+                                    {block.uploading ? (
+                                      <div className="flex flex-col items-center gap-2">
+                                        <span className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-900"></span>
+                                        <span className="text-[10px] font-bold text-blue-900 uppercase tracking-widest">Uploading Photo...</span>
+                                      </div>
+                                    ) : (
+                                      <div className="flex flex-col items-center gap-2 text-slate-400">
+                                        <FaImage size={24} />
+                                        <span className="text-xs font-bold uppercase tracking-widest">Upload Photo</span>
+                                        <span className="text-[10px] text-slate-400 font-medium">PNG, JPG, GIF up to 10MB</span>
+                                      </div>
+                                    )}
+                                  </label>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -664,6 +745,10 @@ const CourseSummery = () => {
                     <button type="button" onClick={() => addBlock('assignment')} className="flex-1 min-w-[120px] py-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col items-center gap-2 hover:bg-slate-100 hover:border-slate-300 transition-all group shadow-sm">
                        <FaFileAlt className="text-slate-400 group-hover:text-slate-900 text-xl" />
                        <span className="text-[10px] font-black uppercase text-slate-500 group-hover:text-slate-900 tracking-widest">Assignment</span>
+                    </button>
+                    <button type="button" onClick={() => addBlock('photo')} className="flex-1 min-w-[120px] py-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col items-center gap-2 hover:bg-purple-50 hover:border-purple-200 transition-all group shadow-sm">
+                       <FaImage className="text-slate-400 group-hover:text-purple-600 text-xl" />
+                       <span className="text-[10px] font-black uppercase text-slate-500 group-hover:text-purple-700 tracking-widest">Add Photo</span>
                     </button>
                 </div>
             </div>
