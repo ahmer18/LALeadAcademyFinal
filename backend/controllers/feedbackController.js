@@ -3,13 +3,7 @@ const { ObjectId } = require("mongodb");
 const connectDB = require("../config/dbConnection");
 
 let feedbacksCollection;
-let coursesCollection;
-
-(async () => {
-  const db = await connectDB();
-  feedbacksCollection = db.collection("feedbacks");
-  coursesCollection = db.collection("courses");
-})();
+const getCollection = async (name) => { const db = await connectDB(); return db.collection(name); };
 
 // Helper: Calculate and update course rating based on all feedbacks
 const updateCourseRating = async (courseId) => {

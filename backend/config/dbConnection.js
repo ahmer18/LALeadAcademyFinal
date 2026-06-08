@@ -20,18 +20,7 @@ const connectDB = async () => {
       db = client.db("mentora");
       console.log("✅ MongoDB (MongoClient) connected successfully");
       
-      // Establish key indexes for faster lookup and aggregation queries
-      try {
-        await db.collection("users").createIndex({ email: 1 }, { unique: true });
-        await db.collection("enrollments").createIndex({ courseId: 1 });
-        await db.collection("enrollments").createIndex({ email: 1 });
-        await db.collection("enrollments").createIndex({ courseId: 1, email: 1 });
-        await db.collection("courses").createIndex({ instructorEmail: 1 });
-        await db.collection("courses").createIndex({ status: 1 });
-        console.log("✅ Database indexes verified/created");
-      } catch (indexError) {
-        console.error("⚠️ Database indexing failed:", indexError);
-      }
+      // Index creation removed for serverless compatibility
       
       return db;
     } catch (error) {

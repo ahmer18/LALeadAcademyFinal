@@ -1,19 +1,13 @@
 const { ObjectId } = require("mongodb");
 const connectDB = require("../config/dbConnection");
 
-let enrollmentsCollection, coursesCollection;
-
-(async () => {
-  const db = await connectDB();
-  enrollmentsCollection = db.collection("enrollments");
-  coursesCollection = db.collection("courses"); // Added this so course lookups work
-})();
+const getCollection = async (name) => { const db = await connectDB(); return db.collection(name); };
 
 // 1. Fetch all enrollments of a course
 exports.getEnrollmentsByCourseId = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const enrollments = await enrollmentsCollection.find({ courseId: courseId }).toArray();
+    const enrollments = await (await getCollection("enrollments")).find({ courseId: courseId }).toArray();
     res.status(200).json({
       success: true,
       enrollments: enrollments || [],
@@ -28,7 +22,7 @@ exports.getEnrollmentStatus = async (req, res) => {
   try {
     const { courseId } = req.params;
     const userEmail = req.user.email;
-    const enrollment = await enrollmentsCollection.findOne({ 
+    const enrollment = await (await getCollection("enrollments")).findOne({ 
       courseId: new ObjectId(courseId), 
       email: userEmail 
     });
@@ -48,7 +42,7 @@ exports.updateModuleProgress = async (req, res) => {
     const filter = { courseId: new ObjectId(courseId), email: userEmail };
     const update = { $addToSet: { completedModules: parseInt(completedModuleOrder) } };
 
-    const result = await enrollmentsCollection.updateOne(filter, update);
+    const result = await (await getCollection("enrollments")).updateOne(filter, update);
     res.status(200).json({ success: true, message: "Progress saved!" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -60,11 +54,11 @@ exports.getCourseProgressForTeacher = async (req, res) => {
   try {
     const { courseId } = req.params;
     
-    const course = await coursesCollection.findOne({ _id: new ObjectId(courseId) });
+    const course = await (await getCollection("courses")).findOne({ _id: new ObjectId(courseId) });
     if (!course) return res.status(404).json({ message: "Course not found" });
     
     const totalModules = course.modules?.length || 0;
-    const enrollments = await enrollmentsCollection.find({ 
+    const enrollments = await (await getCollection("enrollments")).find({ 
       courseId: new ObjectId(courseId) 
     }).toArray();
 
@@ -106,7 +100,7 @@ exports.addEnrollment = async (req, res) => {
     }
 
     // Ensure this paymentId hasn't been used before
-    const existingEnrollment = await enrollmentsCollection.findOne({ paymentId });
+    const existingEnrollment = await (await getCollection("enrollments")).findOne({ paymentId });
     if (existingEnrollment) {
       return res.status(400).json({ message: "Enrollment already exists for this payment" });
     }
@@ -120,7 +114,7 @@ exports.addEnrollment = async (req, res) => {
       createdAt: new Date(),
     };
     
-    const result = await enrollmentsCollection.insertOne(enrollment);
+    const result = await (await getCollection("enrollments")).insertOne(enrollment);
     res.status(200).json({ success: true, message: "Enrolled successfully", data: result });
   } catch (err) {
     res.status(500).send({ message: err.message || "Internal server error" });
@@ -136,7 +130,7 @@ exports.createPaymentIntent = async (req, res) => {
       return res.status(400).send({ error: "courseId is required" });
     }
     
-    const course = await coursesCollection.findOne({ _id: new ObjectId(courseId) });
+    const course = await (await getCollection("courses")).findOne({ _id: new ObjectId(courseId) });
     if (!course) {
       return res.status(404).send({ error: "Course not found" });
     }

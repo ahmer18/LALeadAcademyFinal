@@ -1,18 +1,13 @@
 const { ObjectId } = require("mongodb");
 const connectDB = require("../config/dbConnection");
 
-let usersCollection;
-
-(async () => {
-  const db = await connectDB();
-  usersCollection = db.collection("users");
-})();
+const getCollection = async (name) => { const db = await connectDB(); return db.collection(name); };
 
 async function createNewUser(req, res) {
   const user = req.body;
 
   // return if user already exists
-  const existingUser = await usersCollection.findOne({
+  const existingUser = await (await getCollection("users")).findOne({
     email: user.email,
   });
   if (existingUser) {
@@ -24,7 +19,7 @@ async function createNewUser(req, res) {
   }
 
   try {
-    const result = await usersCollection.insertOne({
+    const result = await (await getCollection("users")).insertOne({
       ...user, // This now includes photoURL and displayName from frontend
       role: user.role || "student", // Default to student if not provided
       createdAt: new Date(),
@@ -62,7 +57,7 @@ async function updateUserProfile(req, res) {
       },
     };
 
-    const result = await usersCollection.updateOne(filter, updateDoc);
+    const result = await (await getCollection("users")).updateOne(filter, updateDoc);
     
     if (result.modifiedCount > 0 || result.matchedCount > 0) {
       res.status(200).json({ 
@@ -81,7 +76,7 @@ async function updateUserProfile(req, res) {
 
 async function getUserByEmail(req, res) {
   const email = req.params.email;
-  const user = await usersCollection.findOne({ email });
+  const user = await (await getCollection("users")).findOne({ email });
 
   try {
     if (user) {
@@ -112,7 +107,7 @@ async function createNewTeacher(req, res) {
   };
 
   try {
-    const result = await usersCollection.updateOne(filter, updateDoc);
+    const result = await (await getCollection("users")).updateOne(filter, updateDoc);
     if (result.acknowledged) {
       res.status(201).json({
         status: "success",
@@ -154,11 +149,11 @@ async function getAllTeachers(req, res) {
   ];
 
   try {
-    const totalTeachers = await usersCollection.countDocuments({
+    const totalTeachers = await (await getCollection("users")).countDocuments({
       role: "teacher",
     });
     const totalPages = Math.ceil(totalTeachers / limit);
-    const result = await usersCollection.aggregate(pipeline).toArray();
+    const result = await (await getCollection("users")).aggregate(pipeline).toArray();
     res.status(200).json({
       status: "success",
       message: "Teachers fetched successfully",
@@ -191,7 +186,7 @@ async function changeTeacherStatus(req, res) {
       },
     };
 
-    const result = await usersCollection.updateOne(filter, updateDoc);
+    const result = await (await getCollection("users")).updateOne(filter, updateDoc);
     if (result.acknowledged) {
       res.status(201).json({
         status: "success",
@@ -227,9 +222,9 @@ async function searchUsers(req, res) {
   };
 
   try {
-    const totalUsers = await usersCollection.countDocuments();
+    const totalUsers = await (await getCollection("users")).countDocuments();
     const totalPages = Math.ceil(totalUsers / limit);
-    const users = await usersCollection
+    const users = await (await getCollection("users"))
       .find(query)
       .skip(skip)
       .limit(limit)
@@ -263,7 +258,7 @@ async function makeAdmin(req, res) {
   const update = { $set: { role: "admin" } };
 
   try {
-    const result = await usersCollection.updateOne(filter, update);
+    const result = await (await getCollection("users")).updateOne(filter, update);
     res.status(200).json({ message: "User updated successfully" });
   } catch (err) {
     res.status(500).json({ message: "Failed to update user" });
