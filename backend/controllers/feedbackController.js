@@ -2,7 +2,7 @@
 const { ObjectId } = require("mongodb");
 const connectDB = require("../config/dbConnection");
 
-let feedbacksCollection;
+let (await getCollection("feedbacks"));
 const getCollection = async (name) => { const db = await connectDB(); return db.collection(name); };
 
 // Helper: Calculate and update course rating based on all feedbacks
@@ -11,7 +11,7 @@ const updateCourseRating = async (courseId) => {
     const courseObjectId = ObjectId.isValid(courseId) ? new ObjectId(courseId) : courseId;
     
     // Get all feedbacks for this course
-    const feedbacks = await feedbacksCollection.find({ courseId: courseObjectId }).toArray();
+    const feedbacks = await (await getCollection("feedbacks")).find({ courseId: courseObjectId }).toArray();
     
     if (feedbacks.length === 0) {
       // If no feedbacks, keep rating as is
@@ -23,7 +23,7 @@ const updateCourseRating = async (courseId) => {
     const averageRating = Math.round((totalRating / feedbacks.length) * 10) / 10; // Round to 1 decimal
     
     // Update course with new average rating
-    await coursesCollection.updateOne(
+    await (await getCollection("courses")).updateOne(
       { _id: courseObjectId },
       { $set: { rating: averageRating } }
     );
@@ -54,7 +54,7 @@ const addFeedback = async (req, res) => {
       return res.status(400).json({ success: false, message: "Feedback text is required" });
     }
 
-    const result = await feedbacksCollection.insertOne(feedbackData);
+    const result = await (await getCollection("feedbacks")).insertOne(feedbackData);
     
     // Update course rating dynamically based on all feedbacks
     await updateCourseRating(feedbackData.courseId);
@@ -72,7 +72,7 @@ const getFeedbacks = async (req, res) => {
 
     // If no courseId provided, return all feedbacks (for home page)
     if (!courseId) {
-      const feedbacks = await feedbacksCollection.find({}).sort({ createdAt: -1 }).toArray();
+      const feedbacks = await (await getCollection("feedbacks")).find({}).sort({ createdAt: -1 }).toArray();
       return res.status(200).json({
         success: true,
         feedbacks: feedbacks || [],
@@ -89,7 +89,7 @@ const getFeedbacks = async (req, res) => {
       ].filter(q => q.courseId !== null)
     };
 
-    const feedbacks = await feedbacksCollection.find(query).sort({ createdAt: -1 }).toArray();
+    const feedbacks = await (await getCollection("feedbacks")).find(query).sort({ createdAt: -1 }).toArray();
     
     // Check your Terminal/Console - this tells us if the DB found it
     console.log(`Teacher Dashboard Request for ID: ${cleanId} | Found: ${feedbacks.length}`);
@@ -112,9 +112,9 @@ const updateFeedback = async (req, res) => {
     if (!ObjectId.isValid(id)) return res.status(400).json({ message: "Invalid ID" });
 
     // Get the feedback to find its courseId before updating
-    const feedbackDoc = await feedbacksCollection.findOne({ _id: new ObjectId(id) });
+    const feedbackDoc = await (await getCollection("feedbacks")).findOne({ _id: new ObjectId(id) });
     
-    const result = await feedbacksCollection.updateOne(
+    const result = await (await getCollection("feedbacks")).updateOne(
       { _id: new ObjectId(id) },
       { 
         $set: { 

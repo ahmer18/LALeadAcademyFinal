@@ -1,13 +1,13 @@
 const { ObjectId } = require("mongodb");
 const connectDB = require("../config/dbConnection");
 
-let assignmentsCollection;
-let submissionsCollection;
+let (await getCollection("assignments"));
+let (await getCollection("submissions"));
 
 (async () => {
   const db = await connectDB();
-  assignmentsCollection = db.collection("assignments");
-  submissionsCollection = db.collection("submissions");
+  (await getCollection("assignments")) = db.collection("assignments");
+  (await getCollection("submissions")) = db.collection("submissions");
 })();
 
 // POST /assignments (Add a new assignment by Teacher)
@@ -18,7 +18,7 @@ const addAssignment = async (req, res) => {
     createdAt: new Date(),
   };
   try {
-    const result = await assignmentsCollection.insertOne(assignment);
+    const result = await (await getCollection("assignments")).insertOne(assignment);
     if (result.acknowledged) {
       res.status(200).json({
         success: true,
@@ -45,7 +45,7 @@ const getAssignmentsByCourseAndStudent = async (req, res) => {
   const studentEmail = req.params.studentEmail;
 
   try {
-    const assignments = await assignmentsCollection
+    const assignments = await (await getCollection("assignments"))
       .aggregate([
         { $match: { courseId: new ObjectId(courseId) } },
         {
@@ -92,7 +92,7 @@ const getAssignmentsByCourse = async (req, res) => {
   const query = { courseId: new ObjectId(courseId) };
 
   try {
-    const assignments = await assignmentsCollection.find(query).toArray();
+    const assignments = await (await getCollection("assignments")).find(query).toArray();
     if (assignments.length > 0) {
       res.status(200).json({
         success: true,
@@ -120,7 +120,7 @@ const getSubmissionsByCourse = async (req, res) => {
   if (studentEmail) query.studentEmail = studentEmail;
 
   try {
-    const submissions = await submissionsCollection.find(query).toArray();
+    const submissions = await (await getCollection("submissions")).find(query).toArray();
     if (submissions.length > 0) {
       res.status(200).json({
         success: true,
@@ -149,7 +149,7 @@ const addSubmission = async (req, res) => {
     createdAt: new Date(),
   };
   try {
-    const result = await submissionsCollection.insertOne(submission);
+    const result = await (await getCollection("submissions")).insertOne(submission);
     if (result.acknowledged) {
       res.status(200).json({
         success: true,
