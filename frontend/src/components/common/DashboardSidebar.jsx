@@ -35,40 +35,50 @@ export default function DashboardSidebar() {
 
         {/* Navigation Links */}
         <nav className="flex flex-col space-y-2 flex-grow">
-          {user?.role === "admin" && (
+          {!user ? (
+            <div className="space-y-4 animate-pulse">
+              <div className="h-11 bg-slate-700/40 rounded-xl w-full"></div>
+              <div className="h-11 bg-slate-700/40 rounded-xl w-full"></div>
+              <div className="h-11 bg-slate-700/40 rounded-xl w-full"></div>
+            </div>
+          ) : (
             <>
-              <NavLink to="/dashboard/teachers" className={linkStyle}>
-                <PiChalkboardTeacherBold size={20} /> <span>All Teachers</span>
-              </NavLink>
-              <NavLink to="/dashboard/users" className={linkStyle}>
-                <LuBookUser size={20} /> <span>All Users</span>
-              </NavLink>
-              <NavLink to="/dashboard/courses" className={linkStyle}>
-                <FaBookOpen size={20} /> <span>All Courses</span>
+              {user?.role === "admin" && (
+                <>
+                  <NavLink to="/dashboard/teachers" className={linkStyle}>
+                    <PiChalkboardTeacherBold size={20} /> <span>All Teachers</span>
+                  </NavLink>
+                  <NavLink to="/dashboard/users" className={linkStyle}>
+                    <LuBookUser size={20} /> <span>All Users</span>
+                  </NavLink>
+                  <NavLink to="/dashboard/courses" className={linkStyle}>
+                    <FaBookOpen size={20} /> <span>All Courses</span>
+                  </NavLink>
+                </>
+              )}
+
+              {user?.role === "student" && (
+                <NavLink to="/dashboard/courses" className={linkStyle}>
+                  <IoDocumentsSharp size={20} /> <span>Enrolled Courses</span>
+                </NavLink>
+              )}
+
+              {user?.role === "teacher" && (
+                <>
+                  <NavLink to="/dashboard/courses" className={linkStyle}>
+                    <IoDocumentsSharp size={20} /> <span>My Courses</span>
+                  </NavLink>
+                  <NavLink to="/dashboard/courses/add" className={linkStyle}>
+                    <MdAddToPhotos size={20} /> <span>Add Course</span>
+                  </NavLink>
+                </>
+              )}
+
+              <NavLink to="/dashboard/profile" className={linkStyle}>
+                <IoIosPerson size={20} /> <span>My Profile</span>
               </NavLink>
             </>
           )}
-
-          {user?.role === "student" && (
-            <NavLink to="/dashboard/courses" className={linkStyle}>
-              <IoDocumentsSharp size={20} /> <span>Enrolled Courses</span>
-            </NavLink>
-          )}
-
-          {user?.role === "teacher" && (
-            <>
-              <NavLink to="/dashboard/courses" className={linkStyle}>
-                <IoDocumentsSharp size={20} /> <span>My Courses</span>
-              </NavLink>
-              <NavLink to="/dashboard/courses/add" className={linkStyle}>
-                <MdAddToPhotos size={20} /> <span>Add Course</span>
-              </NavLink>
-            </>
-          )}
-
-          <NavLink to="/dashboard/profile" className={linkStyle}>
-            <IoIosPerson size={20} /> <span>My Profile</span>
-          </NavLink>
         </nav>
 
         {/* Footer info inside sidebar */}

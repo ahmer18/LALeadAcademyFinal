@@ -77,6 +77,18 @@ exports.getApprovedCourses = async (req, res) => {
 
   const pipeline = [
     { $match: { status: "approved" } },
+  ];
+
+  if (search) {
+    pipeline.push({ $match: { title: { $regex: search, $options: "i" } } });
+  }
+
+  // Slicing/pagination first for query efficiency
+  pipeline.push({ $skip: skip });
+  pipeline.push({ $limit: limit });
+
+  // Lookups run only on the 9 returned results
+  pipeline.push(
     {
       $lookup: {
         from: "users",
@@ -93,14 +105,8 @@ exports.getApprovedCourses = async (req, res) => {
         as: "enrollments",
       },
     },
-    { $addFields: { totalEnrollments: { $size: "$enrollments" } } },
-    { $skip: skip },
-    { $limit: limit },
-  ];
-
-  if (search) {
-    pipeline.unshift({ $match: { title: { $regex: search, $options: "i" } } });
-  }
+    { $addFields: { totalEnrollments: { $size: "$enrollments" } } }
+  );
 
   try {
     let totalCourses = await coursesCollection.countDocuments({
@@ -206,6 +212,8 @@ exports.getNewCourses = async (req, res) => {
   try {
     const pipeline = [
       { $match: { status: "approved" } },
+      { $sort: { createdAt: -1 } },
+      { $limit: 6 },
       {
         $lookup: {
           from: "users",
@@ -223,8 +231,6 @@ exports.getNewCourses = async (req, res) => {
         },
       },
       { $addFields: { totalEnrollments: { $size: "$enrollments" } } },
-      { $sort: { createdAt: -1 } },
-      { $limit: 6 },
     ];
 
     const newCourses = await coursesCollection.aggregate(pipeline).toArray();
@@ -237,6 +243,7 @@ exports.getNewCourses = async (req, res) => {
     res.status(500).send({ message: "Failed to load new courses" });
   }
 };
+
 
 // Get single course by ID
 exports.getCourseById = async (req, res) => {
