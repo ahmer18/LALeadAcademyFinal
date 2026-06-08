@@ -9,28 +9,41 @@ import {
 } from "firebase/auth";
 import { createContext, useEffect, useState } from "react";
 import { auth, provider } from "../../firebase.config";
- 
+
 const AuthContext = createContext(null);
+
 const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    try {
-      const cached = localStorage.getItem("lalead_user");
-      return cached ? JSON.parse(cached) : null;
-    } catch {
-      return null;
-    }
-  });
-  const [isUserLoading, setIsUserLoading] = useState(() => !user);
+  const [isUserLoading, setIsUserLoading] = useState(true);
+  const [user, setUser] = useState(null);
   const [firebaseUser, setFirebaseUser] = useState(null);
 
-  // Sync user changes to localStorage
   useEffect(() => {
-    if (user) {
-      localStorage.setItem("lalead_user", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("lalead_user");
-    }
-  }, [user]);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setFirebaseUser(currentUser);
+        try {
+          const dbUser = await fetchMongoUser(currentUser.email);
+          setUser({
+            uid: currentUser.uid,
+            email: currentUser.email,
+            displayName: currentUser.displayName || dbUser?.displayName || dbUser?.name,
+            photoURL: currentUser.photoURL || dbUser?.photoURL,
+            role: dbUser?.role || "student", // Get role from DB, default to student
+            ...dbUser,
+          });
+        } catch (error) {
+          console.error("Failed to fetch Mongo user:", error);
+          setUser(currentUser);
+        } finally {
+          setIsUserLoading(false);
+        }
+      } else {
+        setUser(null);
+        setIsUserLoading(false);
+      }
+    });
+    return () => unsubscribe();
+  }, [auth]);
 
   const fetchMongoUser = async (email) => {
     try {
@@ -39,57 +52,13 @@ const AuthProvider = ({ children }) => {
       );
       return res.data;
     } catch (error) {
+      // If it's a 404, just return null instead of throwing an error
       if (error.response && error.response.status === 404) {
         return null;
       }
-      throw error;
+      throw error; // Rethrow other actual errors (like server down)
     }
   };
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setFirebaseUser(currentUser);
-
-        // Pre-populate with Firebase details if cache is empty or doesn't match
-        setUser((prevUser) => {
-          if (prevUser && prevUser.email === currentUser.email) {
-            return prevUser;
-          }
-          return {
-            uid: currentUser.uid,
-            email: currentUser.email,
-            displayName: currentUser.displayName,
-            photoURL: currentUser.photoURL,
-            role: "student",
-          };
-        });
-
-        // Background sync MongoDB profile details
-        fetchMongoUser(currentUser.email)
-          .then((dbUser) => {
-            setUser({
-              uid: currentUser.uid,
-              email: currentUser.email,
-              displayName: currentUser.displayName || dbUser?.displayName || dbUser?.name,
-              photoURL: currentUser.photoURL || dbUser?.photoURL,
-              role: dbUser?.role || "student",
-              ...dbUser,
-            });
-            setIsUserLoading(false);
-          })
-          .catch((error) => {
-            console.error("Failed to fetch Mongo user in background:", error);
-            setIsUserLoading(false);
-          });
-      } else {
-        setFirebaseUser(null);
-        setUser(null);
-        setIsUserLoading(false);
-      }
-    });
-    return () => unsubscribe();
-  }, [auth]);
 
   const userSignup = (email, password) => {
     return createUserWithEmailAndPassword(auth, email, password);
@@ -104,7 +73,9 @@ const AuthProvider = ({ children }) => {
   };
 
   const updateUserProfile = (name, photoURL) => {
+    // auth.currentUser is the "Internal" user instance Firebase needs
     if (!auth.currentUser) return Promise.reject("No user logged in");
+
     return updateProfile(auth.currentUser, {
       displayName: name,
       photoURL: photoURL,

@@ -1,43 +1,31 @@
 // frontend/src/routes/router.jsx
-import React, { Suspense, lazy } from "react";
 import { createBrowserRouter } from "react-router";
 import App from "../App";
+import About from "../pages/About";
+import ManageTeachers from "../pages/admin/ManageTeachers";
+import ManageUsers from "../pages/admin/ManageUsers";
+import BeTeacher from "../pages/BeTeacher";
+import CourseDash from "../pages/common/CourseDash";
+import DashBoard from "../pages/common/Dashboard";
+import Profile from "../pages/common/Profile";
+import Courses from "../pages/Courses";
+import FAQ from "../pages/Faq";
+import Home from "../pages/Home";
+import Login from "../pages/Login";
+import NotFound from "../pages/NotFound";
+import Signup from "../pages/Signup";
+import CourseAssignments from "../pages/student/CourseAssignments";
+import CourseDetails from "../pages/student/CourseDetails";
+import StripeWrapper from "../pages/student/StripeWrapper";
+import AddCourse from "../pages/teacher/AddCourse";
+import CourseSummery from "../pages/teacher/CourseSummery";
+import Unauthorized from "../pages/Unauthorized";
 import PrivateRoute from "./PrivateRoute";
 import RoleBasedRoute from "./RoleBasedRoute";
-import LoaderDotted from "../components/common/LoaderDotted";
+import ModulePlayer from "../pages/student/ModulePlayer";
+import Programmes from "../pages/Programmes";
+import ProgrammeDetails from "../pages/ProgrammeDetails";
 
-// Helper to wrap lazy loaded components in Suspense
-const lazyLoad = (LazyComponent) => (
-  <Suspense fallback={<LoaderDotted />}>
-    <LazyComponent />
-  </Suspense>
-);
-
-// Lazy-loaded pages
-const Home = lazy(() => import("../pages/Home"));
-const About = lazy(() => import("../pages/About"));
-const FAQ = lazy(() => import("../pages/Faq"));
-const Courses = lazy(() => import("../pages/Courses"));
-const Programmes = lazy(() => import("../pages/Programmes"));
-const ProgrammeDetails = lazy(() => import("../pages/ProgrammeDetails"));
-const Login = lazy(() => import("../pages/Login"));
-const Signup = lazy(() => import("../pages/Signup"));
-const BeTeacher = lazy(() => import("../pages/BeTeacher"));
-const CourseDetails = lazy(() => import("../pages/student/CourseDetails"));
-const StripeWrapper = lazy(() => import("../pages/student/StripeWrapper"));
-const ModulePlayer = lazy(() => import("../pages/student/ModulePlayer"));
-const Unauthorized = lazy(() => import("../pages/Unauthorized"));
-const NotFound = lazy(() => import("../pages/NotFound"));
-
-// Dashboard Pages
-const DashBoard = lazy(() => import("../pages/common/Dashboard"));
-const Profile = lazy(() => import("../pages/common/Profile"));
-const CourseDash = lazy(() => import("../pages/common/CourseDash"));
-const CourseAssignments = lazy(() => import("../pages/student/CourseAssignments"));
-const AddCourse = lazy(() => import("../pages/teacher/AddCourse"));
-const CourseSummery = lazy(() => import("../pages/teacher/CourseSummery"));
-const ManageTeachers = lazy(() => import("../pages/admin/ManageTeachers"));
-const ManageUsers = lazy(() => import("../pages/admin/ManageUsers"));
 
 const router = createBrowserRouter([
   {
@@ -46,77 +34,79 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: lazyLoad(Home),
+        element: <Home />,
       },
       {
         path: "/about",
-        element: lazyLoad(About),
+        element: <About />,
       },
       {
         path: "/faq",
-        element: lazyLoad(FAQ),
+        element: <FAQ />,
       },
       {
         path: "/courses",
-        element: lazyLoad(Courses),
+        element: <Courses />,
       },
       {
         path: "/Programmes",
-        element: lazyLoad(Programmes),
+        element: <Programmes />,
       },
       {
-        path: "/Programmes/:id", 
-        element: lazyLoad(ProgrammeDetails),
+        path: "/Programmes/:id",
+        element: <ProgrammeDetails />,
       },
       {
         path: "/login",
-        element: lazyLoad(Login),
+        element: <Login />,
       },
       {
         path: "/signup",
-        element: lazyLoad(Signup),
+        element: <Signup />,
       },
       {
         path: "/become-teacher",
         element: (
           <PrivateRoute>
-            {lazyLoad(BeTeacher)}
+            <BeTeacher />
           </PrivateRoute>
         ),
       },
       {
         path: "/courses/:id",
-        element: lazyLoad(CourseDetails),
+        element: (
+          <CourseDetails />
+        ),
       },
       {
         path: "/payment/:id",
         element: (
           <PrivateRoute>
-            {lazyLoad(StripeWrapper)}
+            <StripeWrapper />
           </PrivateRoute>
         ),
       },
       {
         path: "course/:courseId/module/:order",
-        element: lazyLoad(ModulePlayer)
+        element: <ModulePlayer />
       },
       {
         path: "/dashboard",
         element: (
           <PrivateRoute>
-            {lazyLoad(DashBoard)}
+            <DashBoard />
           </PrivateRoute>
         ),
         children: [
           {
             index: true,
-            element: lazyLoad(Profile),
+            element: <Profile />,
           },
           {
             path: "profile",
             element: (
               <PrivateRoute>
-                {lazyLoad(Profile)}
+                <Profile />
               </PrivateRoute>
             ),
           },
@@ -124,7 +114,7 @@ const router = createBrowserRouter([
             path: "courses",
             element: (
               <PrivateRoute>
-                {lazyLoad(CourseDash)}
+                <CourseDash />
               </PrivateRoute>
             ),
           },
@@ -132,7 +122,7 @@ const router = createBrowserRouter([
             path: "assignments/:courseId",
             element: (
               <RoleBasedRoute allowedRoles={["student"]}>
-                {lazyLoad(CourseAssignments)}
+                <CourseAssignments />
               </RoleBasedRoute>
             ),
           },
@@ -140,7 +130,7 @@ const router = createBrowserRouter([
             path: "courses/add",
             element: (
               <RoleBasedRoute allowedRoles={["teacher"]}>
-                {lazyLoad(AddCourse)}
+                <AddCourse />
               </RoleBasedRoute>
             ),
           },
@@ -148,7 +138,7 @@ const router = createBrowserRouter([
             path: "courses/update/:id",
             element: (
               <RoleBasedRoute allowedRoles={["teacher"]}>
-                {lazyLoad(AddCourse)}
+                <AddCourse />
               </RoleBasedRoute>
             ),
           },
@@ -156,15 +146,16 @@ const router = createBrowserRouter([
             path: "courses/:courseId",
             element: (
               <RoleBasedRoute allowedRoles={["teacher", "admin"]}>
-                {lazyLoad(CourseSummery)}
+                <CourseSummery />
               </RoleBasedRoute>
             ),
           },
+
           {
             path: "teachers",
             element: (
               <RoleBasedRoute allowedRoles={["admin"]}>
-                {lazyLoad(ManageTeachers)}
+                <ManageTeachers />
               </RoleBasedRoute>
             ),
           },
@@ -172,7 +163,7 @@ const router = createBrowserRouter([
             path: "users",
             element: (
               <RoleBasedRoute allowedRoles={["admin"]}>
-                {lazyLoad(ManageUsers)}
+                <ManageUsers />
               </RoleBasedRoute>
             ),
           },
@@ -180,11 +171,11 @@ const router = createBrowserRouter([
       },
       {
         path: "*",
-        element: lazyLoad(NotFound),
+        element: <NotFound />,
       },
       {
         path: "unauthorized",
-        element: lazyLoad(Unauthorized),
+        element: <Unauthorized />,
       },
     ],
   },

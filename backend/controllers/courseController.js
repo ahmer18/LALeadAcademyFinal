@@ -1,7 +1,31 @@
 const { ObjectId } = require("mongodb");
 const connectDB = require("../config/dbConnection");
 
-const getCollection = async (name) => { const db = await connectDB(); return db.collection(name); };
+let db, usersCollection, coursesCollection, enrollmentsCollection;
+
+// ------------------- IN-MEMORY LIGHTWEIGHT CACHE -------------------
+const courseCache = new Map();
+const CACHE_TTL = 2 * 60 * 1000; // Cache valid for 2 minutes
+
+// Helper function to clear cache when data alters
+const clearCourseCache = () => courseCache.clear();
+
+(async () => {
+  db = await connectDB();
+  usersCollection = db.collection("users");
+  coursesCollection = db.collection("courses");
+  enrollmentsCollection = db.collection("enrollments");
+
+  // AUTOMATED CRUCIAL STEP: Ensure critical indexes exist on app startup
+  try {
+    await coursesCollection.createIndex({ status: 1, createdAt: -1 });
+    await coursesCollection.createIndex({ title: "text" });
+    await enrollmentsCollection.createIndex({ courseId: 1 });
+    console.log("MongoDB Optimization Indexes verified successfully.");
+  } catch (indexErr) {
+    console.error("Failed to initialize database indexes:", indexErr.message);
+  }
+})();
 
 // ------------------- CONTROLLER FUNCTIONS -------------------
 
@@ -12,10 +36,10 @@ exports.getAllCoursesAdmin = async (req, res) => {
   const skip = (page - 1) * limit;
 
   try {
-    const totalCourses = await (await getCollection("courses")).countDocuments();
+    const totalCourses = await coursesCollection.countDocuments();
     const totalPages = Math.ceil(totalCourses / limit);
 
-    const courses = await (await getCollection("courses"))
+    const courses = await coursesCollection
       .find()
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -46,12 +70,13 @@ exports.deleteModuleFromCourse = async (req, res) => {
     const { order } = req.body;
     if (!order) return res.status(400).send({ message: "Module order is required" });
 
-    const result = await (await getCollection("courses")).updateOne(
+    const result = await coursesCollection.updateOne(
       { _id: new ObjectId(id) },
       { $pull: { modules: { order: parseInt(order) } } }
     );
 
     if (result.modifiedCount > 0) {
+      clearCourseCache(); // Data altered, wipe cache
       res.send({ success: true, message: "Module removed successfully" });
     } else {
       res.status(404).send({ success: false, message: "Module not found" });
@@ -61,56 +86,63 @@ exports.deleteModuleFromCourse = async (req, res) => {
   }
 };
 
-// Get approved courses with search + pagination (Users)
+// OPTIMIZED: Get approved courses with search + pagination (Users)
 exports.getApprovedCourses = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 9;
   const search = req.query.searchTerm || "";
   const skip = (page - 1) * limit;
 
-  const pipeline = [
-    { $match: { status: "approved" } },
-  ];
-
-  if (search) {
-    pipeline.push({ $match: { title: { $regex: search, $options: "i" } } });
+  // Read from Memory Cache if available (Resolves fast repeated hits)
+  const cacheKey = `approved-p${page}-l${limit}-s${search}`;
+  if (courseCache.has(cacheKey)) {
+    const cachedEntry = courseCache.get(cacheKey);
+    if (Date.now() - cachedEntry.timestamp < CACHE_TTL) {
+      return res.status(200).json(cachedEntry.data);
+    }
   }
 
-  // Slicing/pagination first for query efficiency
-  pipeline.push({ $skip: skip });
-  pipeline.push({ $limit: limit });
-
-  // Lookups run only on the 9 returned results
-  pipeline.push(
-    {
-      $lookup: {
-        from: "users",
-        localField: "instructorEmail",
-        foreignField: "email",
-        as: "instructor",
-      },
-    },
-    {
-      $lookup: {
-        from: "enrollments",
-        localField: "_id",
-        foreignField: "courseId",
-        as: "enrollments",
-      },
-    },
-    { $addFields: { totalEnrollments: { $size: "$enrollments" } } }
-  );
-
   try {
-    let totalCourses = await (await getCollection("courses")).countDocuments({
-      status: "approved",
-      ...(search && { title: { $regex: search, $options: "i" } }),
-    });
+    // Construct search filter utilizing the database index mappings
+    const matchFilter = { status: "approved" };
+    if (search) {
+      // Fast indexing text search
+      matchFilter.$text = { $search: search };
+    }
 
+    // Fast indexed count request
+    const totalCourses = await coursesCollection.countDocuments(matchFilter);
     const totalPages = Math.ceil(totalCourses / limit);
-    const courses = await (await getCollection("courses")).aggregate(pipeline).toArray();
 
-    res.status(200).json({
+    // CRUCIAL: Match, Sort, Skip, and Limit MUST hit before running heavy lookups
+    const pipeline = [
+      { $match: matchFilter },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: "users",
+          localField: "instructorEmail",
+          foreignField: "email",
+          as: "instructor",
+        },
+      },
+      {
+        $lookup: {
+          from: "enrollments",
+          localField: "_id",
+          foreignField: "courseId",
+          as: "enrollments",
+        },
+      },
+      { $addFields: { totalEnrollments: { $size: "$enrollments" } } },
+      { $project: { enrollments: 0 } } // Exclude raw data arrays to cut down bandwidth bloat
+    ];
+
+    const courses = await coursesCollection.aggregate(pipeline).toArray();
+
+    const responseData = {
       success: true,
       message: "Courses fetched successfully",
       currentPage: page,
@@ -118,7 +150,15 @@ exports.getApprovedCourses = async (req, res) => {
       totalCourses,
       totalPages,
       hasNextPage: page < totalPages,
+    };
+
+    // Store in internal cache
+    courseCache.set(cacheKey, {
+      timestamp: Date.now(),
+      data: responseData,
     });
+
+    res.status(200).json(responseData);
   } catch (err) {
     res.status(500).json({
       success: false,
@@ -137,10 +177,10 @@ exports.getCoursesByTeacher = async (req, res) => {
   const query = { instructorEmail: email };
 
   try {
-    const totalCourses = await (await getCollection("courses")).countDocuments(query);
+    const totalCourses = await coursesCollection.countDocuments(query);
     const totalPages = Math.ceil(totalCourses / limit);
 
-    const result = await (await getCollection("courses"))
+    const result = await coursesCollection
       .find(query)
       .skip(skip)
       .limit(limit)
@@ -161,19 +201,11 @@ exports.getCoursesByTeacher = async (req, res) => {
   }
 };
 
-// Popular Courses
+// OPTIMIZED: Popular Courses pipeline order
 exports.getPopularCourses = async (req, res) => {
   try {
     const pipeline = [
       { $match: { status: "approved" } },
-      {
-        $lookup: {
-          from: "users",
-          localField: "instructorEmail",
-          foreignField: "email",
-          as: "instructor",
-        },
-      },
       {
         $lookup: {
           from: "enrollments",
@@ -185,11 +217,18 @@ exports.getPopularCourses = async (req, res) => {
       { $addFields: { totalEnrollments: { $size: "$enrollments" } } },
       { $sort: { totalEnrollments: -1 } },
       { $limit: 6 },
+      {
+        $lookup: {
+          from: "users",
+          localField: "instructorEmail",
+          foreignField: "email",
+          as: "instructor",
+        },
+      },
+      { $project: { enrollments: 0 } }
     ];
 
-    const popularCourses = await (await getCollection("courses"))
-      .aggregate(pipeline)
-      .toArray();
+    const popularCourses = await coursesCollection.aggregate(pipeline).toArray();
     res.status(200).json({
       success: true,
       message: "Popular courses fetched successfully",
@@ -200,7 +239,7 @@ exports.getPopularCourses = async (req, res) => {
   }
 };
 
-// New Courses
+// OPTIMIZED: New Courses pipeline order
 exports.getNewCourses = async (req, res) => {
   try {
     const pipeline = [
@@ -224,9 +263,10 @@ exports.getNewCourses = async (req, res) => {
         },
       },
       { $addFields: { totalEnrollments: { $size: "$enrollments" } } },
+      { $project: { enrollments: 0 } }
     ];
 
-    const newCourses = await (await getCollection("courses")).aggregate(pipeline).toArray();
+    const newCourses = await coursesCollection.aggregate(pipeline).toArray();
     res.status(200).json({
       success: true,
       message: "New courses fetched successfully",
@@ -236,7 +276,6 @@ exports.getNewCourses = async (req, res) => {
     res.status(500).send({ message: "Failed to load new courses" });
   }
 };
-
 
 // Get single course by ID
 exports.getCourseById = async (req, res) => {
@@ -262,9 +301,10 @@ exports.getCourseById = async (req, res) => {
       },
       { $unwind: "$instructor" },
       { $addFields: { totalEnrollments: { $size: "$enrollments" } } },
+      { $project: { enrollments: 0 } }
     ];
 
-    const result = await (await getCollection("courses")).aggregate(pipeline).toArray();
+    const result = await coursesCollection.aggregate(pipeline).toArray();
     if (!result.length)
       return res
         .status(404)
@@ -289,7 +329,8 @@ exports.addCourse = async (req, res) => {
       createdAt: new Date(),
     };
 
-    const result = await (await getCollection("courses")).insertOne(course);
+    const result = await coursesCollection.insertOne(course);
+    clearCourseCache(); // Wipe outdated data cache
     res.status(200).json({
       success: true,
       message: "Course added successfully",
@@ -300,11 +341,11 @@ exports.addCourse = async (req, res) => {
   }
 };
 
-// Add a specific module to an existing course - now supports blocks array
+// Add module
 exports.addModuleToCourse = async (req, res) => {
   const id = req.params.id;
   const { title, order, blocks, completionMessage } = req.body;
-  
+
   const newModule = {
     title,
     order: parseInt(order),
@@ -315,18 +356,17 @@ exports.addModuleToCourse = async (req, res) => {
 
   try {
     const filter = { _id: new ObjectId(id) };
-    // Use $push to add the new module to the modules array in MongoDB
     const update = {
       $push: {
         modules: {
           $each: [newModule],
-          $sort: { order: 1 } // Automatically keeps modules 1, 2, 3... in order
+          $sort: { order: 1 }
         }
       }
     };
 
-    const result = await (await getCollection("courses")).updateOne(filter, update);
-
+    const result = await coursesCollection.updateOne(filter, update);
+    clearCourseCache();
     res.status(200).json({
       success: true,
       message: `Module added successfully with ${newModule.blocks.length} blocks`,
@@ -337,11 +377,11 @@ exports.addModuleToCourse = async (req, res) => {
   }
 };
 
-// Update a specific module in an existing course
+// Update module
 exports.updateModuleInCourse = async (req, res) => {
   const id = req.params.id;
   const { oldOrder, title, order, blocks, completionMessage } = req.body;
-  
+
   const updatedModule = {
     title,
     order: parseInt(order),
@@ -352,18 +392,15 @@ exports.updateModuleInCourse = async (req, res) => {
 
   try {
     const filter = { _id: new ObjectId(id), "modules.order": parseInt(oldOrder) };
-    const update = {
-      $set: {
-        "modules.$": updatedModule
-      }
-    };
+    const update = { $set: { "modules.$": updatedModule } };
 
-    const result = await (await getCollection("courses")).updateOne(filter, update);
+    const result = await coursesCollection.updateOne(filter, update);
 
     if (result.matchedCount === 0) {
       return res.status(404).json({ success: false, message: "Module not found" });
     }
 
+    clearCourseCache();
     res.status(200).json({
       success: true,
       message: "Module updated successfully",
@@ -382,7 +419,8 @@ exports.changeCourseStatus = async (req, res) => {
   const doc = { $set: { status } };
 
   try {
-    const result = await (await getCollection("courses")).updateOne(filter, doc);
+    const result = await coursesCollection.updateOne(filter, doc);
+    clearCourseCache();
     res.status(200).json({
       success: true,
       message: "Course status updated",
@@ -399,7 +437,8 @@ exports.deleteCourse = async (req, res) => {
   const filter = { _id: new ObjectId(id) };
 
   try {
-    const result = await (await getCollection("courses")).deleteOne(filter);
+    const result = await coursesCollection.deleteOne(filter);
+    clearCourseCache();
     res.status(200).json({
       success: true,
       message: "Course deleted successfully",
@@ -417,7 +456,8 @@ exports.updateCourse = async (req, res) => {
   const doc = { $set: req.body };
 
   try {
-    const result = await (await getCollection("courses")).updateOne(filter, doc);
+    const result = await coursesCollection.updateOne(filter, doc);
+    clearCourseCache();
     res.status(200).json({
       success: true,
       message: "Course updated successfully",
@@ -455,7 +495,7 @@ exports.getEnrolledCourses = async (req, res) => {
       { $sort: { createdAt: -1 } },
     ];
 
-    const enrolledCourses = await (await getCollection("enrollments"))
+    const enrolledCourses = await enrollmentsCollection
       .aggregate(pipeline)
       .toArray();
     res.status(200).json({
@@ -470,7 +510,3 @@ exports.getEnrolledCourses = async (req, res) => {
     });
   }
 };
-
-
-
-

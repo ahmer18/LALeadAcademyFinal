@@ -11,6 +11,43 @@ const assignmentController = require("../controllers/assignmentController");
 const feedbackController = require("../controllers/feedbackController");
 const utilsController = require("../controllers/utilsController");
 
+// ==========================================
+// PUBLIC COURSE CACHE MIDDLEWARE (Optimized for 833ms fix)
+// ==========================================
+const courseCache = new Map();
+const CACHE_TTL = 2 * 60 * 1000; // Cache data for 2 minutes
+
+const cachePublicCourses = (req, res, next) => {
+    // Generate a distinct key tracking pagination and search queries
+    const page = req.query.page || "1";
+    const limit = req.query.limit || "9";
+    const search = req.query.searchTerm || "";
+    const cacheKey = `approved_p${page}_l${limit}_s_${search}`;
+
+    // If valid data exists in memory, serve it instantly without hitting MongoDB
+    if (courseCache.has(cacheKey)) {
+        const cachedItem = courseCache.get(cacheKey);
+        if (Date.now() - cachedItem.timestamp < CACHE_TTL) {
+            return res.status(200).json(cachedItem.data);
+        }
+    }
+
+    // Overwrite res.json temporarily to harvest the fresh DB data payload
+    const nativeJson = res.json;
+    res.json = function (body) {
+        if (res.statusCode === 200) {
+            courseCache.set(cacheKey, {
+                timestamp: Date.now(),
+                data: body
+            });
+        }
+        nativeJson.call(this, body);
+    };
+
+    next();
+};
+// ==========================================
+
 // --- Progress ---
 router.patch('/update-progress/:courseId', verifyToken, enrollmentController.updateModuleProgress);
 router.get("/enrollment-status/:courseId", verifyToken, enrollmentController.getEnrollmentStatus);
@@ -34,13 +71,13 @@ router.get("/courses/teacher/:email", verifyToken, verifyRole(["teacher"]), cour
 router.post("/courses/add", verifyToken, verifyRole(["teacher"]), courseController.addCourse);
 router.patch("/add-module/:id", verifyToken, verifyRole(["teacher"]), courseController.addModuleToCourse);
 router.patch("/update-module/:id", verifyToken, verifyRole(["teacher"]), courseController.updateModuleInCourse);
-router.patch("/delete-module/:id", verifyToken, verifyRole(["teacher"]), courseController.deleteModuleFromCourse); // Single instance
+router.patch("/delete-module/:id", verifyToken, verifyRole(["teacher"]), courseController.deleteModuleFromCourse);
 router.patch("/courses/:id", verifyToken, verifyRole(["teacher"]), courseController.updateCourse);
 router.delete("/courses/:id", verifyToken, verifyRole(["teacher"]), courseController.deleteCourse);
 router.get("/instructor/course-progress/:courseId", verifyToken, verifyRole(["teacher"]), enrollmentController.getCourseProgressForTeacher);
 
-// Public Section
-router.get("/courses", courseController.getApprovedCourses);
+// Public Section (Cache injected here)
+router.get("/courses", cachePublicCourses, courseController.getApprovedCourses);
 router.get("/courses/popular", courseController.getPopularCourses);
 router.get("/courses/new", courseController.getNewCourses);
 router.get("/courses/:id", courseController.getCourseById);

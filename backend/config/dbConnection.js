@@ -15,13 +15,10 @@ const connectDB = async () => {
       if (!client) {
         client = new MongoClient(MONGO_URI);
       }
-      
+
       await client.connect();
       db = client.db("mentora");
       console.log("✅ MongoDB (MongoClient) connected successfully");
-      
-      // Index creation removed for serverless compatibility
-      
       return db;
     } catch (error) {
       console.error("❌ MongoDB (MongoClient) Connection Error:", error);
@@ -34,4 +31,3 @@ const connectDB = async () => {
 };
 
 module.exports = connectDB;
-
