@@ -34,7 +34,7 @@ router.get("/courses/teacher/:email", verifyToken, verifyRole(["teacher"]), cour
 router.post("/courses/add", verifyToken, verifyRole(["teacher"]), courseController.addCourse);
 router.patch("/add-module/:id", verifyToken, verifyRole(["teacher"]), courseController.addModuleToCourse);
 router.patch("/update-module/:id", verifyToken, verifyRole(["teacher"]), courseController.updateModuleInCourse);
-router.patch("/delete-module/:id", verifyToken, verifyRole(["teacher"]), courseController.deleteModuleFromCourse);
+router.patch("/delete-module/:id", verifyToken, verifyRole(["teacher"]), courseController.deleteModuleFromCourse); // Single instance
 router.patch("/courses/:id", verifyToken, verifyRole(["teacher"]), courseController.updateCourse);
 router.delete("/courses/:id", verifyToken, verifyRole(["teacher"]), courseController.deleteCourse);
 router.get("/instructor/course-progress/:courseId", verifyToken, verifyRole(["teacher"]), enrollmentController.getCourseProgressForTeacher);
@@ -68,3 +68,4 @@ router.get("/get-ik-signature", utilsController.getIKSignature);
 router.get("/statistics", utilsController.getStatistics);
 
 module.exports = router;
+
