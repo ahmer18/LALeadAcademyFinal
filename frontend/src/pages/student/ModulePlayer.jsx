@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
-import { FaArrowLeft, FaCheckCircle, FaVideo, FaAlignLeft, FaQuestionCircle, FaFileAlt, FaTrophy, FaStar, FaExclamationCircle } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight, FaCheckCircle, FaVideo, FaAlignLeft, FaQuestionCircle, FaFileAlt, FaTrophy, FaStar, FaExclamationCircle, FaChevronLeft, FaChevronRight, FaImage } from "react-icons/fa";
 import confetti from "canvas-confetti";
 
 // ─────────────────────────────────────────────
@@ -238,6 +238,17 @@ const CelebrationModal = ({ module, isCourseComplete, onContinue }) => {
 };
 
 // ─────────────────────────────────────────────
+// Block type icon & label helper
+// ─────────────────────────────────────────────
+const BLOCK_META = {
+  text:       { icon: FaAlignLeft,        label: "Reading",    color: "text-blue-600",   bg: "bg-blue-50" },
+  video:      { icon: FaVideo,            label: "Video",      color: "text-purple-600", bg: "bg-purple-50" },
+  photo:      { icon: FaImage,            label: "Image",      color: "text-pink-600",   bg: "bg-pink-50" },
+  quiz:       { icon: FaQuestionCircle,   label: "Quiz",       color: "text-emerald-600",bg: "bg-emerald-50" },
+  assignment: { icon: FaFileAlt,          label: "Assignment", color: "text-amber-600",  bg: "bg-amber-50" },
+};
+
+// ─────────────────────────────────────────────
 // Main ModulePlayer Component
 // ─────────────────────────────────────────────
 const ModulePlayer = () => {
@@ -247,7 +258,19 @@ const ModulePlayer = () => {
   const axiosSecure = useAxiosSecure();
   const module = state?.module;
 
-  // Track if all quizzes in this module are passed
+  // ── Slide navigation state ──
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [slideDirection, setSlideDirection] = useState("next"); // "next" | "prev"
+  const [isAnimating, setIsAnimating] = useState(false);
+  const slideRef = useRef(null);
+  const touchStartX = useRef(null);
+
+  const blocks = module?.blocks || [];
+  const totalSlides = blocks.length;
+  const isFirstSlide = currentSlide === 0;
+  const isLastSlide = currentSlide === totalSlides - 1;
+
+  // ── Quiz / completion state ──
   const [quizStatuses, setQuizStatuses] = useState({});
   const [canComplete, setCanComplete] = useState(true);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -286,25 +309,53 @@ const ModulePlayer = () => {
     setQuizStatuses(prev => ({ ...prev, [blockId]: passed }));
   };
 
+  // ── Slide navigation handlers ──
+  const goToSlide = useCallback((index, direction) => {
+    if (isAnimating || index < 0 || index >= totalSlides) return;
+    setSlideDirection(direction);
+    setIsAnimating(true);
+    setTimeout(() => {
+      setCurrentSlide(index);
+      setIsAnimating(false);
+      // Scroll to top of slide content
+      if (slideRef.current) slideRef.current.scrollTop = 0;
+    }, 280);
+  }, [isAnimating, totalSlides]);
+
+  const goNext = useCallback(() => {
+    if (!isLastSlide) goToSlide(currentSlide + 1, "next");
+  }, [currentSlide, isLastSlide, goToSlide]);
+
+  const goPrev = useCallback(() => {
+    if (!isFirstSlide) goToSlide(currentSlide - 1, "prev");
+  }, [currentSlide, isFirstSlide, goToSlide]);
+
+  // ── Keyboard navigation ──
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); goNext(); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); goPrev(); }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [goNext, goPrev]);
+
+  // ── Touch / swipe support ──
+  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) { diff > 0 ? goNext() : goPrev(); }
+    touchStartX.current = null;
+  };
+
   const handleComplete = async () => {
-    if (!canComplete) {
-      return;
-    }
+    if (!canComplete) return;
     try {
       await axiosSecure.patch(`/update-progress/${courseId}`, {
         completedModuleOrder: module.order
       });
-      console.log("Progress updated successfully");
-
-      // Fire a safety confetti burst immediately
-      confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ["#8d6e3e", "#1e3a8a", "#ffffff"],
-        zIndex: 100000
-      });
-
+      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ["#8d6e3e", "#1e3a8a", "#ffffff"], zIndex: 100000 });
       setShowCelebration(true);
     } catch (err) {
       console.warn("Progress update failed, but showing celebration anyway:", err);
@@ -319,8 +370,138 @@ const ModulePlayer = () => {
 
   if (!module) return <div className="p-10 text-center">Module data not found.</div>;
 
+  // ── Current block ──
+  const currentBlock = blocks[currentSlide];
+  const blockMeta = BLOCK_META[currentBlock?.type] || BLOCK_META.text;
+  const BlockIcon = blockMeta.icon;
+
+  // ── Slide animation class ──
+  const getSlideAnimClass = () => {
+    if (isAnimating) {
+      return slideDirection === "next"
+        ? "mp-slide-exit-left"
+        : "mp-slide-exit-right";
+    }
+    return slideDirection === "next"
+      ? "mp-slide-enter-right"
+      : "mp-slide-enter-left";
+  };
+
+  // ── Render the current block content ──
+  const renderBlockContent = (block) => {
+    if (!block) return null;
+
+    if (block.type === 'text') {
+      return (
+        <div className="space-y-4 w-full">
+          <div className="prose prose-lg max-w-none bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-gray-100 relative">
+            <FaAlignLeft className="absolute top-8 right-8 text-gray-200 text-3xl" />
+            <div
+              className="ql-editor-content text-gray-700 leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: block.content }}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    if (block.type === 'video') {
+      const embedUrl = block.videoUrl?.replace("watch?v=", "embed/");
+      return (
+        <div className="w-full">
+          <div className="bg-black p-2 md:p-4 rounded-3xl shadow-2xl">
+            <div className="aspect-video w-full rounded-2xl overflow-hidden relative">
+              <iframe
+                width="100%"
+                height="100%"
+                src={embedUrl}
+                title="Video Player"
+                frameBorder="0"
+                allowFullScreen
+                className="absolute inset-0 z-10"
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (block.type === 'photo') {
+      return (
+        <div className="w-full flex justify-center">
+          <div className="bg-white p-4 md:p-6 rounded-3xl shadow-md border border-slate-100 overflow-hidden inline-block">
+            <img
+              src={block.photoUrl}
+              alt={block.heading || "Module Image"}
+              className="max-w-full h-auto rounded-2xl object-contain max-h-[55vh] shadow-sm"
+            />
+          </div>
+        </div>
+      );
+    }
+
+    if (block.type === 'quiz') {
+      return (
+        <div className="w-full">
+          <InlineQuiz block={block} onPass={(passed) => handleQuizPass(block.id, passed)} />
+        </div>
+      );
+    }
+
+    if (block.type === 'assignment') {
+      return (
+        <div className="w-full">
+          <div className="bg-amber-50 p-6 md:p-8 rounded-2xl border border-amber-200 relative overflow-hidden">
+            <FaFileAlt className="absolute -bottom-4 -right-4 text-amber-200/50 text-9xl" />
+            <div className="relative z-10 flex items-center gap-3 mb-4">
+              <span className="w-10 h-10 rounded-xl bg-amber-200 flex items-center justify-center text-amber-800 shadow-inner">
+                <FaFileAlt />
+              </span>
+              <h3 className="text-xl font-bold text-amber-900">Assignment Task</h3>
+            </div>
+            <div className="relative z-10 prose prose-amber">
+              <p className="whitespace-pre-wrap text-amber-900/80 font-medium">{block.assignmentDetails?.description || block.description}</p>
+            </div>
+            <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-amber-900 text-white text-xs font-bold rounded-lg tracking-wider">
+              DUE DATE: <span className="text-amber-300">{block.assignmentDetails?.deadline || block.deadline}</span>
+            </div>
+            <p className="text-xs text-amber-700/60 mt-4 relative z-10 font-bold italic">
+              * Return to the Course Dashboard to submit this assignment file when ready.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <>
+      {/* ── Slide animation styles ── */}
+      <style>{`
+        @keyframes mpSlideEnterRight {
+          from { opacity: 0; transform: translateX(60px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes mpSlideEnterLeft {
+          from { opacity: 0; transform: translateX(-60px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes mpSlideExitLeft {
+          from { opacity: 1; transform: translateX(0); }
+          to   { opacity: 0; transform: translateX(-60px); }
+        }
+        @keyframes mpSlideExitRight {
+          from { opacity: 1; transform: translateX(0); }
+          to   { opacity: 0; transform: translateX(60px); }
+        }
+        .mp-slide-enter-right  { animation: mpSlideEnterRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .mp-slide-enter-left   { animation: mpSlideEnterLeft  0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .mp-slide-exit-left    { animation: mpSlideExitLeft   0.25s ease-in forwards; }
+        .mp-slide-exit-right   { animation: mpSlideExitRight  0.25s ease-in forwards; }
+      `}</style>
+
       {/* Celebration Overlay */}
       {showCelebration && (
         <CelebrationModal
@@ -330,152 +511,147 @@ const ModulePlayer = () => {
         />
       )}
 
-      <div className="max-w-6xl mx-auto p-6 md:px-12 md:pt-32 space-y-12 pb-48 animate-fadeIn">
-        <div className="flex justify-between items-center">
-          <button onClick={() => navigate(-1)} className="group flex items-center gap-2 text-slate-400 hover:text-blue-900 transition-all font-black text-xs uppercase tracking-widest">
-            <FaArrowLeft className="group-hover:-translate-x-1 transition-transform" /> Back to Learning Path
-          </button>
-        </div>
-
-        <div className="space-y-6 mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50/50 text-blue-900 font-black tracking-[0.2em] uppercase text-[10px] rounded-full border border-blue-100/50">
-            <div className="w-1.5 h-1.5 rounded-full bg-blue-900 animate-pulse" />
-            Module {module.order}
-          </div>
-          <h1 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tight leading-[0.9]">{module.title}</h1>
-          <div className="h-1.5 w-24 bg-blue-900 rounded-full" />
-        </div>
-
-        <div className="space-y-20">
-          {module.blocks?.map((block, index) => {
-            if (block.type === 'text') {
-              return (
-                <div key={index} className="space-y-4">
-                  {block.heading && (
-                    <h3 className="text-2xl font-black text-slate-800 tracking-tight">{block.heading}</h3>
-                  )}
-                  <div className="prose prose-lg max-w-none bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative">
-                    <FaAlignLeft className="absolute top-8 right-8 text-gray-200 text-3xl" />
-                    <div
-                      className="ql-editor-content text-gray-700 leading-relaxed"
-                      dangerouslySetInnerHTML={{ __html: block.content }}
-                    />
-                  </div>
-                </div>
-              );
-            }
-
-            if (block.type === 'video') {
-              const embedUrl = block.videoUrl?.replace("watch?v=", "embed/");
-              return (
-                <div key={index} className="space-y-4">
-                  {block.heading && (
-                    <h3 className="text-2xl font-black text-slate-800 tracking-tight">{block.heading}</h3>
-                  )}
-                  <div className="bg-black p-2 md:p-4 rounded-3xl shadow-2xl">
-                    <div className="aspect-video w-full rounded-2xl overflow-hidden relative group">
-                      <iframe
-                        width="100%"
-                        height="100%"
-                        src={embedUrl}
-                        title="Video Player"
-                        frameBorder="0"
-                        allowFullScreen
-                        className="absolute inset-0 z-10"
-                      ></iframe>
-                    </div>
-                  </div>
-                </div>
-              );
-            }
-
-            if (block.type === 'photo') {
-              return (
-                <div key={index} className="space-y-4">
-                  {block.heading && (
-                    <h3 className="text-2xl font-black text-slate-800 tracking-tight">{block.heading}</h3>
-                  )}
-                  <div className="bg-white p-6 rounded-3xl shadow-md border border-slate-100 flex justify-center overflow-hidden">
-                    <img
-                      src={block.photoUrl}
-                      alt={block.heading || "Module Image"}
-                      className="max-w-full h-auto rounded-2xl object-contain max-h-[600px] shadow-sm"
-                    />
-                  </div>
-                </div>
-              );
-            }
-
-            if (block.type === 'quiz') {
-              return (
-                <div key={index} className="space-y-4">
-                  {block.heading && (
-                    <h3 className="text-2xl font-black text-slate-800 tracking-tight">{block.heading}</h3>
-                  )}
-                  <InlineQuiz block={block} onPass={(passed) => handleQuizPass(block.id, passed)} />
-                </div>
-              );
-            }
-
-            if (block.type === 'assignment') {
-              return (
-                <div key={index} className="space-y-4">
-                  {block.heading && (
-                    <h3 className="text-2xl font-black text-slate-800 tracking-tight">{block.heading}</h3>
-                  )}
-                  <div className="bg-amber-50 p-6 md:p-8 rounded-2xl border border-amber-200 relative overflow-hidden">
-                    <FaFileAlt className="absolute -bottom-4 -right-4 text-amber-200/50 text-9xl" />
-                    <div className="relative z-10 flex items-center gap-3 mb-4">
-                      <span className="w-10 h-10 rounded-xl bg-amber-200 flex items-center justify-center text-amber-800 shadow-inner">
-                        <FaFileAlt />
-                      </span>
-                      <h3 className="text-xl font-bold text-amber-900">Assignment Task</h3>
-                    </div>
-                    <div className="relative z-10 prose prose-amber">
-                      <p className="whitespace-pre-wrap text-amber-900/80 font-medium">{block.assignmentDetails?.description || block.description}</p>
-                    </div>
-                    <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-amber-900 text-white text-xs font-bold rounded-lg tracking-wider">
-                      DUE DATE: <span className="text-amber-300">{block.assignmentDetails?.deadline || block.deadline}</span>
-                    </div>
-                    <p className="text-xs text-amber-700/60 mt-4 relative z-10 font-bold italic">
-                      * Return to the Course Dashboard to submit this assignment file when ready.
-                    </p>
-                  </div>
-                </div>
-              );
-            }
-
-            return null;
-          })}
-          {(!module.blocks || module.blocks.length === 0) && (
-            <div className="py-20 text-center text-gray-500 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-              This module has no content blocks yet.
-            </div>
-          )}
-        </div>
-
-        {/* Bottom bar */}
-        <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/60 backdrop-blur-2xl border-t border-slate-100/50 z-50">
-          <div className="max-w-6xl mx-auto w-full flex justify-between items-center bg-white p-4 rounded-[2rem] shadow-2xl shadow-blue-900/10 border border-slate-50">
-            <div className="hidden md:flex items-center gap-3 ml-4">
-               <div className={`w-3 h-3 rounded-full ${canComplete ? 'bg-emerald-500 animate-pulse' : 'bg-slate-200'}`} />
-               <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                 {canComplete
-                   ? "You've mastered this module!"
-                   : "Complete all quizzes to finish"}
-               </p>
-            </div>
+      {/* ── Full-screen slide layout ── */}
+      <div
+        className="fixed inset-0 flex flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50/30 z-0"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* ── Top Header Bar ── */}
+        <div className="flex-shrink-0 px-4 md:px-8 pt-4 pb-3 flex items-center justify-between bg-white/70 backdrop-blur-xl border-b border-slate-100/60 z-20">
+          {/* Left: back + module info */}
+          <div className="flex items-center gap-3 md:gap-5 min-w-0">
             <button
-              onClick={handleComplete}
-              disabled={!canComplete}
-              className={`h-16 px-12 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl flex items-center gap-3 ${canComplete
-                ? "bg-blue-900 text-white hover:bg-blue-800 hover:scale-[1.02] shadow-blue-900/20"
-                : "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
-                }`}
+              onClick={() => navigate(-1)}
+              className="flex-shrink-0 w-10 h-10 rounded-xl bg-slate-100 hover:bg-blue-900 hover:text-white text-slate-500 flex items-center justify-center transition-all"
             >
-              <FaCheckCircle className={canComplete ? "text-emerald-400" : ""} /> 
-              {canComplete ? "Finish Module" : "Quizzes Required"}
+              <FaArrowLeft size={14} />
             </button>
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-900/60">Module {module.order}</p>
+              <h1 className="text-sm md:text-base font-black text-slate-900 truncate">{module.title}</h1>
+            </div>
+          </div>
+
+          {/* Center: progress bar (desktop) */}
+          <div className="hidden md:flex items-center gap-3 flex-1 max-w-md mx-8">
+            <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-blue-900 to-[#8d6e3e] rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${((currentSlide + 1) / totalSlides) * 100}%` }}
+              />
+            </div>
+            <span className="text-xs font-bold text-slate-400 whitespace-nowrap">
+              {currentSlide + 1}/{totalSlides}
+            </span>
+          </div>
+
+          {/* Right: block type badge */}
+          <div className={`flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold ${blockMeta.bg} ${blockMeta.color}`}>
+            <BlockIcon size={12} />
+            <span className="hidden sm:inline">{blockMeta.label}</span>
+          </div>
+        </div>
+
+        {/* ── Mobile progress bar ── */}
+        <div className="md:hidden flex-shrink-0 px-4 pt-2">
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-blue-900 to-[#8d6e3e] rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${((currentSlide + 1) / totalSlides) * 100}%` }}
+              />
+            </div>
+            <span className="text-[10px] font-bold text-slate-400">{currentSlide + 1}/{totalSlides}</span>
+          </div>
+        </div>
+
+        {/* ── Main Slide Content ── */}
+        <div className="flex-1 overflow-hidden relative">
+          <div
+            ref={slideRef}
+            className={`absolute inset-0 overflow-y-auto px-4 md:px-8 py-6 md:py-10 ${getSlideAnimClass()}`}
+            key={currentSlide}
+          >
+            <div className="max-w-4xl mx-auto">
+              {/* Block heading */}
+              {currentBlock?.heading && (
+                <h2 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight mb-6">
+                  {currentBlock.heading}
+                </h2>
+              )}
+
+              {/* Block content */}
+              {totalSlides > 0 ? (
+                renderBlockContent(currentBlock)
+              ) : (
+                <div className="py-20 text-center text-gray-500 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                  This module has no content blocks yet.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Bottom Navigation Bar ── */}
+        <div className="flex-shrink-0 px-4 md:px-8 py-4 bg-white/80 backdrop-blur-xl border-t border-slate-100/60 z-20">
+          <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
+            {/* Previous Button */}
+            <button
+              onClick={goPrev}
+              disabled={isFirstSlide}
+              className={`h-12 md:h-14 px-4 md:px-6 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${
+                isFirstSlide
+                  ? "bg-slate-50 text-slate-300 cursor-not-allowed"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800 active:scale-[0.97]"
+              }`}
+            >
+              <FaChevronLeft size={12} />
+              <span className="hidden sm:inline">Previous</span>
+            </button>
+
+            {/* Dot indicators (desktop) */}
+            <div className="hidden md:flex items-center gap-1.5 flex-wrap justify-center max-w-xs">
+              {blocks.map((b, i) => {
+                const meta = BLOCK_META[b.type] || BLOCK_META.text;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => goToSlide(i, i > currentSlide ? "next" : "prev")}
+                    className={`rounded-full transition-all duration-300 ${
+                      i === currentSlide
+                        ? `w-8 h-3 ${meta.color === "text-blue-600" ? "bg-blue-600" : meta.color === "text-purple-600" ? "bg-purple-600" : meta.color === "text-pink-600" ? "bg-pink-600" : meta.color === "text-emerald-600" ? "bg-emerald-600" : "bg-amber-600"}`
+                        : "w-3 h-3 bg-slate-200 hover:bg-slate-300"
+                    }`}
+                    title={`${meta.label}: ${b.heading || `Block ${i + 1}`}`}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Next / Finish Button */}
+            {isLastSlide ? (
+              <button
+                onClick={handleComplete}
+                disabled={!canComplete}
+                className={`h-12 md:h-14 px-5 md:px-8 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all shadow-xl flex items-center gap-2 ${
+                  canComplete
+                    ? "bg-gradient-to-r from-blue-900 to-[#8d6e3e] text-white hover:shadow-blue-900/30 hover:scale-[1.02] active:scale-[0.97] shadow-blue-900/20"
+                    : "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
+                }`}
+              >
+                <FaCheckCircle className={canComplete ? "text-emerald-400" : ""} />
+                <span>{canComplete ? "Finish Module" : "Complete Quizzes"}</span>
+              </button>
+            ) : (
+              <button
+                onClick={goNext}
+                className="h-12 md:h-14 px-5 md:px-8 rounded-2xl font-black text-xs uppercase tracking-[0.15em] bg-blue-900 text-white hover:bg-blue-800 hover:scale-[1.02] active:scale-[0.97] transition-all shadow-xl shadow-blue-900/20 flex items-center gap-2"
+              >
+                <span>Next</span>
+                <FaChevronRight size={12} />
+              </button>
+            )}
           </div>
         </div>
       </div>
