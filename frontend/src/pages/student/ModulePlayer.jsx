@@ -69,22 +69,22 @@ const InlineQuiz = ({ block, onPass }) => {
       ) : (
         <div className="text-center py-6">
           {score === questions.length ? (
-          <div className="space-y-6 pt-4 animate-in fade-in zoom-in duration-500">
-            <div className="w-24 h-24 rounded-[2rem] bg-emerald-50 text-emerald-500 flex items-center justify-center mx-auto shadow-inner border border-emerald-100 relative group">
-              <div className="absolute inset-0 bg-emerald-400/20 rounded-[2rem] animate-pulse opacity-40" />
-              <FaTrophy size={40} className="relative z-10" />
+            <div className="space-y-6 pt-4 animate-in fade-in zoom-in duration-500">
+              <div className="w-24 h-24 rounded-[2rem] bg-emerald-50 text-emerald-500 flex items-center justify-center mx-auto shadow-inner border border-emerald-100 relative group">
+                <div className="absolute inset-0 bg-emerald-400/20 rounded-[2rem] animate-pulse opacity-40" />
+                <FaTrophy size={40} className="relative z-10" />
+              </div>
+              <div>
+                <h3 className="text-3xl font-black text-slate-800 tracking-tight">Mastery Achieved!</h3>
+                <p className="text-sm text-emerald-600 font-bold uppercase tracking-[0.2em] mt-1">100% Correct</p>
+              </div>
+              <p className="text-slate-500 font-medium max-w-xs mx-auto text-sm leading-relaxed">
+                Incredible work! You've successfully passed the quiz with a <span className="text-emerald-600 font-black">Perfect Score</span>.
+              </p>
+              <div className="inline-flex items-center gap-2 px-6 py-2 bg-emerald-50 text-emerald-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-100">
+                <FaCheckCircle /> Module Unlocked
+              </div>
             </div>
-            <div>
-              <h3 className="text-3xl font-black text-slate-800 tracking-tight">Mastery Achieved!</h3>
-              <p className="text-sm text-emerald-600 font-bold uppercase tracking-[0.2em] mt-1">100% Correct</p>
-            </div>
-            <p className="text-slate-500 font-medium max-w-xs mx-auto text-sm leading-relaxed">
-              Incredible work! You've successfully passed the quiz with a <span className="text-emerald-600 font-black">Perfect Score</span>.
-            </p>
-            <div className="inline-flex items-center gap-2 px-6 py-2 bg-emerald-50 text-emerald-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-100">
-              <FaCheckCircle /> Module Unlocked
-            </div>
-          </div>
           ) : (
             <div className="space-y-6 pt-4 animate-in fade-in zoom-in duration-500">
               <div className="w-24 h-24 rounded-[2rem] bg-amber-50 text-amber-500 flex items-center justify-center mx-auto shadow-inner border border-amber-100 relative group">
@@ -95,7 +95,7 @@ const InlineQuiz = ({ block, onPass }) => {
                 <h3 className="text-2xl font-black text-slate-800 tracking-tight">Almost There!</h3>
                 <p className="text-sm text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Score: {score} out of {questions.length}</p>
                 <div className="w-full bg-slate-100 h-1.5 rounded-full mt-4 max-w-[200px] mx-auto overflow-hidden">
-                  <div className="bg-amber-500 h-full transition-all duration-1000" style={{ width: `${(score/questions.length)*100}%` }} />
+                  <div className="bg-amber-500 h-full transition-all duration-1000" style={{ width: `${(score / questions.length) * 100}%` }} />
                 </div>
               </div>
               <p className="text-slate-500 font-medium max-w-xs mx-auto text-sm leading-relaxed">
@@ -241,11 +241,11 @@ const CelebrationModal = ({ module, isCourseComplete, onContinue }) => {
 // Block type icon & label helper
 // ─────────────────────────────────────────────
 const BLOCK_META = {
-  text:       { icon: FaAlignLeft,        label: "Reading",    color: "text-blue-600",   bg: "bg-blue-50" },
-  video:      { icon: FaVideo,            label: "Video",      color: "text-purple-600", bg: "bg-purple-50" },
-  photo:      { icon: FaImage,            label: "Image",      color: "text-pink-600",   bg: "bg-pink-50" },
-  quiz:       { icon: FaQuestionCircle,   label: "Quiz",       color: "text-emerald-600",bg: "bg-emerald-50" },
-  assignment: { icon: FaFileAlt,          label: "Assignment", color: "text-amber-600",  bg: "bg-amber-50" },
+  text: { icon: FaAlignLeft, label: "Reading", color: "text-blue-600", bg: "bg-blue-50" },
+  video: { icon: FaVideo, label: "Video", color: "text-purple-600", bg: "bg-purple-50" },
+  photo: { icon: FaImage, label: "Image", color: "text-pink-600", bg: "bg-pink-50" },
+  quiz: { icon: FaQuestionCircle, label: "Quiz", color: "text-emerald-600", bg: "bg-emerald-50" },
+  assignment: { icon: FaFileAlt, label: "Assignment", color: "text-amber-600", bg: "bg-amber-50" },
 };
 
 // ─────────────────────────────────────────────
@@ -269,6 +269,24 @@ const ModulePlayer = () => {
   const totalSlides = blocks.length;
   const isFirstSlide = currentSlide === 0;
   const isLastSlide = currentSlide === totalSlides - 1;
+
+  // ── Per-slide countdown timer (10 seconds) ──
+  const SLIDE_TIMER_SECONDS = 10;
+  const [timeLeft, setTimeLeft] = useState(SLIDE_TIMER_SECONDS);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    // Reset timer whenever slide changes
+    setTimeLeft(SLIDE_TIMER_SECONDS);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) { clearInterval(timerRef.current); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [currentSlide]);
 
   // ── Quiz / completion state ──
   const [quizStatuses, setQuizStatuses] = useState({});
@@ -309,6 +327,13 @@ const ModulePlayer = () => {
     setQuizStatuses(prev => ({ ...prev, [blockId]: passed }));
   };
 
+  // ── Is the current slide a quiz that hasn't been passed? ──
+  const currentBlock_ = blocks[currentSlide];
+  const isCurrentQuizBlocked = currentBlock_?.type === 'quiz' && !quizStatuses[currentBlock_?.id];
+
+  // ── Combined "can advance" check: timer done AND quiz not blocking ──
+  const canAdvance = timeLeft === 0 && !isCurrentQuizBlocked;
+
   // ── Slide navigation handlers ──
   const goToSlide = useCallback((index, direction) => {
     if (isAnimating || index < 0 || index >= totalSlides) return;
@@ -323,14 +348,15 @@ const ModulePlayer = () => {
   }, [isAnimating, totalSlides]);
 
   const goNext = useCallback(() => {
+    if (!canAdvance) return;
     if (!isLastSlide) goToSlide(currentSlide + 1, "next");
-  }, [currentSlide, isLastSlide, goToSlide]);
+  }, [currentSlide, isLastSlide, goToSlide, canAdvance]);
 
   const goPrev = useCallback(() => {
     if (!isFirstSlide) goToSlide(currentSlide - 1, "prev");
   }, [currentSlide, isFirstSlide, goToSlide]);
 
-  // ── Keyboard navigation ──
+  // ── Keyboard navigation (blocked while timer/quiz gate active for forward) ──
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); goNext(); }
@@ -340,12 +366,14 @@ const ModulePlayer = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [goNext, goPrev]);
 
-  // ── Touch / swipe support ──
+  // ── Touch / swipe support (forward swipe blocked while gated) ──
   const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
   const handleTouchEnd = (e) => {
     if (touchStartX.current === null) return;
     const diff = touchStartX.current - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 50) { diff > 0 ? goNext() : goPrev(); }
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) { goNext(); } else { goPrev(); }
+    }
     touchStartX.current = null;
   };
 
@@ -513,7 +541,8 @@ const ModulePlayer = () => {
 
       {/* ── Full-screen slide layout ── */}
       <div
-        className="fixed inset-0 flex flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50/30 z-0"
+        className="fixed inset-0 flex flex-col z-0 pt-16 sm:pt-20"
+        style={{ background: "linear-gradient(135deg, #f8f7f4 0%, #f0ece4 25%, #e8e4f0 50%, #eef1f8 75%, #f5f0e8 100%)" }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -528,8 +557,8 @@ const ModulePlayer = () => {
               <FaArrowLeft size={14} />
             </button>
             <div className="min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-900/60">Module {module.order}</p>
-              <h1 className="text-sm md:text-base font-black text-slate-900 truncate">{module.title}</h1>
+
+              <h1 className="text-sm md:text-base font-black text-slate-900 truncate">Module {module.order}: {module.title}</h1>
             </div>
           </div>
 
@@ -600,11 +629,10 @@ const ModulePlayer = () => {
             <button
               onClick={goPrev}
               disabled={isFirstSlide}
-              className={`h-12 md:h-14 px-4 md:px-6 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${
-                isFirstSlide
-                  ? "bg-slate-50 text-slate-300 cursor-not-allowed"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800 active:scale-[0.97]"
-              }`}
+              className={`h-12 md:h-14 px-4 md:px-6 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${isFirstSlide
+                ? "bg-slate-50 text-slate-300 cursor-not-allowed"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800 active:scale-[0.97]"
+                }`}
             >
               <FaChevronLeft size={12} />
               <span className="hidden sm:inline">Previous</span>
@@ -618,11 +646,10 @@ const ModulePlayer = () => {
                   <button
                     key={i}
                     onClick={() => goToSlide(i, i > currentSlide ? "next" : "prev")}
-                    className={`rounded-full transition-all duration-300 ${
-                      i === currentSlide
-                        ? `w-8 h-3 ${meta.color === "text-blue-600" ? "bg-blue-600" : meta.color === "text-purple-600" ? "bg-purple-600" : meta.color === "text-pink-600" ? "bg-pink-600" : meta.color === "text-emerald-600" ? "bg-emerald-600" : "bg-amber-600"}`
-                        : "w-3 h-3 bg-slate-200 hover:bg-slate-300"
-                    }`}
+                    className={`rounded-full transition-all duration-300 ${i === currentSlide
+                      ? `w-8 h-3 ${meta.color === "text-blue-600" ? "bg-blue-600" : meta.color === "text-purple-600" ? "bg-purple-600" : meta.color === "text-pink-600" ? "bg-pink-600" : meta.color === "text-emerald-600" ? "bg-emerald-600" : "bg-amber-600"}`
+                      : "w-3 h-3 bg-slate-200 hover:bg-slate-300"
+                      }`}
                     title={`${meta.label}: ${b.heading || `Block ${i + 1}`}`}
                   />
                 );
@@ -633,23 +660,49 @@ const ModulePlayer = () => {
             {isLastSlide ? (
               <button
                 onClick={handleComplete}
-                disabled={!canComplete}
-                className={`h-12 md:h-14 px-5 md:px-8 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all shadow-xl flex items-center gap-2 ${
-                  canComplete
-                    ? "bg-gradient-to-r from-blue-900 to-[#8d6e3e] text-white hover:shadow-blue-900/30 hover:scale-[1.02] active:scale-[0.97] shadow-blue-900/20"
-                    : "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
-                }`}
+                disabled={!canComplete || timeLeft > 0}
+                className={`h-12 md:h-14 px-5 md:px-8 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all shadow-xl flex items-center gap-2 ${canComplete && timeLeft === 0
+                  ? "bg-gradient-to-r from-blue-900 to-[#8d6e3e] text-white hover:shadow-blue-900/30 hover:scale-[1.02] active:scale-[0.97] shadow-blue-900/20"
+                  : "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
+                  }`}
               >
-                <FaCheckCircle className={canComplete ? "text-emerald-400" : ""} />
-                <span>{canComplete ? "Finish Module" : "Complete Quizzes"}</span>
+                {timeLeft > 0 ? (
+                  <>
+                    <span className="tabular-nums">{timeLeft}s</span>
+                    <div className="w-5 h-5 rounded-full border-2 border-slate-300 border-t-blue-900 animate-spin" />
+                  </>
+                ) : (
+                  <>
+                    <FaCheckCircle className={canComplete ? "text-emerald-400" : ""} />
+                    <span>{canComplete ? "Finish Module" : "Complete Quizzes"}</span>
+                  </>
+                )}
               </button>
             ) : (
               <button
                 onClick={goNext}
-                className="h-12 md:h-14 px-5 md:px-8 rounded-2xl font-black text-xs uppercase tracking-[0.15em] bg-blue-900 text-white hover:bg-blue-800 hover:scale-[1.02] active:scale-[0.97] transition-all shadow-xl shadow-blue-900/20 flex items-center gap-2"
+                disabled={!canAdvance}
+                className={`h-12 md:h-14  px-5 md:px-8 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all shadow-xl flex items-center gap-2 ${canAdvance
+                  ? "bg-blue-900 text-white hover:bg-blue-800 hover:scale-[1.02] active:scale-[0.97] shadow-blue-900/20"
+                  : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+                  }`}
               >
-                <span>Next</span>
-                <FaChevronRight size={12} />
+                {timeLeft > 0 ? (
+                  <>
+                    <span className="tabular-nums">{timeLeft}s</span>
+                    <div className="w-5 h-5 rounded-full border-2 border-slate-300 border-t-blue-900 animate-spin" />
+                  </>
+                ) : isCurrentQuizBlocked ? (
+                  <>
+                    <FaQuestionCircle size={12} />
+                    <span>Pass Quiz</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Next</span>
+                    <FaChevronRight size={12} />
+                  </>
+                )}
               </button>
             )}
           </div>
