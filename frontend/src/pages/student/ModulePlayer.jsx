@@ -270,23 +270,7 @@ const ModulePlayer = () => {
   const isFirstSlide = currentSlide === 0;
   const isLastSlide = currentSlide === totalSlides - 1;
 
-  // ── Per-slide countdown timer (10 seconds) ──
-  const SLIDE_TIMER_SECONDS = 10;
-  const [timeLeft, setTimeLeft] = useState(SLIDE_TIMER_SECONDS);
-  const timerRef = useRef(null);
 
-  useEffect(() => {
-    // Reset timer whenever slide changes
-    setTimeLeft(SLIDE_TIMER_SECONDS);
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) { clearInterval(timerRef.current); return 0; }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timerRef.current);
-  }, [currentSlide]);
 
   // ── Quiz / completion state ──
   const [quizStatuses, setQuizStatuses] = useState({});
@@ -331,8 +315,8 @@ const ModulePlayer = () => {
   const currentBlock_ = blocks[currentSlide];
   const isCurrentQuizBlocked = currentBlock_?.type === 'quiz' && !quizStatuses[currentBlock_?.id];
 
-  // ── Combined "can advance" check: timer done AND quiz not blocking ──
-  const canAdvance = timeLeft === 0 && !isCurrentQuizBlocked;
+  // ── Combined "can advance" check: quiz not blocking ──
+  const canAdvance = !isCurrentQuizBlocked;
 
   // ── Slide navigation handlers ──
   const goToSlide = useCallback((index, direction) => {
@@ -660,23 +644,14 @@ const ModulePlayer = () => {
             {isLastSlide ? (
               <button
                 onClick={handleComplete}
-                disabled={!canComplete || timeLeft > 0}
-                className={`h-12 md:h-14 px-5 md:px-8 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all shadow-xl flex items-center gap-2 ${canComplete && timeLeft === 0
+                disabled={!canComplete}
+                className={`h-12 md:h-14 px-5 md:px-8 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all shadow-xl flex items-center gap-2 ${canComplete
                   ? "bg-gradient-to-r from-blue-900 to-[#8d6e3e] text-white hover:shadow-blue-900/30 hover:scale-[1.02] active:scale-[0.97] shadow-blue-900/20"
                   : "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
                   }`}
               >
-                {timeLeft > 0 ? (
-                  <>
-                    <span className="tabular-nums">{timeLeft}s</span>
-                    <div className="w-5 h-5 rounded-full border-2 border-slate-300 border-t-blue-900 animate-spin" />
-                  </>
-                ) : (
-                  <>
-                    <FaCheckCircle className={canComplete ? "text-emerald-400" : ""} />
-                    <span>{canComplete ? "Finish Module" : "Complete Quizzes"}</span>
-                  </>
-                )}
+                <FaCheckCircle className={canComplete ? "text-emerald-400" : ""} />
+                <span>{canComplete ? "Finish Module" : "Complete Quizzes"}</span>
               </button>
             ) : (
               <button
@@ -687,12 +662,7 @@ const ModulePlayer = () => {
                   : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
                   }`}
               >
-                {timeLeft > 0 ? (
-                  <>
-                    <span className="tabular-nums">{timeLeft}s</span>
-                    <div className="w-5 h-5 rounded-full border-2 border-slate-300 border-t-blue-900 animate-spin" />
-                  </>
-                ) : isCurrentQuizBlocked ? (
+                {isCurrentQuizBlocked ? (
                   <>
                     <FaQuestionCircle size={12} />
                     <span>Pass Quiz</span>
