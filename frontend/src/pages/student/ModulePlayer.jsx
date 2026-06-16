@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
-import { FaArrowLeft, FaArrowRight, FaCheckCircle, FaVideo, FaAlignLeft, FaQuestionCircle, FaFileAlt, FaTrophy, FaStar, FaExclamationCircle, FaChevronLeft, FaChevronRight, FaImage } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight, FaCheckCircle, FaVideo, FaAlignLeft, FaQuestionCircle, FaFileAlt, FaTrophy, FaStar, FaExclamationCircle, FaChevronLeft, FaChevronRight, FaImage, FaHeadphones, FaPlay, FaPause, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
 import confetti from "canvas-confetti";
 
 // ─────────────────────────────────────────────
@@ -238,6 +238,123 @@ const CelebrationModal = ({ module, isCourseComplete, onContinue }) => {
 };
 
 // ─────────────────────────────────────────────
+// Custom Modern Audio Player Component
+// ─────────────────────────────────────────────
+const CustomAudioPlayer = ({ src }) => {
+  const audioRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+
+  useEffect(() => {
+    // Reset state when source changes
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
+    if (audioRef.current) {
+      audioRef.current.load();
+    }
+  }, [src]);
+
+  const togglePlay = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play().catch((err) => console.log("Play interrupted", err));
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleAudioEnded = () => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+  };
+
+  const toggleMute = () => {
+    if (!audioRef.current) return;
+    audioRef.current.muted = !isMuted;
+    setIsMuted(!isMuted);
+  };
+
+  const handleSeek = (e) => {
+    const time = parseFloat(e.target.value);
+    setCurrentTime(time);
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+    }
+  };
+
+  const formatTime = (time) => {
+    if (isNaN(time)) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
+
+  return (
+    <div className="flex items-center gap-3 bg-white/95 backdrop-blur-md border border-slate-200/80 rounded-2xl px-4 py-2 shadow-lg shadow-slate-100/50 self-start sm:self-auto w-full sm:w-auto">
+      <audio
+        ref={audioRef}
+        src={src}
+        onTimeUpdate={handleTimeUpdate}
+        onLoadedMetadata={handleLoadedMetadata}
+        onEnded={handleAudioEnded}
+      />
+      
+      {/* Play/Pause Button */}
+      <button
+        type="button"
+        onClick={togglePlay}
+        className="w-8 h-8 rounded-full bg-[#8d6e3e] text-white flex items-center justify-center hover:bg-[#7a5f35] active:scale-95 transition-all shadow-md shadow-[#8d6e3e]/20 flex-shrink-0"
+      >
+        {isPlaying ? <FaPause size={10} /> : <FaPlay size={10} className="ml-0.5" />}
+      </button>
+
+      {/* Scrubber and Time */}
+      <div className="flex items-center gap-2 flex-1 sm:w-48">
+        <input
+          type="range"
+          min="0"
+          max={duration || 100}
+          value={currentTime}
+          onChange={handleSeek}
+          className="w-full h-1 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#8d6e3e]"
+          style={{
+            background: `linear-gradient(to right, #8d6e3e 0%, #8d6e3e ${(currentTime / (duration || 1)) * 100}%, #e2e8f0 ${(currentTime / (duration || 1)) * 100}%, #e2e8f0 100%)`
+          }}
+        />
+        <span className="text-[10px] font-black text-slate-400 whitespace-nowrap tabular-nums">
+          {formatTime(currentTime)} / {formatTime(duration)}
+        </span>
+      </div>
+
+      {/* Mute button */}
+      <button
+        type="button"
+        onClick={toggleMute}
+        className="text-slate-400 hover:text-slate-600 transition-colors p-1 flex-shrink-0"
+      >
+        {isMuted ? <FaVolumeMute size={12} /> : <FaVolumeUp size={12} />}
+      </button>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
 // Block type icon & label helper
 // ─────────────────────────────────────────────
 const BLOCK_META = {
@@ -278,6 +395,25 @@ const ModulePlayer = () => {
   const [showCelebration, setShowCelebration] = useState(false);
   const [isLastModule, setIsLastModule] = useState(false);
   const [courseCompletionMsg, setCourseCompletionMsg] = useState("");
+
+  // ── Image matching state ──
+  const [imageMatchSelections, setImageMatchSelections] = useState({});
+  const [imageMatchFeedback, setImageMatchFeedback] = useState({});
+
+  const handleImageSelect = (blockIdx, imgIdx, value) => {
+    setImageMatchSelections(prev => ({
+      ...prev,
+      [blockIdx]: { ...(prev[blockIdx] || {}), [imgIdx]: value }
+    }));
+    // Clear feedback when user changes answer
+    setImageMatchFeedback(prev => ({ ...prev, [blockIdx]: null }));
+  };
+
+  const checkImageAnswers = (blockIdx, images) => {
+    const selections = imageMatchSelections[blockIdx] || {};
+    const allCorrect = images.every((img, idx) => selections[idx] === img.correctTerm);
+    setImageMatchFeedback(prev => ({ ...prev, [blockIdx]: allCorrect ? 'correct' : 'incorrect' }));
+  };
 
   // Fetch Course Info to check if this is the last module
   useEffect(() => {
@@ -439,15 +575,127 @@ const ModulePlayer = () => {
     }
 
     if (block.type === 'photo') {
-      return (
-        <div className="w-full flex justify-center">
-          <div className="bg-white p-4 md:p-6 rounded-3xl shadow-md border border-slate-100 overflow-hidden inline-block">
-            <img
-              src={block.photoUrl}
-              alt={block.heading || "Module Image"}
-              className="max-w-full h-auto rounded-2xl object-contain max-h-[55vh] shadow-sm"
-            />
+      const images = block.images || (block.photoUrl ? [{ url: block.photoUrl, correctTerm: "" }] : []);
+      const terms = block.terms || [];
+      const hasMatchingGame = terms.length > 0 && images.some(img => img.correctTerm);
+      const blockIdx = blocks.indexOf(block);
+      const selections = imageMatchSelections[blockIdx] || {};
+      const feedback = imageMatchFeedback[blockIdx];
+      const allSelected = hasMatchingGame && images.every((_, idx) => selections[idx] && selections[idx] !== "");
+
+      // Legacy single-image display (no terms/matching)
+      if (!hasMatchingGame) {
+        return (
+          <div className="w-full flex justify-center">
+            <div className="bg-white p-4 md:p-6 rounded-3xl shadow-md border border-slate-100 overflow-hidden inline-block">
+              {images.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img.url}
+                  alt={block.heading || "Module Image"}
+                  className="max-w-full h-auto rounded-2xl object-contain max-h-[55vh] shadow-sm"
+                />
+              ))}
+            </div>
           </div>
+        );
+      }
+
+      // Interactive matching grid
+      return (
+        <div className="w-full space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            {images.map((img, idx) => {
+              const isChecked = feedback !== null && feedback !== undefined;
+              const isCorrect = isChecked && selections[idx] === img.correctTerm;
+              const isIncorrect = isChecked && selections[idx] !== img.correctTerm;
+
+              return (
+                <div
+                  key={idx}
+                  className={`bg-white rounded-2xl border-2 overflow-hidden shadow-md transition-all duration-300 ${
+                    isCorrect ? 'border-emerald-400 shadow-emerald-100' :
+                    isIncorrect ? 'border-red-300 shadow-red-100' :
+                    'border-slate-100 hover:border-slate-200 hover:shadow-lg'
+                  }`}
+                >
+                  <div className="aspect-[4/3] bg-slate-50 flex items-center justify-center p-3">
+                    <img
+                      src={img.url}
+                      alt={`Image ${idx + 1}`}
+                      className="max-w-full max-h-full object-contain rounded-xl"
+                    />
+                  </div>
+                  <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+                    <select
+                      value={selections[idx] || ""}
+                      onChange={(e) => handleImageSelect(blockIdx, idx, e.target.value)}
+                      disabled={feedback === 'correct'}
+                      className={`select select-bordered w-full rounded-xl text-sm font-bold transition-all ${
+                        isCorrect ? 'bg-emerald-50 border-emerald-300 text-emerald-800' :
+                        isIncorrect ? 'bg-red-50 border-red-300 text-red-800' :
+                        'bg-white border-slate-200 text-slate-700 focus:border-blue-900'
+                      }`}
+                    >
+                      <option value="">Select an answer...</option>
+                      {terms.map((term, tIdx) => (
+                        <option key={tIdx} value={term}>{term}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Check Answers Button */}
+          {feedback !== 'correct' && (
+            <div className="flex justify-center">
+              <button
+                onClick={() => checkImageAnswers(blockIdx, images)}
+                disabled={!allSelected}
+                className={`px-8 py-3 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 ${
+                  allSelected
+                    ? 'bg-blue-900 text-white hover:bg-blue-800 hover:scale-[1.02] active:scale-[0.97] shadow-blue-900/20'
+                    : 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
+                }`}
+              >
+                <FaCheckCircle size={14} />
+                Check Answers
+              </button>
+            </div>
+          )}
+
+          {/* Feedback Alert */}
+          {feedback && (
+            <div className={`max-w-3xl mx-auto p-6 rounded-2xl border-2 transition-all duration-500 animate-fadeIn ${
+              feedback === 'correct'
+                ? 'bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200'
+                : 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200'
+            }`}>
+              <div className="flex items-start gap-4">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner flex-shrink-0 ${
+                  feedback === 'correct' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'
+                }`}>
+                  {feedback === 'correct' ? '🎉' : '💡'}
+                </div>
+                <div>
+                  <h4 className={`font-black text-lg tracking-tight ${
+                    feedback === 'correct' ? 'text-emerald-800' : 'text-amber-800'
+                  }`}>
+                    {feedback === 'correct' ? 'Excellent Work!' : 'Keep Learning!'}
+                  </h4>
+                  <p className={`text-sm mt-1 font-medium leading-relaxed ${
+                    feedback === 'correct' ? 'text-emerald-700/80' : 'text-amber-700/80'
+                  }`}>
+                    {feedback === 'correct'
+                      ? 'You have fully understood this topic. Every answer is correct — keep up the amazing work!'
+                      : "Your concepts aren't quite clear yet, but don't worry! Review the material and try again — you've got this."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       );
     }
@@ -525,18 +773,18 @@ const ModulePlayer = () => {
 
       {/* ── Full-screen slide layout ── */}
       <div
-        className="fixed inset-0 flex flex-col z-0 pt-16 sm:pt-20"
-        style={{ background: "linear-gradient(135deg, #f8f7f4 0%, #f0ece4 25%, #e8e4f0 50%, #eef1f8 75%, #f5f0e8 100%)" }}
+        className="fixed inset-0 flex flex-col z-0"
+        style={{ background: "linear-gradient(135deg, #eaddca 0%, #dfd3c3 25%, #d4cbd8 50%, #ced6e0 75%, #e1d8c9 100%)" }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
         {/* ── Top Header Bar ── */}
-        <div className="flex-shrink-0 px-4 md:px-8 pt-4 pb-3 flex items-center justify-between bg-white/70 backdrop-blur-xl border-b border-slate-100/60 z-20">
+        <div className="flex-shrink-0 px-4 md:px-8 pt-4 pb-3 flex items-center justify-between bg-white/90 backdrop-blur-xl border-b border-slate-100/60 z-20">
           {/* Left: back + module info */}
           <div className="flex items-center gap-3 md:gap-5 min-w-0">
             <button
               onClick={() => navigate(-1)}
-              className="flex-shrink-0 w-10 h-10 rounded-xl bg-slate-100 hover:bg-blue-900 hover:text-white text-slate-500 flex items-center justify-center transition-all"
+              className="flex-shrink-0 w-10 h-10 rounded-xl bg-blue-900 hover:bg-blue-700 hover:text-white text-white flex items-center justify-center transition-all"
             >
               <FaArrowLeft size={14} />
             </button>
@@ -550,7 +798,7 @@ const ModulePlayer = () => {
           <div className="hidden md:flex items-center gap-3 flex-1 max-w-md mx-8">
             <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-blue-900 to-[#8d6e3e] rounded-full transition-all duration-500 ease-out"
+                className="h-full bg-gradient-to-r from-blue-800 to-[#8d6e3e] rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${((currentSlide + 1) / totalSlides) * 100}%` }}
               />
             </div>
@@ -571,7 +819,7 @@ const ModulePlayer = () => {
           <div className="flex items-center gap-2">
             <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-blue-900 to-[#8d6e3e] rounded-full transition-all duration-500 ease-out"
+                className="h-full bg-gradient-to-r from-[#8d6e3e] to-white/50 rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${((currentSlide + 1) / totalSlides) * 100}%` }}
               />
             </div>
@@ -587,11 +835,20 @@ const ModulePlayer = () => {
             key={currentSlide}
           >
             <div className="max-w-4xl mx-auto">
-              {/* Block heading */}
-              {currentBlock?.heading && (
-                <h2 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight mb-6">
-                  {currentBlock.heading}
-                </h2>
+              {/* Block heading / Audio Narration */}
+              {(currentBlock?.heading || (currentBlock?.type === 'text' && currentBlock?.audioUrl)) && (
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                  {currentBlock?.heading ? (
+                    <h2 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">
+                      {currentBlock.heading}
+                    </h2>
+                  ) : (
+                    <div />
+                  )}
+                  {currentBlock?.type === 'text' && currentBlock?.audioUrl && (
+                    <CustomAudioPlayer src={currentBlock.audioUrl} />
+                  )}
+                </div>
               )}
 
               {/* Block content */}
@@ -607,7 +864,7 @@ const ModulePlayer = () => {
         </div>
 
         {/* ── Bottom Navigation Bar ── */}
-        <div className="flex-shrink-0 px-4 md:px-8 py-4 bg-white/80 backdrop-blur-xl border-t border-slate-100/60 z-20">
+        <div className="flex-shrink-0 px-4 md:px-8 py-2 bg-white/90 backdrop-blur-xl border-t border-slate-100/60 z-20">
           <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
             {/* Previous Button */}
             <button
@@ -631,7 +888,7 @@ const ModulePlayer = () => {
                     key={i}
                     onClick={() => goToSlide(i, i > currentSlide ? "next" : "prev")}
                     className={`rounded-full transition-all duration-300 ${i === currentSlide
-                      ? `w-8 h-3 ${meta.color === "text-blue-600" ? "bg-blue-600" : meta.color === "text-purple-600" ? "bg-purple-600" : meta.color === "text-pink-600" ? "bg-pink-600" : meta.color === "text-emerald-600" ? "bg-emerald-600" : "bg-amber-600"}`
+                      ? "w-8 h-3 bg-emerald-600"
                       : "w-3 h-3 bg-slate-200 hover:bg-slate-300"
                       }`}
                     title={`${meta.label}: ${b.heading || `Block ${i + 1}`}`}
@@ -646,7 +903,7 @@ const ModulePlayer = () => {
                 onClick={handleComplete}
                 disabled={!canComplete}
                 className={`h-12 md:h-14 px-5 md:px-8 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all shadow-xl flex items-center gap-2 ${canComplete
-                  ? "bg-gradient-to-r from-blue-900 to-[#8d6e3e] text-white hover:shadow-blue-900/30 hover:scale-[1.02] active:scale-[0.97] shadow-blue-900/20"
+                  ? "bg-gradient-to-r from-emerald-800 to-emerald-600 text-white hover:shadow-emerald-600/30 hover:scale-[1.02] active:scale-[0.97] shadow-emerald-600/20"
                   : "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
                   }`}
               >

@@ -357,6 +357,19 @@ exports.updateModuleInCourse = async (req, res) => {
       return res.status(404).json({ success: false, message: "Module not found" });
     }
 
+    // Re-sort modules by order after updating
+    await (await getCollection("courses")).updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $push: {
+          modules: {
+            $each: [],
+            $sort: { order: 1 }
+          }
+        }
+      }
+    );
+
     res.status(200).json({
       success: true,
       message: "Module updated successfully",

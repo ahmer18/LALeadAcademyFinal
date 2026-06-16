@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { FaCamera, FaEnvelope, FaUserShield, FaBookOpen } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { FaCamera, FaEnvelope, FaUserShield, FaBookOpen, FaPen, FaCheck, FaTimes } from "react-icons/fa";
 import { useQuery } from "@tanstack/react-query";
 import HeadTag from "../../components/common/HeadTag";
 import useAuth from "../../hooks/useAuth";
@@ -14,6 +14,15 @@ export default function UserProfile() {
   const axiosSecure = useAxiosSecure();
   const { showFeedback } = useFeedback();
   const [uploading, setUploading] = useState(false);
+
+  // Name editing state
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [savingName, setSavingName] = useState(false);
+
+  useEffect(() => {
+    if (user?.displayName) setEditName(user.displayName);
+  }, [user?.displayName]);
 
   // Fetch Courses based on Role
   const { data: roleCourses = [], isLoading: loadingCourses } = useQuery({
@@ -49,7 +58,7 @@ export default function UserProfile() {
         
         await axiosSecure.patch("/users/update-profile", {
           email: user.email,
-          displayName: user.displayName,
+          name: user.displayName,
           photoURL: newPhotoURL,
         });
 
@@ -61,6 +70,32 @@ export default function UserProfile() {
       showFeedback("Failed to update image", "error");
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleNameSave = async () => {
+    const trimmed = editName.trim();
+    if (!trimmed || trimmed === user.displayName) {
+      setIsEditingName(false);
+      setEditName(user.displayName || "");
+      return;
+    }
+    setSavingName(true);
+    try {
+      await updateUserProfile(trimmed, user.photoURL);
+      await axiosSecure.patch("/users/update-profile", {
+        email: user.email,
+        name: trimmed,
+        photoURL: user.photoURL,
+      });
+      setUser({ ...user, displayName: trimmed });
+      showFeedback("Name updated successfully!", "success");
+      setIsEditingName(false);
+    } catch (error) {
+      console.error(error);
+      showFeedback("Failed to update name", "error");
+    } finally {
+      setSavingName(false);
     }
   };
 
@@ -98,8 +133,44 @@ export default function UserProfile() {
 
           {/* User Details */}
           <div className="flex-1 text-center md:text-left mt-2 md:mt-0">
-            <h1 className="text-3xl md:text-4xl font-black text-slate-900 mb-2 truncate">
-              {user?.displayName || user?.name || "Member"}
+            <h1 className="text-3xl md:text-4xl font-black text-slate-900 mb-2 flex items-center gap-3 justify-center md:justify-start">
+              {isEditingName ? (
+                <div className="flex items-center gap-2 w-full max-w-sm">
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleNameSave()}
+                    className="flex-1 text-2xl font-black border-2 border-blue-300 rounded-xl px-3 py-1 outline-none focus:border-blue-800 transition-colors bg-blue-50/50"
+                    autoFocus
+                    disabled={savingName}
+                  />
+                  <button
+                    onClick={handleNameSave}
+                    disabled={savingName}
+                    className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 hover:bg-emerald-200 flex items-center justify-center transition-all"
+                  >
+                    <FaCheck size={14} />
+                  </button>
+                  <button
+                    onClick={() => { setIsEditingName(false); setEditName(user.displayName || ""); }}
+                    className="w-9 h-9 rounded-xl bg-red-100 text-red-600 hover:bg-red-200 flex items-center justify-center transition-all"
+                  >
+                    <FaTimes size={14} />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <span className="truncate">{user?.displayName || user?.name || "Member"}</span>
+                  <button
+                    onClick={() => setIsEditingName(true)}
+                    className="w-8 h-8 rounded-lg bg-slate-100 text-slate-400 hover:bg-blue-100 hover:text-blue-800 flex items-center justify-center transition-all shrink-0"
+                    title="Edit name"
+                  >
+                    <FaPen size={11} />
+                  </button>
+                </>
+              )}
             </h1>
             <div className="inline-block px-4 py-1.5 bg-blue-50 text-blue-800 font-bold text-xs uppercase tracking-widest rounded-full mb-8">
               {user.role || "student"} Account

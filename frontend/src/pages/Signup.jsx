@@ -22,7 +22,7 @@ export default function Signup() {
   const axiosSecure = useAxiosSecure();
   const { showFeedback } = useFeedback();
 
-  const { userSignup, setUser, updateUserProfile, isUserLoading } = useAuth();
+  const { user, userSignup, setUser, updateUserProfile, isUserLoading } = useAuth();
 
   const {
     register,
@@ -31,60 +31,60 @@ export default function Signup() {
     reset,
   } = useForm();
 
-const signupMutation = useMutation({
-  mutationFn: async (data) => {
-  // 1. Upload to imgbb
-  const imageFile = data.image[0];
-  const uploadedUrl = await handleUpload(imageFile);
-  if (!uploadedUrl) throw new Error("Image upload failed.");
+  const signupMutation = useMutation({
+    mutationFn: async (data) => {
+      // 1. Upload to imgbb
+      const imageFile = data.image[0];
+      const uploadedUrl = await handleUpload(imageFile);
+      if (!uploadedUrl) throw new Error("Image upload failed.");
 
-  // 2. Create Firebase User
-  const userCredential = await userSignup(data.email, data.password);
-  
-  // 3. Update Firebase Profile 
-  // IMPORTANT: Only pass name and url. Do NOT pass userCredential.user here.
-  await updateUserProfile(data.name, uploadedUrl);
-  
-  // 4. Reload to get fresh data
-  await userCredential.user.reload();
-  
-  return { 
-    uid: userCredential.user.uid, 
-    email: data.email, 
-    displayName: data.name, 
-    photoURL: uploadedUrl 
-  };
-},
-  onSuccess: async (data) => {
-  // 'data' here is exactly what you returned from mutationFn:
-  // { uid, email, displayName, photoURL }
-  
-  try {
-    // 5. Save user in MongoDB
-    await axiosSecure.post(`/users`, {
-      email: data.email,
-      photoURL: data.photoURL,
-      displayName: data.displayName,
-    });
+      // 2. Create Firebase User
+      const userCredential = await userSignup(data.email, data.password);
 
-    // 6. Update local Auth state
-    setUser({ 
-      email: data.email, 
-      displayName: data.displayName, 
-      photoURL: data.photoURL, 
-      role: "student" 
-    });
+      // 3. Update Firebase Profile 
+      // IMPORTANT: Only pass name and url. Do NOT pass userCredential.user here.
+      await updateUserProfile(data.name, uploadedUrl);
 
-    reset();
-    showFeedback("Signup successful!", "success");
-    navigate(location.state?.from || "/dashboard");
-  } catch (err) {
-    console.error("MongoDB Save Error:", err);
-    showFeedback("Account created, but database sync failed.", "error");
-  }
-},
-});
-  
+      // 4. Reload to get fresh data
+      await userCredential.user.reload();
+
+      return {
+        uid: userCredential.user.uid,
+        email: data.email,
+        displayName: data.name,
+        photoURL: uploadedUrl
+      };
+    },
+    onSuccess: async (data) => {
+      // 'data' here is exactly what you returned from mutationFn:
+      // { uid, email, displayName, photoURL }
+
+      try {
+        // 5. Save user in MongoDB
+        await axiosSecure.post(`/users`, {
+          email: data.email,
+          photoURL: data.photoURL,
+          displayName: data.displayName,
+        });
+
+        // 6. Update local Auth state
+        setUser({
+          email: data.email,
+          displayName: data.displayName,
+          photoURL: data.photoURL,
+          role: "student"
+        });
+
+        reset();
+        showFeedback("Signup successful!", "success");
+        navigate(location.state?.from || "/dashboard");
+      } catch (err) {
+        console.error("MongoDB Save Error:", err);
+        showFeedback("Account created, but database sync failed.", "error");
+      }
+    },
+  });
+
   const handleSubmitForm = (data) => {
     if (signupMutation.isPending) return;
     signupMutation.mutate(data);
@@ -103,11 +103,11 @@ const signupMutation = useMutation({
 
         <div className="bg-white shadow-2xl rounded-[2.5rem] p-10 w-full max-w-md relative z-10 border border-white/10">
           <div className="text-center mb-8">
-             <h1 className="brand-text text-4xl mb-2">
-                <span className="brand-la">LA</span>
-                <span className="text-gray-900">LEAD Academy</span>
-             </h1>
-             <p className="text-gray-500 font-medium italic">Create Your Account</p>
+            <h1 className="brand-text text-4xl mb-2">
+              <span className="brand-la">LA</span>
+              <span className="text-gray-900">LEAD Academy</span>
+            </h1>
+            <p className="text-gray-500 font-medium italic">Create Your Account</p>
           </div>
 
           <form onSubmit={handleSubmit(handleSubmitForm)}>
@@ -177,23 +177,23 @@ const signupMutation = useMutation({
             </div>
 
             {/* Profile Image Upload */}
-<div className="mb-4">
-  <label className="block text-sm font-semibold text-gray-700 mb-1">
-    Profile Picture
-  </label>
-  <div className="flex items-center border rounded-md px-3 py-2">
-    <FaImage className="text-gray-400 mr-2" />
-    <input
-      type="file"
-      accept="image/*"
-      {...register("image", { required: "Image is required" })}
-      className="w-full outline-none text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[#8d6e3e]/10 file:text-[#8d6e3e] hover:file:bg-[#8d6e3e]/20 cursor-pointer"
-    />
-  </div>
-  {errors.image && (
-    <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>
-  )}
-</div>
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Profile Picture
+              </label>
+              <div className="flex items-center border rounded-md px-3 py-2">
+                <FaImage className="text-gray-400 mr-2" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  {...register("image", { required: "Image is required" })}
+                  className="w-full outline-none text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[#8d6e3e]/10 file:text-[#8d6e3e] hover:file:bg-[#8d6e3e]/20 cursor-pointer"
+                />
+              </div>
+              {errors.image && (
+                <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>
+              )}
+            </div>
 
             {/* Sign Up Button */}
             <button

@@ -21,16 +21,19 @@ function App() {
   // We hide the global footer on the Home page ('/') because CTA.jsx handles it inside the snap-scrolling container
   const showGlobalFooter = isAllowedFooterPath && !isHomePage;
 
+  // Hide header and GoToTop button on Module Player pages
+  const isModulePlayer = /^\/course\/[^/]+\/module\/[^/]+/.test(path);
+
   return (
     <FeedbackProvider>
       <AuthProvider>
-        <Navbar />
+        {!isModulePlayer && <Navbar />}
         <Outlet />
         
         {/* 4. Only render global footer if it's an allowed path AND not on the home page */}
         {showGlobalFooter && <Footer />}
         
-        <GoToTopButton />
+        {!isModulePlayer && <GoToTopButton />}
       </AuthProvider>
     </FeedbackProvider>
   );

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { FaLock, FaUser } from "react-icons/fa";
@@ -17,12 +18,17 @@ const errorMap = {
 };
 
 export default function Login() {
-  const { user, setUser, isUserLoading, userLogin, loginWithGoogle } =
+  const { user, setUser, isUserLoading, userLogin, loginWithGoogle, resetPassword } =
     useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const axiosSecure = useAxiosSecure();
   const { showFeedback } = useFeedback();
+
+  // Forgot password state
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
 
   const {
     register,
@@ -77,6 +83,30 @@ export default function Login() {
       console.log(error);
     },
   });
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    if (!resetEmail) {
+      showFeedback("Please enter your email address.", "error");
+      return;
+    }
+    setResetLoading(true);
+    try {
+      await resetPassword(resetEmail);
+      showFeedback("Password reset email sent! Check your inbox.", "success");
+      setShowForgotModal(false);
+      setResetEmail("");
+    } catch (error) {
+      const message = error.code === "auth/user-not-found"
+        ? "No account found with this email."
+        : error.code === "auth/invalid-email"
+        ? "Invalid email address."
+        : "Failed to send reset email. Try again.";
+      showFeedback(message, "error");
+    } finally {
+      setResetLoading(false);
+    }
+  };
 
   if (isUserLoading) return <LoaderDotted />;
 
@@ -152,6 +182,17 @@ export default function Login() {
             >
               {loginMutation.isPending ? "Logging in..." : "Log In"}
             </button>
+
+            {/* Forgot Password */}
+            <div className="text-right mt-2">
+              <button
+                type="button"
+                onClick={() => setShowForgotModal(true)}
+                className="text-sm text-[#8d6e3e] hover:underline font-semibold"
+              >
+                Forgot Password?
+              </button>
+            </div>
           </form>
 
           {/* Footer */}
@@ -188,6 +229,42 @@ export default function Login() {
             }
           </button>
         </div>
+
+        {/* Forgot Password Modal */}
+        {showForgotModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+            <div className="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl relative animate-fadeIn">
+              <button
+                onClick={() => { setShowForgotModal(false); setResetEmail(""); }}
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl font-bold"
+              >
+                &times;
+              </button>
+              <h2 className="text-2xl font-black text-slate-900 mb-2">Reset Password</h2>
+              <p className="text-sm text-slate-500 mb-6">Enter your email and we'll send you a link to reset your password.</p>
+              <form onSubmit={handleForgotPassword}>
+                <div className="flex items-center border-2 border-gray-300 rounded-xl px-3 py-2 mb-4 focus-within:border-[#8d6e3e] transition-colors">
+                  <FaUser className="text-gray-400 mr-2" />
+                  <input
+                    type="email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    className="w-full outline-none"
+                    autoFocus
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={resetLoading}
+                  className="w-full bg-[#8d6e3e] text-white py-3 rounded-xl hover:bg-[#725a32] transition-all duration-300 font-bold shadow-lg shadow-[#8d6e3e]/20 disabled:opacity-50"
+                >
+                  {resetLoading ? "Sending..." : "Send Reset Link"}
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

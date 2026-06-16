@@ -2,6 +2,7 @@ import axios from "axios";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
@@ -86,6 +87,10 @@ const AuthProvider = ({ children }) => {
     return signOut(auth);
   };
 
+  const resetPassword = (email) => {
+    return sendPasswordResetEmail(auth, email);
+  };
+
   const authInfo = {
     user,
     setUser,
@@ -96,6 +101,7 @@ const AuthProvider = ({ children }) => {
     userLogout,
     loginWithGoogle,
     updateUserProfile,
+    resetPassword,
   };
 
   return <AuthContext value={authInfo}>{children}</AuthContext>;
