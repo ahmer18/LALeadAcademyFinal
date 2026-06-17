@@ -15,7 +15,7 @@ export default function DashBoard() {
       <HeadTag title="LA Lead Academy | Dashboard" />
       
       {/* MAIN DRAWER WRAPPER */}
-      <div className="drawer lg:drawer-open min-h-screen pt-20 bg-slate-50 dark:bg-slate-900 transition-colors">
+      <div className="drawer lg:drawer-open min-h-screen pt-20 bg-slate-50 transition-colors">
         {/* The Toggle: This hidden checkbox controls the sidebar state */}
         <input id="dashboard-drawer" type="checkbox" className="drawer-toggle" />
 
@@ -34,11 +34,9 @@ export default function DashBoard() {
             </div>
           </div>
 
-          {/* CONTENT STAGE: Centered and responsive */}
-          <main className="flex-grow p-4 sm:p-10 flex justify-center items-start overflow-x-hidden relative">
-            <div className="max-w-6xl w-full mx-auto">
-              <Outlet />
-            </div>
+          {/* CONTENT STAGE: Full width, pages handle their own padding and max width */}
+          <main className="flex-grow overflow-x-hidden relative flex flex-col">
+            <Outlet />
           </main>
         </div>
 

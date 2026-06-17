@@ -152,8 +152,8 @@ const CourseDetails = () => {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-[2.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] border border-gray-100 p-8 sticky top-28">
               <div className="flex items-end gap-2 mb-8">
-                <span className="text-5xl font-black text-gray-900">£{course.price || "199"}</span>
-                <span className="text-gray-400 font-bold mb-2 line-through opacity-50">£{Math.round((course.price || 199) * 1.3)}</span>
+                <span className="text-5xl font-black text-gray-900">${course.price || "199"}</span>
+                <span className="text-gray-400 font-bold mb-2 line-through opacity-50">${Math.round((course.price || 199) * 1.3)}</span>
               </div>
 
               <button

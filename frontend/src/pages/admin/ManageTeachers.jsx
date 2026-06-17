@@ -125,7 +125,7 @@ const PendingTeachers = () => {
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase
                         ${teacher.status === 'approved' ? 'bg-emerald-50 text-emerald-700' :
                           teacher.status === 'rejected' ? 'bg-red-50 text-red-700' :
-                          'bg-amber-50 text-amber-700'}`}
+                            'bg-amber-50 text-amber-700'}`}
                       >
                         {teacher.status}
                       </span>

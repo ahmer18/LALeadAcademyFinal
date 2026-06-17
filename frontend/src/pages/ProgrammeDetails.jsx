@@ -19,7 +19,6 @@ const STATIC_PROGRAMMES = [
     image: courseimage3,
     rating: 4.9,
     students: 1240,
-    price: 199,
     description: "This programme focuses on the internal journey of a leader, helping you align your personal values with your professional impact.",
     outcomes: ["Develop self-awareness", "Build resilient teams", "Lead with authentic purpose"]
   },
@@ -31,7 +30,6 @@ const STATIC_PROGRAMMES = [
     image: courseimage2,
     rating: 4.8,
     students: 850,
-    price: 249,
     description: "Transform your classroom into a hub of curiosity and critical thinking using our inquiry-based framework.",
     outcomes: ["Master inquiry techniques", "Enhance student engagement", "Design reflective lesson plans"]
   },
@@ -43,7 +41,6 @@ const STATIC_PROGRAMMES = [
     image: courseimage1,
     rating: 5.0,
     students: 2100,
-    price: 149,
     description: "Balance technology and human connection to ensure students remain focused and emotionally grounded.",
     outcomes: ["Digital wellness strategies", "Deep-focus classroom design", "Human-centric tech integration"]
   }
@@ -53,7 +50,7 @@ const ProgrammeDetails = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
-  
+
   const programme = STATIC_PROGRAMMES.find((p) => p._id === id);
 
   const { data: enrollment = null, isLoading: isStatusLoading } = useQuery({
@@ -153,17 +150,12 @@ const ProgrammeDetails = () => {
             <div className="bg-white rounded-[32px] overflow-hidden shadow-2xl shadow-blue-900/10 border border-gray-100 lg:sticky lg:top-28">
               <div className="relative group cursor-pointer">
                 <img src={programme.image} alt="Preview" className="w-full h-48 object-cover" />
-                {/* <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all flex items-center justify-center">
-                  <FaPlayCircle size={50} className="text-white opacity-80" />
-                </div> */}
               </div>
 
               <div className="p-8">
                 <div className="mb-6">
-                  <span className="text-xs font-black text-gray-400 uppercase tracking-widest block mb-1">Total Investment</span>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-black text-[#1B365D]">£{programme.price}</span>
-                    <span className="text-gray-400 line-through text-lg">£{programme.price + 100}</span>
+
                   </div>
                 </div>
 

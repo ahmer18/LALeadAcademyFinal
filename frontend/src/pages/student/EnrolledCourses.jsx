@@ -32,7 +32,13 @@ export default function EnrolledCouses() {
     );
 
   return (
-    <div className="p-6 md:p-10 min-h-screen bg-slate-50/50">
+    <div
+      className="min-h-screen p-6 md:p-10"
+      style={{
+        background:
+          "linear-gradient(135deg, #ffffff 0%, #fffdfb 25%, #fcfbff 50%, #f8fcff 75%, #fffefc 100%)"
+      }}
+    >
       <div className="mb-12">
         <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-2">My Learning</h1>
         <p className="text-slate-500 font-medium uppercase tracking-[0.2em] text-[10px]">
@@ -62,7 +68,7 @@ export default function EnrolledCouses() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
-              
+
               <div className="p-8 flex flex-col flex-1">
                 <div className="inline-block px-3 py-1 bg-blue-50 text-blue-800 text-[10px] font-black uppercase tracking-widest rounded-full mb-4 w-fit">
                   Course Enrollment
@@ -73,7 +79,7 @@ export default function EnrolledCouses() {
                 <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-8">
                   By <span className="text-blue-900">{course.instructor[0]?.displayName || "Lead Academy Instructor"}</span>
                 </p>
-                
+
                 <Link
                   to={`/dashboard/assignments/${course.courseInfo._id}`}
                   className="mt-auto h-14 bg-blue-900 text-white rounded-2xl flex items-center justify-center font-black text-xs uppercase tracking-[0.2em] hover:bg-blue-800 shadow-lg shadow-blue-900/10 active:scale-[0.98] transition-all"

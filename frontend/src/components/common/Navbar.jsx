@@ -4,7 +4,6 @@ import { MdArrowRight } from "react-icons/md";
 import { TiThMenu } from "react-icons/ti";
 import { Link, NavLink, useLocation } from "react-router";
 import useAuth from "../../hooks/useAuth";
-import { useSystemTheme } from "../../hooks/useSystemTheme";
 import logoImg from "../../assets/images/logoagain.png";
 import { useFeedback } from "../../providers/FeedbackProvider";
 
@@ -49,13 +48,13 @@ export default function Navbar() {
     const handleScroll = () => {
       const navEl = document.querySelector('.navbar-container');
       if (!navEl) return;
-      
+
       const rect = navEl.getBoundingClientRect();
       const elements = document.elementsFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
-      
+
       // Look for the first non-nav element behind the navbar
       const backgroundEl = elements.find(el => !navEl.contains(el) && el !== navEl);
-      
+
       if (backgroundEl) {
         let current = backgroundEl;
         let bgColor = 'rgb(255, 255, 255)';
@@ -71,14 +70,14 @@ export default function Navbar() {
         const rgb = bgColor.match(/\d+/g);
         if (rgb && rgb.length >= 3) {
           const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
-          setIsNavbarDark(brightness < 160); 
+          setIsNavbarDark(brightness < 160);
         }
       }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     // Run detection on mount and whenever the route changes
-    const timeoutId = setTimeout(handleScroll, 100); 
+    const timeoutId = setTimeout(handleScroll, 100);
     return () => {
       window.removeEventListener('scroll', handleScroll);
       clearTimeout(timeoutId);
@@ -103,9 +102,8 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`navbar-container fixed top-0 left-0 w-full z-[100] transition-all duration-500 flex items-center backdrop-blur-3xl border-b ${
-        isNavbarDark ? "bg-[#0a192f]/60 border-white/10" : "bg-white/40 border-black/5"
-      } ${showHeader ? "opacity-100 scale-100 h-16 sm:h-20" : "opacity-0 scale-95 pointer-events-none h-16 sm:h-20"}`}
+      className={`navbar-container fixed top-0 left-0 w-full z-[100] transition-all duration-500 flex items-center backdrop-blur-3xl border-b ${isNavbarDark ? "bg-[#0a192f]/60 border-white/10" : "bg-white/40 border-black/5"
+        } ${showHeader ? "opacity-100 scale-100 h-16 sm:h-20" : "opacity-0 scale-95 pointer-events-none h-16 sm:h-20"}`}
     >
       <div className={`px-4 sm:px-6 w-full flex items-center justify-between mx-auto max-w-7xl transition-colors duration-500 ${isNavbarDark ? "text-white" : "text-blue-900"}`}>
         <div className="flex items-center h-full">
@@ -168,11 +166,10 @@ const UserData = ({ user, isUserLoading, logoutMutation, isDark }) => {
     return (
       <Link
         to="/login"
-        className={`btn font-black px-4 sm:px-8 rounded-xl transition-all duration-300 transform hover:scale-105 border uppercase tracking-tighter sm:tracking-widest text-[10px] sm:text-xs h-auto py-2 sm:py-3 min-h-0 ${
-          isDark
+        className={`btn font-black px-4 sm:px-8 rounded-xl transition-all duration-300 transform hover:scale-105 border uppercase tracking-tighter sm:tracking-widest text-[10px] sm:text-xs h-auto py-2 sm:py-3 min-h-0 ${isDark
             ? "bg-white/80 hover:bg-white/90 text-blue-950 border-white shadow-lg"
             : "bg-blue-900 hover:bg-blue-700 text-white border-blue-900 shadow-md shadow-blue-900/10"
-        }`}
+          }`}
       >
         Login
       </Link>
@@ -186,19 +183,18 @@ const UserData = ({ user, isUserLoading, logoutMutation, isDark }) => {
           <img src={user.photoURL || "https://via.placeholder.com/150"} alt="User profile" />
         </div>
       </div>
-      <ul tabIndex={1} 
+      <ul tabIndex={1}
         onClick={() => document.activeElement.blur()}
-        className={`menu menu-sm dropdown-content rounded-[2rem] z-[1] mt-5 w-64 p-4 transition-all duration-500 transform origin-top backdrop-blur-xl border ${
-          isDark
+        className={`menu menu-sm dropdown-content rounded-[2rem] z-[1] mt-5 w-64 p-4 transition-all duration-500 transform origin-top backdrop-blur-xl border ${isDark
             ? "bg-slate-900/95 border-slate-700 text-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]"
             : "bg-white/95 border-slate-200 text-slate-900 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)]"
-        }`}>
-        <li className="px-5 py-4 mb-3 border-b border-white/10 dark:border-slate-700/30">
+          }`}>
+        <li className="px-5 py-4 mb-3 border-b border-white/10">
           <p className="text-sm font-bold truncate opacity-90">{user?.displayName || user?.email}</p>
         </li>
         <li>
           <Link to="/dashboard" className={`group flex items-center gap-3 py-3 rounded-xl transition-all ${isDark ? "hover:bg-white/10" : "hover:bg-slate-50"}`}>
-            <span className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
+            <span className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
               <MdArrowRight className="text-2xl" />
             </span>
             <span className="font-bold text-xs uppercase tracking-widest">Dashboard</span>
@@ -206,7 +202,7 @@ const UserData = ({ user, isUserLoading, logoutMutation, isDark }) => {
         </li>
         <li>
           <button onClick={() => logoutMutation.mutate()} className={`group flex items-center gap-3 py-3 rounded-xl mt-1 transition-all w-full text-left ${isDark ? "hover:bg-red-500/10" : "hover:bg-rose-50"}`}>
-            <span className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 group-hover:scale-110 transition-transform">
+            <span className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center text-rose-600 group-hover:scale-110 transition-transform">
               <MdArrowRight className="text-2xl" />
             </span>
             <span className="font-bold text-xs uppercase tracking-widest text-rose-600">Logout</span>

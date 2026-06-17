@@ -14,9 +14,9 @@ function App() {
   const path = location.pathname.toLowerCase();
   const isHomePage = path === "/";
   const showFooterPaths = ["/", "/about", "/courses", "/programmes"];
-  const isAllowedFooterPath = showFooterPaths.includes(path) || 
-                              path.startsWith("/courses/") || 
-                              path.startsWith("/programmes/");
+  const isAllowedFooterPath = showFooterPaths.includes(path) ||
+    path.startsWith("/courses/") ||
+    path.startsWith("/programmes/");
 
   // We hide the global footer on the Home page ('/') because CTA.jsx handles it inside the snap-scrolling container
   const showGlobalFooter = isAllowedFooterPath && !isHomePage;
@@ -29,10 +29,10 @@ function App() {
       <AuthProvider>
         {!isModulePlayer && <Navbar />}
         <Outlet />
-        
+
         {/* 4. Only render global footer if it's an allowed path AND not on the home page */}
         {showGlobalFooter && <Footer />}
-        
+
         {!isModulePlayer && <GoToTopButton />}
       </AuthProvider>
     </FeedbackProvider>

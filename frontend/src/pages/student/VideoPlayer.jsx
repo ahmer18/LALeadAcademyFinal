@@ -32,32 +32,32 @@ const VideoPlayer = () => {
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-4">
       <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-600 hover:text-indigo-600 font-bold">
-        <FaArrowLeft /> Back to Path
-      </button>
-      
-      <div className="aspect-video w-full shadow-2xl rounded-2xl overflow-hidden bg-black">
-        <iframe
-          width="100%"
-          height="100%"
-          src={embedUrl}
-          title={module.title}
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        ></iframe>
-      </div>
-
-      <div className="flex justify-between items-center bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">{module.title}</h2>
-          <p className="text-gray-500">Module {module.order} • Video Lecture</p>
-        </div>
-        <button 
-          onClick={handleComplete}
-          className="btn btn-success text-white flex gap-2"
-        >
-          <FaCheckCircle /> Mark as Completed
+          <FaArrowLeft /> Back to Path
         </button>
+
+        <div className="aspect-video w-full shadow-2xl rounded-2xl overflow-hidden bg-black">
+          <iframe
+            width="100%"
+            height="100%"
+            src={embedUrl}
+            title={module.title}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
+
+        <div className="flex justify-between items-center bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800">{module.title}</h2>
+            <p className="text-gray-500">Module {module.order} • Video Lecture</p>
+          </div>
+          <button
+            onClick={handleComplete}
+            className="btn btn-success text-white flex gap-2"
+          >
+            <FaCheckCircle /> Mark as Completed
+          </button>
       </div>
     </div>
   );

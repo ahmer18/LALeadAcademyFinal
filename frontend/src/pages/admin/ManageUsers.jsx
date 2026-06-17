@@ -72,7 +72,7 @@ export default function AllUsers() {
 
   return (
     <div className="p-6 md:p-10 bg-slate-50 min-h-screen">
-      
+
       {/* Header Section */}
       <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
@@ -96,7 +96,7 @@ export default function AllUsers() {
             placeholder="Search name or email..."
             className="w-full pl-12 pr-24 py-3.5 rounded-2xl bg-white border border-slate-200 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-sm font-medium shadow-sm"
           />
-          <button 
+          <button
             type="submit"
             className="absolute right-1.5 top-1.5 bottom-1.5 bg-slate-900 text-white px-5 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-blue-800 transition-colors"
           >
@@ -145,7 +145,7 @@ export default function AllUsers() {
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase
                         ${u.role === 'admin' ? 'bg-blue-50 text-blue-700' :
                           u.role === 'teacher' ? 'bg-emerald-50 text-emerald-700' :
-                          'bg-amber-50 text-amber-700'}`}
+                            'bg-amber-50 text-amber-700'}`}
                       >
                         {u.role || 'student'}
                       </span>
@@ -155,8 +155,8 @@ export default function AllUsers() {
                         onClick={() => handleMakeAdmin(u._id)}
                         disabled={u.role === "admin"}
                         className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold tracking-wide uppercase transition-all
-                          ${u.role === "admin" 
-                            ? "bg-slate-100 text-slate-400 cursor-not-allowed" 
+                          ${u.role === "admin"
+                            ? "bg-slate-100 text-slate-400 cursor-not-allowed"
                             : "bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white group-hover:shadow-md"}`}
                       >
                         <FaUserShield size={14} />

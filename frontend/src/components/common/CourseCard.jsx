@@ -52,13 +52,13 @@ const CourseCard = ({ course }) => {
             <div>
               <span className="block text-[10px] text-gray-400 uppercase font-bold tracking-widest leading-none mb-1">Investment</span>
               <span className="text-2xl font-black text-gray-900">
-                £{course.price}
+                ${course.price}
               </span>
             </div>
           ) : (
             <div /> // Empty div to maintain flex spacing for Programmes
           )}
-          
+
           <span className="bg-blue-800 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-lg shadow-blue-100 group-hover:bg-blue-700 group-hover:shadow-blue-200 transition-all">
             View Details
           </span>

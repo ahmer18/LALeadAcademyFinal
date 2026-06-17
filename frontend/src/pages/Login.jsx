@@ -41,7 +41,7 @@ export default function Login() {
       const userCredential = await userLogin(data.email, data.password);
       return userCredential.user;
     },
-    onSuccess: async (user) => { 
+    onSuccess: async (user) => {
       setUser(user);
       showFeedback("Login successful! , Welcome", "success");
       if (location.state?.from) {
@@ -100,8 +100,8 @@ export default function Login() {
       const message = error.code === "auth/user-not-found"
         ? "No account found with this email."
         : error.code === "auth/invalid-email"
-        ? "Invalid email address."
-        : "Failed to send reset email. Try again.";
+          ? "Invalid email address."
+          : "Failed to send reset email. Try again.";
       showFeedback(message, "error");
     } finally {
       setResetLoading(false);
@@ -119,14 +119,14 @@ export default function Login() {
         {/* Subtle Brand Accents */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#8d6e3e] rounded-full blur-[150px] opacity-20" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-900 rounded-full blur-[150px] opacity-20" />
-        
+
         <div className="bg-white shadow-2xl rounded-[2rem] p-10 w-full max-w-md relative z-10 border border-white/10">
           <div className="text-center mb-8">
-             <h1 className="brand-text text-4xl mb-2">
-                <span className="brand-la">LA</span>
-                <span className="text-gray-900">LEAD Academy</span>
-             </h1>
-             <p className="text-gray-500 font-medium">Welcome Back!</p>
+            <h1 className="brand-text text-4xl mb-2">
+              <span className="brand-la">LA</span>
+              <span className="text-gray-900">LEAD Academy</span>
+            </h1>
+            <p className="text-gray-500 font-medium">Welcome Back!</p>
           </div>
 
           <form onSubmit={handleSubmit(loginMutation.mutate)}>

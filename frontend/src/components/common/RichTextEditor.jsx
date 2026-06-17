@@ -44,6 +44,11 @@ const RichTextEditor = ({ value, onChange }) => {
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
     ],
     content: value || '',
+    editorProps: {
+      attributes: {
+        class: 'prose max-w-none focus:outline-none min-h-[150px] p-4 text-slate-700 leading-relaxed',
+      },
+    },
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },

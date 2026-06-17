@@ -112,7 +112,7 @@ export default function AddCourse() {
       delete finalData.certificate; // Remove the file object
       delete finalData._id; // _id is immutable
       delete finalData.instructor; // This is a populated field, not needed for update
-      
+
       saveCourseMutation.mutate(finalData);
     } catch (error) {
       console.error("Course submission failed:", error);
@@ -129,16 +129,16 @@ export default function AddCourse() {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
-      <div className="max-w-5xl mx-auto bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300 bg-theme-gradient">
+      <div className="max-w-5xl mx-auto bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-slate-200">
 
         {/* Header Section */}
-        <div className="p-8 sm:p-10 border-b border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-blue-900 dark:text-blue-400 tracking-tight">
+        <div className="p-8 sm:p-10 border-b border-slate-100 bg-white">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-blue-900 tracking-tight">
             {isUpdate ? "Update Course Details" : "Create New Course"}
           </h2>
-          <p className="mt-2 text-slate-500 dark:text-slate-400 font-medium">
-            {isUpdate 
+          <p className="mt-2 text-slate-500 font-medium">
+            {isUpdate
               ? "Modify your curriculum details to keep them up to date."
               : "Fill in the details below to launch your professional curriculum."}
           </p>
@@ -149,20 +149,20 @@ export default function AddCourse() {
           {/* Title Field */}
           <div className="form-control w-full">
             <label className="label mb-2">
-              <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300">Course Title</span>
+              <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600">Course Title</span>
             </label>
             <input
               {...register("title", { required: true })}
               placeholder="e.g. Strategic Management Masterclass"
-              className="input input-bordered w-full rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-400 text-slate-900 dark:text-white"
+              className="input input-bordered w-full rounded-xl bg-slate-50 border-slate-200 focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-400 text-slate-900"
             />
             {errors.title && <span className="text-red-500 text-xs mt-1 font-semibold">Title is required</span>}
           </div>
 
           {/* Dynamic Learning Outcomes Section */}
-          <div className="p-6 sm:p-8 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-700">
+          <div className="p-6 sm:p-8 bg-slate-50 rounded-3xl border border-slate-200">
             <label className="label mb-4">
-              <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300">Learning Outcomes</span>
+              <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600">Learning Outcomes</span>
             </label>
 
             <div className="space-y-4">
@@ -172,14 +172,14 @@ export default function AddCourse() {
                     <input
                       {...register(`outcomes.${index}.value`, { required: true })}
                       placeholder={`Point #${index + 1}`}
-                      className="input input-bordered w-full rounded-xl bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-400 transition-all text-sm"
+                      className="input input-bordered w-full rounded-xl bg-white border-slate-200 focus:ring-2 focus:ring-blue-400 transition-all text-sm"
                     />
                   </div>
                   {fields.length > 1 && (
                     <button
                       type="button"
                       onClick={() => remove(index)}
-                      className="btn btn-circle btn-ghost btn-sm text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                      className="btn btn-circle btn-ghost btn-sm text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                     >
                       <FaTrash size={14} />
                     </button>
@@ -191,7 +191,7 @@ export default function AddCourse() {
             <button
               type="button"
               onClick={() => append({ value: "" })}
-              className="btn btn-sm mt-6 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-blue-900 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-slate-700 rounded-xl gap-2 capitalize"
+              className="btn btn-sm mt-6 bg-white border-slate-200 text-blue-900 hover:bg-blue-100 rounded-xl gap-2 capitalize"
             >
               <FaPlus size={10} /> Add Learning Point
             </button>
@@ -201,28 +201,28 @@ export default function AddCourse() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             <div className="form-control">
               <label className="label mb-2">
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300">Price (£)</span>
+                <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600">Price ($)</span>
               </label>
               <input
                 type="number"
                 {...register("price", { required: true })}
-                className="input input-bordered rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500"
+                className="input input-bordered rounded-xl bg-slate-50 border-slate-200 focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div className="form-control">
               <label className="label mb-2">
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300">Duration</span>
+                <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600">Duration</span>
               </label>
               <input
                 type="text"
                 placeholder="e.g. 5 Hrs or 10 Modules"
                 {...register("duration", { required: true })}
-                className="input input-bordered rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500"
+                className="input input-bordered rounded-xl bg-slate-50 border-slate-200 focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div className="form-control">
               <label className="label mb-2 justify-between flex items-center">
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300">Course Thumbnail</span>
+                <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600">Course Thumbnail</span>
                 {isUpdate && course?.image && (
                   <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">Current Image Active</span>
                 )}
@@ -232,23 +232,23 @@ export default function AddCourse() {
                   type="file"
                   accept="image/*"
                   {...register("image", { required: !isUpdate })}
-                  className="file-input file-input-bordered w-full rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 file:bg-blue-800  file:text-white file:border-none file:mr-4 file:px-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium text-xs"
+                  className="file-input file-input-bordered w-full rounded-xl bg-slate-50 border-slate-200 file:bg-blue-800  file:text-white file:border-none file:mr-4 file:px-4 focus:ring-2 focus:ring-blue-500 transition-all font-medium text-xs"
                 />
                 {isUpdate && course?.image && (
                   <div className="mt-2 flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                     <img src={course.image} className="w-12 h-12 rounded-lg object-cover shadow-sm" alt="Existing" />
-                     <p className="text-[10px] text-slate-400 font-bold leading-tight">Leave empty to keep existing <br/>professional cover</p>
+                    <img src={course.image} className="w-12 h-12 rounded-lg object-cover shadow-sm" alt="Existing" />
+                    <p className="text-[10px] text-slate-400 font-bold leading-tight">Leave empty to keep existing <br />professional cover</p>
                   </div>
                 )}
               </div>
             </div>
             <div className="form-control col-span-1 sm:col-span-3">
               <label className="label mb-2 justify-between flex items-center">
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300">Course Certificate (PDF)</span>
+                <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600">Course Certificate (PDF)</span>
                 {isUpdate && course?.certificateUrl && (
                   <div className="flex items-center gap-2">
-                     <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">Certificate Found</span>
-                     <a href={course.certificateUrl} target="_blank" rel="noreferrer" className="text-[9px] font-black text-blue-800 underline hover:text-blue-600 uppercase tracking-tighter">View Existing</a>
+                    <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">Certificate Found</span>
+                    <a href={course.certificateUrl} target="_blank" rel="noreferrer" className="text-[9px] font-black text-blue-800 underline hover:text-blue-600 uppercase tracking-tighter">View Existing</a>
                   </div>
                 )}
               </label>
@@ -257,7 +257,7 @@ export default function AddCourse() {
                   type="file"
                   accept=".pdf"
                   {...register("certificate")}
-                  className="file-input file-input-bordered w-full rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 file:bg-emerald-600 file:text-white file:border-none file:mr-4 file:px-4 font-medium text-xs"
+                  className="file-input file-input-bordered w-full rounded-xl bg-slate-50 border-slate-200 file:bg-emerald-600 file:text-white file:border-none file:mr-4 file:px-4 font-medium text-xs"
                 />
                 <p className="text-[10px] text-slate-400 mt-2 font-medium italic">
                   {isUpdate ? "Upload a new PDF only if you wish to replace the current certificate." : "This certificate will be issued to students upon successful completion."}
@@ -269,11 +269,11 @@ export default function AddCourse() {
           {/* Description Section */}
           <div className="form-control w-full flex flex-col gap-2">
             <label className="label">
-              <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300">Course Vision</span>
+              <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600">Course Vision</span>
             </label>
             <textarea
               {...register("description", { required: true })}
-              className="textarea textarea-bordered w-full h-44 rounded-2xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 transition-all text-base p-5 leading-relaxed"
+              className="textarea textarea-bordered w-full h-44 rounded-2xl bg-slate-50 border-slate-200 focus:ring-2 focus:ring-blue-500 transition-all text-base p-5 leading-relaxed"
               placeholder="What is the core mission of this course? Describe the impact on the students..."
             ></textarea>
             {errors.description && <span className="text-red-500 text-xs font-semibold mt-1">Description is required</span>}
@@ -282,11 +282,11 @@ export default function AddCourse() {
           {/* Course Completion Message Section */}
           <div className="form-control w-full flex flex-col gap-2">
             <label className="label">
-              <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600 dark:text-slate-300">Course Completion Message</span>
+              <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600">Course Completion Message</span>
             </label>
             <textarea
               {...register("courseCompletionMessage")}
-              className="textarea textarea-bordered w-full h-32 rounded-2xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 transition-all text-base p-5 leading-relaxed"
+              className="textarea textarea-bordered w-full h-32 rounded-2xl bg-slate-50 border-slate-200 focus:ring-2 focus:ring-blue-500 transition-all text-base p-5 leading-relaxed"
               placeholder="This message will be shown to students when they complete the entire course..."
             ></textarea>
           </div>

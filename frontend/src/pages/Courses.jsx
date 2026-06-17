@@ -36,19 +36,19 @@ const AllCourses = () => {
   return (
     <>
       <HeadTag title="All Courses | LA Lead Academy" />
-      
+
       {/* 1. PREMIUM HEADER SECTION */}
       <div className="relative overflow-hidden w-full py-20 lg:py-28">
         <div className="absolute inset-0 -z-10">
           <div className="absolute inset-0 bg-slate-50" />
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-100/50 rounded-full blur-[120px]" />
           <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-100/50 rounded-full blur-[120px]" />
-          <div className="absolute inset-0 opacity-[0.03]" 
-               style={{ backgroundImage: `radial-gradient(#4f46e5 0.5px, transparent 0.5px)`, backgroundSize: '30px 30px' }} />
+          <div className="absolute inset-0 opacity-[0.03]"
+            style={{ backgroundImage: `radial-gradient(#4f46e5 0.5px, transparent 0.5px)`, backgroundSize: '30px 30px' }} />
         </div>
 
         <div className="max-w-7xl mx-auto px-6 text-center">
-          
+
           <h2 className="text-5xl md:text-7xl font-black text-gray-900 mb-6 leading-tight">
             Our <span className="text-blue-900">Courses</span>
           </h2>
@@ -87,8 +87,8 @@ const AllCourses = () => {
           <div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
               {data?.courses?.map((course) => (
-                <CourseCard 
-                  key={course._id} 
+                <CourseCard
+                  key={course._id}
                   course={course} // Pass the raw dynamic course object
                 />
               ))}
@@ -99,8 +99,8 @@ const AllCourses = () => {
               <button
                 disabled={currentPage === 1}
                 onClick={() => {
-                   setCurrentPage((p) => p - 1);
-                   window.scrollTo({ top: 0, behavior: 'smooth' });
+                  setCurrentPage((p) => p - 1);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
                 className="px-6 py-3 rounded-xl bg-white border border-gray-200 font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
               >

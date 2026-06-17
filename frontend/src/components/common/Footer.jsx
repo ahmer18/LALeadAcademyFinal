@@ -19,7 +19,7 @@ export default function Footer() {
       className="py-12 px-6 bg-[#FAF9F6] text-slate-900 border-t border-slate-200"
     >
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
-        
+
         {/* About: Professional Brand Presence */}
         <div className="space-y-4">
           <h2 className="brand-text text-xl sm:text-2xl leading-none">
@@ -66,34 +66,34 @@ export default function Footer() {
             Connect
           </h2>
           <div className="flex flex-wrap gap-3">
-            <SocialIcon 
-              href="https://www.facebook.com/share/17FoaG5Xd6/?mibextid=wwXIfr" 
-              icon={<FaFacebookF />} 
+            <SocialIcon
+              href="https://www.facebook.com/share/17FoaG5Xd6/?mibextid=wwXIfr"
+              icon={<FaFacebookF />}
               hoverClass="hover:bg-blue-600"
             />
-            <SocialIcon 
-              href="https://www.instagram.com/laleadacademy?igsh=eTdwNXBxOXJlZm9n&utm_source=qr" 
-              icon={<FaInstagram />} 
+            <SocialIcon
+              href="https://www.instagram.com/laleadacademy?igsh=eTdwNXBxOXJlZm9n&utm_source=qr"
+              icon={<FaInstagram />}
               hoverClass="hover:bg-gradient-to-tr from-yellow-500 via-red-500 to-purple-500"
             />
-            <SocialIcon 
-              href="https://wa.me/905346053958" 
-              icon={<FaWhatsapp />} 
+            <SocialIcon
+              href="https://wa.me/905346053958"
+              icon={<FaWhatsapp />}
               hoverClass="hover:bg-green-500"
             />
-            <SocialIcon 
-              href="https://www.tiktok.com/@laleadacademytiktok?_r=1&_t=ZS-93vYoAGGC8q" 
-              icon={<FaTiktok />} 
+            <SocialIcon
+              href="https://www.tiktok.com/@laleadacademytiktok?_r=1&_t=ZS-93vYoAGGC8q"
+              icon={<FaTiktok />}
               hoverClass="hover:bg-black"
             />
-            <SocialIcon 
-              href="https://www.linkedin.com/company/la-lead-academy/8" 
-              icon={<FaLinkedin />} 
+            <SocialIcon
+              href="https://www.linkedin.com/company/la-lead-academy/8"
+              icon={<FaLinkedin />}
               hoverClass="hover:bg-blue-700"
             />
-            <SocialIcon 
-              href="https://www.youtube.com/@LALEADacademyYT" 
-              icon={<FaYoutube />} 
+            <SocialIcon
+              href="https://www.youtube.com/@LALEADacademyYT"
+              icon={<FaYoutube />}
               hoverClass="hover:bg-red-600"
             />
           </div>
@@ -101,14 +101,14 @@ export default function Footer() {
       </div>
 
       <div className="mt-12 border-t pt-8 text-center text-[10px] tracking-[0.2em] font-black uppercase border-slate-200 text-slate-400">
-        &copy; {new Date().getFullYear()} 
+        &copy; {new Date().getFullYear()}
         <span> LA</span>
-        <span>LEAD Academy.</span> 
+        <span>LEAD Academy.</span>
         <span className="ml-1">All Rights Reserved.</span>
         {" — "}
-        <a 
-          href="/" 
-          target="_blank" 
+        <a
+          href="/"
+          target="_blank"
           rel="noopener noreferrer"
           className="hover:text-blue-900 text-slate-600 transition-colors duration-200 cursor-pointer"
         >
