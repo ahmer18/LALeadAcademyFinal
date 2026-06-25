@@ -462,6 +462,16 @@ const CourseSummery = () => {
     }));
   };
 
+  const removeQuizQuestion = (blockId, qIndex) => {
+    setBlocks(blocks.map(b => {
+      if (b.id !== blockId) return b;
+      return {
+        ...b,
+        questions: b.questions.filter((_, idx) => idx !== qIndex)
+      };
+    }));
+  };
+
   if (infoLoading || statsLoading) return <LoaderDotted />;
 
   const totalModules = courseInfo.modules?.length || 0;
@@ -845,25 +855,33 @@ const CourseSummery = () => {
                                 <div key={qIdx} className="p-6 bg-slate-50/50 border border-slate-100 rounded-2xl shadow-sm space-y-4">
                                   <div className="flex justify-between items-center mb-1">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Question {qIdx + 1}</span>
+                                    <button 
+                                      type="button" 
+                                      onClick={() => removeQuizQuestion(block.id, qIdx)} 
+                                      className="text-red-400 hover:text-red-600 transition-colors p-1"
+                                      title="Delete Question"
+                                    >
+                                      <FaTrash size={12} />
+                                    </button>
                                   </div>
                                   <input
                                     value={q.question}
                                     onChange={(e) => updateQuizQuestion(block.id, qIdx, "question", e.target.value)}
                                     placeholder="Enter the question prompt here..."
-                                    className="input input-md w-full bg-white border-slate-200 rounded-xl font-bold focus:border-blue-900 shadow-sm" required
+                                    className="input input-md w-full bg-white border-slate-200 rounded-xl font-bold focus:border-blue-900 shadow-sm"
                                   />
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <input
                                       value={q.opt1}
                                       onChange={(e) => updateQuizQuestion(block.id, qIdx, "opt1", e.target.value)}
                                       placeholder="A) Professional Option"
-                                      className="input input-sm bg-white border-slate-200 rounded-lg text-xs" required
+                                      className="input input-sm bg-white border-slate-200 rounded-lg text-xs"
                                     />
                                     <input
                                       value={q.opt2}
                                       onChange={(e) => updateQuizQuestion(block.id, qIdx, "opt2", e.target.value)}
                                       placeholder="B) Alternative Option"
-                                      className="input input-sm bg-white border-slate-200 rounded-lg text-xs" required
+                                      className="input input-sm bg-white border-slate-200 rounded-lg text-xs"
                                     />
                                     <input
                                       value={q.opt3}
