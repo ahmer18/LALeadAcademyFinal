@@ -57,19 +57,23 @@ exports.getCourseProgressForTeacher = async (req, res) => {
     const course = await (await getCollection("courses")).findOne({ _id: new ObjectId(courseId) });
     if (!course) return res.status(404).json({ message: "Course not found" });
     
-    const totalModules = course.modules?.length || 0;
+    const activeModuleOrders = course.modules?.map(m => m.order) || [];
+    const totalModules = activeModuleOrders.length;
     const enrollments = await (await getCollection("enrollments")).find({ 
       courseId: new ObjectId(courseId) 
     }).toArray();
 
     const progressData = enrollments.map(enrol => {
-      const completedCount = enrol.completedModules?.length || 0;
-      const percent = totalModules > 0 ? Math.round((completedCount / totalModules) * 100) : 0;
+      const completedModulesArray = enrol.completedModules || [];
+      const validCompletedCount = completedModulesArray.filter(order => activeModuleOrders.includes(order)).length;
+      
+      let percent = totalModules > 0 ? Math.round((validCompletedCount / totalModules) * 100) : 0;
+      if (percent > 100) percent = 100;
       
       return {
         studentEmail: enrol.email,
         studentName: enrol.name || "Student",
-        completedCount,
+        completedCount: validCompletedCount,
         totalModules,
         progressPercent: percent,
         lastUpdated: enrol.createdAt

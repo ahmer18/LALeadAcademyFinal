@@ -483,7 +483,7 @@ const CourseSummery = () => {
         <div className="flex flex-wrap items-center justify-between gap-6 mb-12">
           <div>
             <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-1">Course Management</h2>
-            <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">Overview & Curriculum Builder</p>
+            <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">Overview & Modules Builder</p>
           </div>
 
           <div className="flex items-center gap-4">
@@ -568,7 +568,7 @@ const CourseSummery = () => {
             {/* 1. STUDENT PROGRESS */}
             <div className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-xl shadow-slate-200/30 flex flex-col">
               <div className="p-8 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                <h3 className="text-lg font-black text-slate-900 tracking-tight">Student Course Completion</h3>
+                <h3 className="text-lg font-black text-slate-900 tracking-tight">Student's Course Completion Progress</h3>
                 <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-900 flex items-center justify-center shadow-inner">
                   <FaUserGraduate size={16} />
                 </div>
@@ -612,7 +612,7 @@ const CourseSummery = () => {
             {/* 2. REVIEWS & FEEDBACK */}
             <div className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-xl shadow-slate-200/30 flex flex-col">
               <div className="p-8 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                <h3 className="text-lg font-black text-slate-900 tracking-tight">Student Feedback</h3>
+                <h3 className="text-lg font-black text-slate-900 tracking-tight">Student Feedbacks</h3>
                 <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#8d6e3e] flex items-center justify-center shadow-inner text-lg">
                   <FaCommentAlt size={16} />
                 </div>
