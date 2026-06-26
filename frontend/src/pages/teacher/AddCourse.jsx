@@ -291,6 +291,25 @@ export default function AddCourse() {
             ></textarea>
           </div>
 
+          {/* Course Introduction Video Section */}
+          <div className="form-control w-full flex flex-col gap-2">
+            <label className="label justify-between flex items-center">
+              <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600">Course Introduction Video </span>
+              {isUpdate && course?.introVideoUrl && (
+                <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">Video Set</span>
+              )}
+            </label>
+            <input
+              type="url"
+              {...register("introVideoUrl")}
+              placeholder="Paste a YouTube URL for your course introduction..."
+              className="input input-bordered w-full rounded-xl bg-slate-50 border-slate-200 focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-400 text-slate-900"
+            />
+            <p className="text-[11px] text-slate-400 mt-1 font-medium italic">
+              Students will see this video at the top of their course page before starting modules.
+            </p>
+          </div>
+
           {/* Submit Action */}
           <div className="pt-6">
             <button

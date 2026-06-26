@@ -7,7 +7,8 @@ import GiveFeedbackModal from "../../components/common/GiveFeedbackModal";
 import LoaderDotted from "../../components/common/LoaderDotted";
 import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
-import { FaLock, FaPlayCircle, FaQuestionCircle, FaFileAlt, FaCheckCircle, FaBookOpen, FaDownload } from "react-icons/fa";
+import VideoPlayer from "./VideoPlayer";
+import { FaLock, FaPlayCircle, FaQuestionCircle, FaFileAlt, FaCheckCircle, FaBookOpen, FaDownload, FaChevronUp, FaChevronDown, FaVideo } from "react-icons/fa";
 
 const CourseAssignments = () => {
   const { courseId } = useParams();
@@ -16,6 +17,7 @@ const CourseAssignments = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
   const [selectedAssignmentId, setSelectedAssignmentId] = useState(null);
+  const [introVideoOpen, setIntroVideoOpen] = useState(true);
   const axiosSecure = useAxiosSecure();
 
   // 1. Fetch Course Structure
@@ -60,7 +62,7 @@ const CourseAssignments = () => {
       <div className="max-w-5xl mx-auto">
         {/* Top Header Section */}
         <div className="mb-10 px-4">
-          <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight leading-[1.1] mb-2 mt-15 drop-shadow-sm">
+          <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight leading-[1.1] mb-2 mt-15 drop-shadow-sm text-center">
             {courseInfo.title}
           </h1>
           <div className="flex items-center gap-2 mt-4">
@@ -68,6 +70,47 @@ const CourseAssignments = () => {
             <div className="h-0.5 w-12 bg-slate-200 rounded-full" />
           </div>
         </div>
+
+        {/* Course Introduction Video */}
+        {courseInfo.introVideoUrl && (
+          <div className="mb-10 px-4">
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-lg overflow-hidden max-w-5xl mx-auto">
+              {/* Header with toggle */}
+              <button
+                onClick={() => setIntroVideoOpen(!introVideoOpen)}
+                className="w-full flex items-center justify-between px-6 py-4 hover:bg-slate-50/50 transition-colors group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-purple-50 text-blue-800 flex items-center justify-center border border-blue-100 shadow-sm">
+                    <FaVideo size={14} />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="text-sm font-black text-slate-800 tracking-tight">Course Introduction</h3>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Watch before you begin</p>
+                  </div>
+                </div>
+                <div className="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-slate-200 flex items-center justify-center transition-colors">
+                  {introVideoOpen ? <FaChevronUp size={12} className="text-slate-500" /> : <FaChevronDown size={12} className="text-slate-500" />}
+                </div>
+              </button>
+
+              {/* Collapsible video area */}
+              <div
+                className="transition-all duration-500 ease-in-out overflow-hidden"
+                style={{
+                  maxHeight: introVideoOpen ? '600px' : '0px',
+                  opacity: introVideoOpen ? 1 : 0,
+                }}
+              >
+                <div className="px-4 pb-4 md:px-6 md:pb-6">
+                  <div className="bg-black p-2 md:p-3 rounded-2xl shadow-xl">
+                    <VideoPlayer videoUrl={courseInfo.introVideoUrl} title="Course Introduction" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Curriculum Header */}
         <div className="mb-12 px-4 text-left">
@@ -80,7 +123,7 @@ const CourseAssignments = () => {
               <p className="text-xs text-gray-600 font-bold uppercase tracking-widest mt-0.5">Explore your learning modules below</p>
             </div>
           </div>
-          <p className="text-gray-600 font-medium leading-relaxed max-w-2xl text-medium">
+          <p className="text-gray-600 font-medium leading-relaxed max-w-4xl text-medium">
             Your course consists of <span className="text-blue-900 font-black">{totalModules} modules</span>.
             Please complete them in order to qualify for your professional certification.
           </p>
@@ -115,7 +158,7 @@ const CourseAssignments = () => {
                         Module {module.order}
                       </span>
                       <span className="text-xs font-bold text-[#8d6e3e] uppercase">
-                        {module.blocks?.length || 0} Blocks
+                        {module.blocks?.length || 0} Chapters
                       </span>
                     </div>
                     <h4 className={`mt-2 text-base font-bold ${isUnlocked ? "text-gray-700" : "text-gray-400"}`}>

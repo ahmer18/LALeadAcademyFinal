@@ -149,7 +149,7 @@ export default function TeachersCourses() {
                             to={`${course._id}`}
                             className="col-span-2 py-3 bg-blue-900 text-white rounded-xl text-xs font-black uppercase tracking-[0.1em] hover:bg-blue-800 transition-all shadow-lg shadow-blue-900/20 text-center mt-2"
                           >
-                            See Curriculum Details
+                            Add/Update Module's Details
                           </Link>
                         ) : (
                           <button className="col-span-2 py-3 bg-slate-100 text-slate-400 rounded-xl text-xs font-black uppercase tracking-[0.2em] cursor-not-allowed mt-2">

@@ -1,116 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
-import { FaArrowLeft, FaArrowRight, FaCheckCircle, FaVideo, FaAlignLeft, FaQuestionCircle, FaFileAlt, FaTrophy, FaStar, FaExclamationCircle, FaChevronLeft, FaChevronRight, FaImage, FaHeadphones, FaPlay, FaPause, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight, FaCheckCircle, FaVideo, FaAlignLeft, FaQuestionCircle, FaFileAlt, FaTrophy, FaStar, FaExclamationCircle, FaChevronLeft, FaChevronRight, FaImage, FaHeadphones, FaPlay, FaPause, FaVolumeMute, FaVolumeUp, FaSpinner } from "react-icons/fa";
 import confetti from "canvas-confetti";
+import VideoPlayer from "./VideoPlayer";
+import QuizPlayer from "./QuizPlayer";
+import PhotoMatchingPlayer from "./PhotoMatchingPlayer";
+import AssignmentPlayer from "./AssignmentPlayer";
 
-// ─────────────────────────────────────────────
-// Inline Quiz Component
-// ─────────────────────────────────────────────
-const InlineQuiz = ({ block, onPass }) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [score, setScore] = useState(0);
-  const [showResult, setShowResult] = useState(false);
-  const questions = block.quizData || [];
 
-  const handleAnswer = (selectedIndex) => {
-    const isCorrect = selectedIndex === questions[currentStep].correctAnswerIndex;
-    const newScore = score + (isCorrect ? 1 : 0);
-
-    if (currentStep < questions.length - 1) {
-      setScore(newScore);
-      setCurrentStep(currentStep + 1);
-    } else {
-      setShowResult(true);
-      onPass(newScore === questions.length);
-      setScore(newScore);
-    }
-  };
-
-  const handleTryAgain = () => {
-    setScore(0);
-    setCurrentStep(0);
-    setShowResult(false);
-    onPass(false);
-  };
-
-  if (questions.length === 0) return <div className="text-gray-500 italic">No questions found.</div>;
-
-  return (
-    <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200 my-6">
-      <div className="flex items-center gap-2 mb-6 text-blue-900 font-bold uppercase tracking-widest text-xs">
-        <FaQuestionCircle /> Quiz
-      </div>
-
-      {!showResult ? (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center border-b pb-4">
-            <h2 className="text-lg font-bold">Question {currentStep + 1} of {questions.length}</h2>
-            <span className="bg-blue-50 text-blue-800 px-3 py-1 rounded-full text-xs font-bold">
-              Score: {score}
-            </span>
-          </div>
-          <p className="text-xl font-medium text-gray-800">{questions[currentStep].question}</p>
-          <div className="grid grid-cols-1 gap-3">
-            {questions[currentStep].options.map((opt, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleAnswer(idx)}
-                className="p-4 text-left border-2 border-gray-100 rounded-xl hover:border-blue-900 hover:bg-blue-50 transition-all group"
-              >
-                <span className="font-bold mr-3 text-blue-800 group-hover:text-blue-900">
-                  {String.fromCharCode(65 + idx)}.
-                </span>
-                {opt}
-              </button>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="text-center py-6">
-          {score === questions.length ? (
-            <div className="space-y-6 pt-4 animate-in fade-in zoom-in duration-500">
-              <div className="w-24 h-24 rounded-[2rem] bg-emerald-50 text-emerald-500 flex items-center justify-center mx-auto shadow-inner border border-emerald-100 relative group">
-                <div className="absolute inset-0 bg-emerald-400/20 rounded-[2rem] animate-pulse opacity-40" />
-                <FaTrophy size={40} className="relative z-10" />
-              </div>
-              <div>
-                <h3 className="text-3xl font-black text-slate-800 tracking-tight">Mastery Achieved!</h3>
-                <p className="text-sm text-emerald-600 font-bold uppercase tracking-[0.2em] mt-1">100% Correct</p>
-              </div>
-              <p className="text-slate-500 font-medium max-w-xs mx-auto text-sm leading-relaxed">
-                Incredible work! You've successfully passed the quiz with a <span className="text-emerald-600 font-black">Perfect Score</span>.
-              </p>
-              <div className="inline-flex items-center gap-2 px-6 py-2 bg-emerald-50 text-emerald-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-100">
-                <FaCheckCircle /> Module Unlocked
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-6 pt-4 animate-in fade-in zoom-in duration-500">
-              <div className="w-24 h-24 rounded-[2rem] bg-amber-50 text-amber-500 flex items-center justify-center mx-auto shadow-inner border border-amber-100 relative group">
-                <div className="absolute inset-0 bg-amber-400/20 rounded-[2rem] animate-ping opacity-20" />
-                <FaExclamationCircle size={40} className="relative z-10" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-black text-slate-800 tracking-tight">Almost There!</h3>
-                <p className="text-sm text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Score: {score} out of {questions.length}</p>
-                <div className="w-full bg-slate-100 h-1.5 rounded-full mt-4 max-w-[200px] mx-auto overflow-hidden">
-                  <div className="bg-amber-500 h-full transition-all duration-1000" style={{ width: `${(score / questions.length) * 100}%` }} />
-                </div>
-              </div>
-              <p className="text-slate-500 font-medium max-w-xs mx-auto text-sm leading-relaxed">
-                You need a <span className="text-blue-900 font-black">Perfect Score</span> to master this module. Let's give it another shot!
-              </p>
-              <button onClick={handleTryAgain} className="h-14 px-10 bg-blue-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-900/20 hover:bg-blue-800 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                Retry Challenge →
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
 
 // ─────────────────────────────────────────────
 // Celebration Modal Component
@@ -314,7 +212,7 @@ const CustomAudioPlayer = ({ src }) => {
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={handleAudioEnded}
       />
-      
+
       {/* Play/Pause Button */}
       <button
         type="button"
@@ -353,6 +251,7 @@ const CustomAudioPlayer = ({ src }) => {
     </div>
   );
 };
+
 
 // ─────────────────────────────────────────────
 // Block type icon & label helper
@@ -396,24 +295,7 @@ const ModulePlayer = () => {
   const [isLastModule, setIsLastModule] = useState(false);
   const [courseCompletionMsg, setCourseCompletionMsg] = useState("");
 
-  // ── Image matching state ──
-  const [imageMatchSelections, setImageMatchSelections] = useState({});
-  const [imageMatchFeedback, setImageMatchFeedback] = useState({});
 
-  const handleImageSelect = (blockIdx, imgIdx, value) => {
-    setImageMatchSelections(prev => ({
-      ...prev,
-      [blockIdx]: { ...(prev[blockIdx] || {}), [imgIdx]: value }
-    }));
-    // Clear feedback when user changes answer
-    setImageMatchFeedback(prev => ({ ...prev, [blockIdx]: null }));
-  };
-
-  const checkImageAnswers = (blockIdx, images) => {
-    const selections = imageMatchSelections[blockIdx] || {};
-    const allCorrect = images.every((img, idx) => selections[idx] === img.correctTerm);
-    setImageMatchFeedback(prev => ({ ...prev, [blockIdx]: allCorrect ? 'correct' : 'incorrect' }));
-  };
 
   // Fetch Course Info to check if this is the last module
   useEffect(() => {
@@ -554,183 +436,29 @@ const ModulePlayer = () => {
     }
 
     if (block.type === 'video') {
-      const embedUrl = block.videoUrl?.replace("watch?v=", "embed/");
       return (
         <div className="w-full">
           <div className="bg-black p-2 md:p-4 rounded-3xl shadow-2xl">
-            <div className="aspect-video w-full rounded-2xl overflow-hidden relative">
-              <iframe
-                width="100%"
-                height="100%"
-                src={embedUrl}
-                title="Video Player"
-                frameBorder="0"
-                allowFullScreen
-                className="absolute inset-0 z-10"
-              ></iframe>
-            </div>
+            <VideoPlayer videoUrl={block.videoUrl} title={block.heading || "Video Player"} />
           </div>
         </div>
       );
     }
 
     if (block.type === 'photo') {
-      const images = block.images || (block.photoUrl ? [{ url: block.photoUrl, correctTerm: "" }] : []);
-      const terms = block.terms || [];
-      const hasMatchingGame = terms.length > 0 && images.some(img => img.correctTerm);
-      const blockIdx = blocks.indexOf(block);
-      const selections = imageMatchSelections[blockIdx] || {};
-      const feedback = imageMatchFeedback[blockIdx];
-      const allSelected = hasMatchingGame && images.every((_, idx) => selections[idx] && selections[idx] !== "");
-
-      // Legacy single-image display (no terms/matching)
-      if (!hasMatchingGame) {
-        return (
-          <div className="w-full flex justify-center">
-            <div className="bg-white p-4 md:p-6 rounded-3xl shadow-md border border-slate-100 overflow-hidden inline-block">
-              {images.map((img, idx) => (
-                <img
-                  key={idx}
-                  src={img.url}
-                  alt={block.heading || "Module Image"}
-                  className="max-w-full h-auto rounded-2xl object-contain max-h-[55vh] shadow-sm"
-                />
-              ))}
-            </div>
-          </div>
-        );
-      }
-
-      // Interactive matching grid
-      return (
-        <div className="w-full space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-            {images.map((img, idx) => {
-              const isChecked = feedback !== null && feedback !== undefined;
-              const isCorrect = isChecked && selections[idx] === img.correctTerm;
-              const isIncorrect = isChecked && selections[idx] !== img.correctTerm;
-
-              return (
-                <div
-                  key={idx}
-                  className={`bg-white rounded-2xl border-2 overflow-hidden shadow-md transition-all duration-300 ${
-                    isCorrect ? 'border-emerald-400 shadow-emerald-100' :
-                    isIncorrect ? 'border-red-300 shadow-red-100' :
-                    'border-slate-100 hover:border-slate-200 hover:shadow-lg'
-                  }`}
-                >
-                  <div className="aspect-[4/3] bg-slate-50 flex items-center justify-center p-3">
-                    <img
-                      src={img.url}
-                      alt={`Image ${idx + 1}`}
-                      className="max-w-full max-h-full object-contain rounded-xl"
-                    />
-                  </div>
-                  <div className="p-4 border-t border-slate-100 bg-slate-50/50">
-                    <select
-                      value={selections[idx] || ""}
-                      onChange={(e) => handleImageSelect(blockIdx, idx, e.target.value)}
-                      disabled={feedback === 'correct'}
-                      className={`select select-bordered w-full rounded-xl text-sm font-bold transition-all ${
-                        isCorrect ? 'bg-emerald-50 border-emerald-300 text-emerald-800' :
-                        isIncorrect ? 'bg-red-50 border-red-300 text-red-800' :
-                        'bg-white border-slate-200 text-slate-700 focus:border-blue-900'
-                      }`}
-                    >
-                      <option value="">Select an answer...</option>
-                      {terms.map((term, tIdx) => (
-                        <option key={tIdx} value={term}>{term}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Check Answers Button */}
-          {feedback !== 'correct' && (
-            <div className="flex justify-center">
-              <button
-                onClick={() => checkImageAnswers(blockIdx, images)}
-                disabled={!allSelected}
-                className={`px-8 py-3 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 ${
-                  allSelected
-                    ? 'bg-blue-900 text-white hover:bg-blue-800 hover:scale-[1.02] active:scale-[0.97] shadow-blue-900/20'
-                    : 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
-                }`}
-              >
-                <FaCheckCircle size={14} />
-                Check Answers
-              </button>
-            </div>
-          )}
-
-          {/* Feedback Alert */}
-          {feedback && (
-            <div className={`max-w-3xl mx-auto p-6 rounded-2xl border-2 transition-all duration-500 animate-fadeIn ${
-              feedback === 'correct'
-                ? 'bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200'
-                : 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200'
-            }`}>
-              <div className="flex items-start gap-4">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner flex-shrink-0 ${
-                  feedback === 'correct' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'
-                }`}>
-                  {feedback === 'correct' ? '🎉' : '💡'}
-                </div>
-                <div>
-                  <h4 className={`font-black text-lg tracking-tight ${
-                    feedback === 'correct' ? 'text-emerald-800' : 'text-amber-800'
-                  }`}>
-                    {feedback === 'correct' ? 'Excellent Work!' : 'Keep Learning!'}
-                  </h4>
-                  <p className={`text-sm mt-1 font-medium leading-relaxed ${
-                    feedback === 'correct' ? 'text-emerald-700/80' : 'text-amber-700/80'
-                  }`}>
-                    {feedback === 'correct'
-                      ? 'You have fully understood this topic. Every answer is correct — keep up the amazing work!'
-                      : "Your concepts aren't quite clear yet, but don't worry! Review the material and try again — you've got this."}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      );
+      return <PhotoMatchingPlayer block={block} />;
     }
 
     if (block.type === 'quiz') {
       return (
         <div className="w-full">
-          <InlineQuiz block={block} onPass={(passed) => handleQuizPass(block.id, passed)} />
+          <QuizPlayer block={block} onPass={(passed) => handleQuizPass(block.id, passed)} />
         </div>
       );
     }
 
     if (block.type === 'assignment') {
-      return (
-        <div className="w-full">
-          <div className="bg-amber-50 p-6 md:p-8 rounded-2xl border border-amber-200 relative overflow-hidden">
-            <FaFileAlt className="absolute -bottom-4 -right-4 text-amber-200/50 text-9xl" />
-            <div className="relative z-10 flex items-center gap-3 mb-4">
-              <span className="w-10 h-10 rounded-xl bg-amber-200 flex items-center justify-center text-amber-800 shadow-inner">
-                <FaFileAlt />
-              </span>
-              <h3 className="text-xl font-bold text-amber-900">Assignment Task</h3>
-            </div>
-            <div className="relative z-10 prose prose-amber">
-              <p className="whitespace-pre-wrap text-amber-900/80 font-medium">{block.assignmentDetails?.description || block.description}</p>
-            </div>
-            <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-amber-900 text-white text-xs font-bold rounded-lg tracking-wider">
-              DUE DATE: <span className="text-amber-300">{block.assignmentDetails?.deadline || block.deadline}</span>
-            </div>
-            <p className="text-xs text-amber-700/60 mt-4 relative z-10 font-bold italic">
-              * Return to the Course Dashboard to submit this assignment file when ready.
-            </p>
-          </div>
-        </div>
-      );
+      return <AssignmentPlayer block={block} />;
     }
 
     return null;
@@ -834,7 +562,7 @@ const ModulePlayer = () => {
             className={`absolute inset-0 overflow-y-auto px-4 md:px-8 py-6 md:py-10 ${getSlideAnimClass()}`}
             key={currentSlide}
           >
-            <div className="max-w-4xl mx-auto">
+            <div className={`${currentBlock?.type === 'video' ? 'max-w-5xl' : 'max-w-4xl'} mx-auto w-full transition-all duration-300`}>
               {/* Block heading / Audio Narration */}
               {(currentBlock?.heading || (currentBlock?.type === 'text' && currentBlock?.audioUrl)) && (
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -856,7 +584,7 @@ const ModulePlayer = () => {
                 renderBlockContent(currentBlock)
               ) : (
                 <div className="py-20 text-center text-gray-500 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-                  This module has no content blocks yet.
+                  This module has no content Chapters yet.
                 </div>
               )}
             </div>
