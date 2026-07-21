@@ -122,9 +122,8 @@ export default function Login() {
 
         <div className="bg-white shadow-2xl rounded-[2rem] p-10 w-full max-w-md relative z-10 border border-white/10">
           <div className="text-center mb-8">
-            <h1 className="brand-text text-4xl mb-2">
-              <span className="brand-la">LA</span>
-              <span className="text-gray-900">LEAD Academy</span>
+            <h1 className="brand-text text-4xl mb-2 text-gray-900">
+              LALEAD Academy
             </h1>
             <p className="text-gray-500 font-medium">Welcome Back!</p>
           </div>

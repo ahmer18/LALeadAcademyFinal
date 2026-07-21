@@ -31,9 +31,8 @@ const VideoPlayer = ({ videoUrl, title }) => {
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           onLoad={() => setIsLoading(false)}
-          className={`absolute inset-0 z-10 w-full h-full transition-opacity duration-300 ${
-            isLoading ? "opacity-0" : "opacity-100"
-          }`}
+          className={`absolute inset-0 z-10 w-full h-full transition-opacity duration-300 ${isLoading ? "opacity-0" : "opacity-100"
+            }`}
         ></iframe>
       )}
 
@@ -44,12 +43,6 @@ const VideoPlayer = ({ videoUrl, title }) => {
           <span className="text-xs uppercase font-black tracking-widest text-slate-400">Loading Video...</span>
         </div>
       )}
-
-      {/* Invisible overlay over the top-left corner to block clicking the channel avatar / name */}
-      <div className="absolute top-0 left-0 w-64 h-16 z-20 pointer-events-auto bg-transparent cursor-default" onClick={(e) => e.stopPropagation()}></div>
-
-      {/* Invisible overlay over the entire bottom to block bottom-left and bottom-right interactions */}
-      <div className="absolute bottom-0 left-0 right-0 h-16 z-20 pointer-events-auto bg-transparent cursor-default" onClick={(e) => e.stopPropagation()}></div>
     </div>
   );
 };

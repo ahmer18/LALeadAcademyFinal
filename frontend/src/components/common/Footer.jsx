@@ -22,9 +22,8 @@ export default function Footer() {
 
         {/* About: Professional Brand Presence */}
         <div className="space-y-4">
-          <h2 className="brand-text text-xl sm:text-2xl leading-none">
-            <span className="brand-la">LA</span>
-            <span className="text-blue-900">LEAD Academy</span>
+          <h2 className="brand-text text-xl sm:text-2xl leading-none text-blue-900">
+            LALEAD Academy
           </h2>
           <p className="text-sm leading-relaxed font-medium text-slate-500">
             Shaping confident leaders and effective educators through international, research-informed professional training.
@@ -112,7 +111,7 @@ export default function Footer() {
           rel="noopener noreferrer"
           className="hover:text-blue-900 text-slate-600 transition-colors duration-200 cursor-pointer"
         >
-          Crafted by Pivot Devs
+          Crafted by VCodePK
         </a>
       </div>
     </footer>

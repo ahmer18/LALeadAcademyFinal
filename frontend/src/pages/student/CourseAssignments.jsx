@@ -155,28 +155,34 @@ const CourseAssignments = () => {
                   : "bg-gray-50 border-transparent opacity-60"
                   }`}
               >
-                <div className="flex items-center gap-5">
-                  <div className={`text-2xl ${isCompleted ? "text-green-500" : isUnlocked ? "text-blue-900" : "text-gray-400"}`}>
-                    {isCompleted ? <FaCheckCircle /> : !isUnlocked ? <FaLock /> : (
-                      <FaBookOpen className="text-[#8d6e3e]" />
+                <div className="flex items-center gap-5 flex-1 min-w-0">
+                  <div className="w-16 h-16 rounded-xl bg-blue-900 flex flex-col items-center justify-center text-white shrink-0 shadow-md relative p-1.5 text-center leading-none">
+                    <span className="text-[9px] font-black uppercase tracking-wider opacity-80 mb-1">Module</span>
+                    <span className="text-xl font-extrabold"> {module.order}</span>
+                    {isCompleted && (
+                      <span className="absolute -top-1 -right-1 bg-green-500 text-white rounded-full p-0.5 border border-white">
+                        <FaCheckCircle size={10} />
+                      </span>
+                    )}
+                    {!isUnlocked && (
+                      <span className="absolute -top-1 -right-1 bg-gray-500 text-white rounded-full p-1 border border-white">
+                        <FaLock size={8} />
+                      </span>
                     )}
                   </div>
-                  <div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-[10px] font-black px-2 py-0.5 rounded bg-gray-100 text-gray-500 uppercase">
-                        Module {module.order}
-                      </span>
-                      <span className="text-xs font-bold text-[#8d6e3e] uppercase">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <h4 className={`text-base font-bold ${isUnlocked ? "text-gray-700" : "text-gray-400"}`}>
+                        {module.title}
+                      </h4>
+                      <span className="px-2 py-0.5 rounded-md bg-[#8d6e3e]/10 text-[#8d6e3e] text-[11px] font-black uppercase tracking-wider">
                         {module.blocks?.length || 0} Chapters
                       </span>
                     </div>
-                    <h4 className={`mt-2 text-base font-bold ${isUnlocked ? "text-gray-700" : "text-gray-400"}`}>
-                      {module.title}
-                    </h4>
                     {module.purpose && (
-                      <div className={`mt-3 pl-3 text-sm italic border-l-2 ${isUnlocked ? "text-gray-600 border-blue-900" : "text-gray-400 border-gray-300"}`}>
+                      <p className={`mt-2.5 pl-3 text-sm italic border-l-2 ${isUnlocked ? "text-gray-600 border-blue-900" : "text-gray-400 border-gray-300"}`}>
                         {module.purpose}
-                      </div>
+                      </p>
                     )}
                   </div>
                 </div>
@@ -205,6 +211,7 @@ const CourseAssignments = () => {
                       <span className="text-sm uppercase tracking-widest">Locked</span>
                     </div>
                   )}
+
                 </div>
               </div>
             );
@@ -260,8 +267,14 @@ const CourseAssignments = () => {
                 </button>
 
                 <button
+                  disabled={progressPercent < 100}
                   onClick={() => setIsModalOpen(true)}
-                  className="flex items-center gap-2 px-6 py-3 bg-blue-900/5 text-blue-900 border border-blue-900/10 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-900 hover:text-white transition-all shadow-sm active:scale-95"
+                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-sm active:scale-95 ${
+                    progressPercent === 100
+                      ? "bg-blue-900/5 text-blue-900 border border-blue-900/10 hover:bg-blue-900 hover:text-white"
+                      : "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed opacity-60"
+                  }`}
+                  title={progressPercent < 100 ? "Complete all modules to give feedback" : "Give course feedback"}
                 >
                   <FaFileAlt size={12} className="opacity-50" />
                   Give Course Feedback

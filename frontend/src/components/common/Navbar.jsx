@@ -17,12 +17,9 @@ const AppLogo = ({ isLight }) => (
       className="h-10 w-auto sm:h-16 object-contain"
     />
     <div className="flex flex-col leading-tight">
-      <div className="text-sm sm:text-xl brand-text custom-text-shadow2 whitespace-nowrap">
-        <span className={`brand-la ${isLight ? "text-white" : "text-black"}`} style={{ WebkitTextStroke: isLight ? "0.1px white" : "0.1px black", paintOrder: "stroke fill" }}>LA</span>
-        <span className={isLight ? "text-white" : "text-black"}>LEAD</span>
-        <span className={`ml-1 ${isLight ? "text-white" : "text-black"}`}>
-          Academy
-        </span>
+      <div className={`text-sm sm:text-xl brand-text custom-text-shadow2 whitespace-nowrap ${isLight ? "text-white" : "text-black"}`}>
+        <span style={{ WebkitTextStroke: isLight ? "0.1px white" : "0.1px black", paintOrder: "stroke fill" }}>LALEAD</span>
+        <span className="ml-1">Academy</span>
       </div>
       <span className={`text-[9px] sm:text-sm italic font-logo-headline custom-text-shadow2 whitespace-nowrap ${isLight ? "text-blue-50" : "text-blue-950"}`}>
         Grow, Shine, Succeed!

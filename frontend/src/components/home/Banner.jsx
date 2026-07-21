@@ -55,8 +55,7 @@ export default function Banner() {
           }`}
       >
         <h1 className="brand-text text-7xl md:text-9xl mb-6 md:mb-10 leading-none">
-          <span className="brand-la">LA</span>
-          <span className="brand-lead">LEAD Academy</span>
+          <span className="brand-lead">LALEAD Academy</span>
         </h1>
 
         <h2 className={`brand-slogan text-lg md:text-3xl mb-10 md:mb-20 transition-all duration-1000 delay-300 ${contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"

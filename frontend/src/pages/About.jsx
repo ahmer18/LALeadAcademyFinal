@@ -61,7 +61,7 @@ export default function About() {
         <div className="md:w-2/3">
           <h2 className="text-3xl font-bold text-blue-900">Muhammad Ahmed</h2>
           <p className="text-lg font-medium mb-4 italic text-grey-900">
-            Founder, <span className="brand-la font-black">LA</span><span className="text-blue-900 font-black">LEAD Academy</span>
+            Founder, <span className="text-blue-900 font-black">LALEAD Academy</span>
             <span className="text-blue-900 ml-2">— MA Education (UK)</span>
           </p>
           <div className="space-y-4 text-gray-700 text-lg leading-relaxed">
