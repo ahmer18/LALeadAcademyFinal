@@ -17,8 +17,8 @@ const AppLogo = ({ isLight }) => (
       className="h-10 w-auto sm:h-16 object-contain"
     />
     <div className="flex flex-col leading-tight">
-      <div className={`text-sm sm:text-xl brand-text custom-text-shadow2 whitespace-nowrap ${isLight ? "text-white" : "text-black"}`}>
-        <span style={{ WebkitTextStroke: isLight ? "0.1px white" : "0.1px black", paintOrder: "stroke fill" }}>LALEAD</span>
+      <div className={`text-sm sm:text-xl brand-text custom-text-shadow2 whitespace-nowrap ${isLight ? "text-white" : "text-blue-900"}`}>
+        <span style={{ WebkitTextStroke: isLight ? "0.1px white" : "0.1px #1B365D", paintOrder: "stroke fill" }}>LALEAD</span>
         <span className="ml-1">Academy</span>
       </div>
       <span className={`text-[9px] sm:text-sm italic font-logo-headline custom-text-shadow2 whitespace-nowrap ${isLight ? "text-blue-50" : "text-blue-950"}`}>

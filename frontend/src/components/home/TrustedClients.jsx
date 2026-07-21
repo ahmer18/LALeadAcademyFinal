@@ -68,13 +68,8 @@ export default function TrustedClients() {
             25+ Years of Excellence
           </span>
           <h2 className="text-5xl md:text-7xl font-extrabold text-white mb-10 tracking-tight leading-tight">
-            Global <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1B365D] to-cyan-700 text-glow"
-              style={{
-                WebkitTextStroke: "0.5px #FAF9F6",
-                paintOrder: "stroke fill"
-              }}>
-              Expertise
-            </span>
+            Global Expertise
+
           </h2>
           <p className="text-gray-300 text-lg md:text-2xl leading-loose md:leading-relaxed font-light">
             Our trainers bring unmatched classroom experience across the UK, Middle East, and international systems,

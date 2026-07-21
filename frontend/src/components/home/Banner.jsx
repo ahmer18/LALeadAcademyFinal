@@ -58,10 +58,15 @@ export default function Banner() {
           <span className="brand-lead">LALEAD Academy</span>
         </h1>
 
-        <h2 className={`brand-slogan text-lg md:text-3xl mb-10 md:mb-20 transition-all duration-1000 delay-300 ${contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-          }`}>
-          Grow. Shine. Succeed!
-        </h2>
+        <div className={`relative mb-10 md:mb-20 transition-all duration-1000 delay-300 ${contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+          {/* Contrast shadow backdrop */}
+          <div className="absolute inset-0 -my-4 mx-auto w-full max-w-lg bg-black/50 blur-xl rounded-full pointer-events-none" />
+          {/* Soft gold/brand glow */}
+          <div className="absolute inset-0 -my-4 mx-auto w-full max-w-md bg-[#8d6e3e]/25 blur-3xl rounded-full pointer-events-none" />
+          <h2 className="brand-slogan text-lg md:text-3xl relative z-10 leading-normal">
+            Grow. Shine. Succeed!
+          </h2>
+        </div>
 
         <p className={`text-2xl md:text-4xl max-w-7xl text-gray-300 leading-relaxed font-light transition-all duration-1000 delay-500 ${contentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}>

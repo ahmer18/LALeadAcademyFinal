@@ -93,14 +93,7 @@ export default function PopularCourses() {
               className="text-white block md:inline-block mb-2 md:mb-0 md:mr-4"
               style={{ WebkitTextStroke: "1px rgba(255,255,255,0.1)", paintOrder: "stroke fill" }}
             >
-              Our Signature
-            </span>
-            <span className="text-transparent tracking-wide bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-500 md:from-[#1B365D] md:to-cyan-700 text-glow block md:inline-block"
-              style={{
-                WebkitTextStroke: "0.5px #FAF9F6",
-                paintOrder: "stroke fill"
-              }}>
-              Programmes
+              Our Signature Programmes
             </span>
           </h2>
         </div>
