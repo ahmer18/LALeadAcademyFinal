@@ -17,8 +17,17 @@ const CourseAssignments = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
   const [selectedAssignmentId, setSelectedAssignmentId] = useState(null);
-  const [introVideoOpen, setIntroVideoOpen] = useState(true);
+  const [introVideoOpen, setIntroVideoOpen] = useState(() => {
+    const saved = localStorage.getItem(`intro_video_open_${courseId}`);
+    return saved !== null ? saved === "true" : true;
+  });
   const axiosSecure = useAxiosSecure();
+
+  const toggleIntroVideo = () => {
+    const newState = !introVideoOpen;
+    setIntroVideoOpen(newState);
+    localStorage.setItem(`intro_video_open_${courseId}`, String(newState));
+  };
 
   // 1. Fetch Course Structure
   const { data: courseInfo = {}, isLoading: courseLoading } = useQuery({
@@ -77,7 +86,7 @@ const CourseAssignments = () => {
             <div className="bg-white rounded-3xl border border-slate-100 shadow-lg overflow-hidden max-w-5xl mx-auto">
               {/* Header with toggle */}
               <button
-                onClick={() => setIntroVideoOpen(!introVideoOpen)}
+                onClick={toggleIntroVideo}
                 className="w-full flex items-center justify-between px-6 py-4 hover:bg-slate-50/50 transition-colors group"
               >
                 <div className="flex items-center gap-3">

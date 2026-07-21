@@ -296,7 +296,7 @@ exports.addCourse = async (req, res) => {
 // Add a specific module to an existing course - now supports blocks array
 exports.addModuleToCourse = async (req, res) => {
   const id = req.params.id;
-  const { title, order, blocks, completionMessage, purpose } = req.body;
+  const { title, order, blocks, completionMessage, purpose, words } = req.body;
 
   const newModule = {
     title,
@@ -304,6 +304,7 @@ exports.addModuleToCourse = async (req, res) => {
     blocks: Array.isArray(blocks) ? blocks : [],
     completionMessage: completionMessage || "",
     purpose: purpose || "",
+    words: Array.isArray(words) ? words : [],
     createdAt: new Date()
   };
 
@@ -334,7 +335,7 @@ exports.addModuleToCourse = async (req, res) => {
 // Update a specific module in an existing course
 exports.updateModuleInCourse = async (req, res) => {
   const id = req.params.id;
-  const { oldOrder, title, order, blocks, completionMessage, purpose } = req.body;
+  const { oldOrder, title, order, blocks, completionMessage, purpose, words } = req.body;
 
   const updatedModule = {
     title,
@@ -342,6 +343,7 @@ exports.updateModuleInCourse = async (req, res) => {
     blocks: Array.isArray(blocks) ? blocks : [],
     completionMessage: completionMessage || "",
     purpose: purpose || "",
+    words: Array.isArray(words) ? words : [],
     updatedAt: new Date()
   };
 

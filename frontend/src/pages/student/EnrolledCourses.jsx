@@ -33,11 +33,8 @@ export default function EnrolledCouses() {
 
   return (
     <div
-      className="min-h-screen p-6 md:p-10"
-      style={{
-        background:
-          "linear-gradient(135deg, #ffffff 0%, #fffdfb 25%, #fcfbff 50%, #f8fcff 75%, #fffefc 100%)"
-      }}
+      className="min-h-screen p-6 md:p-10 bg-theme-gradient"
+
     >
       <div className="mb-12">
         <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-2">My Learning</h1>

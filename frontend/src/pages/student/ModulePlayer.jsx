@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
-import { FaArrowLeft, FaArrowRight, FaCheckCircle, FaVideo, FaAlignLeft, FaQuestionCircle, FaFileAlt, FaTrophy, FaStar, FaExclamationCircle, FaChevronLeft, FaChevronRight, FaImage, FaHeadphones, FaPlay, FaPause, FaVolumeMute, FaVolumeUp, FaSpinner } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight, FaCheckCircle, FaVideo, FaAlignLeft, FaQuestionCircle, FaFileAlt, FaTrophy, FaStar, FaExclamationCircle, FaChevronLeft, FaChevronRight, FaImage, FaHeadphones, FaPlay, FaPause, FaVolumeMute, FaVolumeUp, FaSpinner, FaBookOpen } from "react-icons/fa";
 import confetti from "canvas-confetti";
 import VideoPlayer from "./VideoPlayer";
 import QuizPlayer from "./QuizPlayer";
@@ -286,6 +286,11 @@ const ModulePlayer = () => {
   const isFirstSlide = currentSlide === 0;
   const isLastSlide = currentSlide === totalSlides - 1;
 
+  const moduleWords = module?.words || [];
+  const midIndex = Math.ceil(moduleWords.length / 2);
+  const leftWords = moduleWords.slice(0, midIndex);
+  const rightWords = moduleWords.slice(midIndex);
+
 
 
   // ── Quiz / completion state ──
@@ -294,6 +299,7 @@ const ModulePlayer = () => {
   const [showCelebration, setShowCelebration] = useState(false);
   const [isLastModule, setIsLastModule] = useState(false);
   const [courseCompletionMsg, setCourseCompletionMsg] = useState("");
+  const [modulesList, setModulesList] = useState([]);
 
 
 
@@ -303,6 +309,7 @@ const ModulePlayer = () => {
       try {
         const { data } = await axiosSecure.get(`/courses/${courseId}`);
         const allModules = data?.course?.modules || [];
+        setModulesList(allModules);
         if (allModules.length > 0) {
           const maxOrder = Math.max(...allModules.map(m => m.order));
           setIsLastModule(module?.order === maxOrder);
@@ -318,20 +325,27 @@ const ModulePlayer = () => {
   }, [courseId, module, axiosSecure]);
 
   useEffect(() => {
+    setCurrentSlide(0);
+    setQuizStatuses({});
+    setIsLastModule(false);
+    setShowCelebration(false);
+  }, [module?.order]);
+
+  useEffect(() => {
     if (!module || !module.blocks) return;
     const quizBlocks = module.blocks.filter(b => b.type === 'quiz');
     if (quizBlocks.length === 0) { setCanComplete(true); return; }
-    const allPassed = quizBlocks.every(qk => quizStatuses[qk.id] === true);
+    const allPassed = module.blocks.every((qk, idx) => qk.type !== 'quiz' || quizStatuses[idx] === true);
     setCanComplete(allPassed);
   }, [quizStatuses, module]);
 
-  const handleQuizPass = (blockId, passed) => {
-    setQuizStatuses(prev => ({ ...prev, [blockId]: passed }));
+  const handleQuizPass = (slideIndex, passed) => {
+    setQuizStatuses(prev => ({ ...prev, [slideIndex]: passed }));
   };
 
   // ── Is the current slide a quiz that hasn't been passed? ──
   const currentBlock_ = blocks[currentSlide];
-  const isCurrentQuizBlocked = currentBlock_?.type === 'quiz' && !quizStatuses[currentBlock_?.id];
+  const isCurrentQuizBlocked = currentBlock_?.type === 'quiz' && !quizStatuses[currentSlide];
 
   // ── Combined "can advance" check: quiz not blocking ──
   const canAdvance = !isCurrentQuizBlocked;
@@ -395,7 +409,13 @@ const ModulePlayer = () => {
 
   const handleCelebrationContinue = () => {
     setShowCelebration(false);
-    navigate(-1);
+    const sorted = [...modulesList].sort((a, b) => a.order - b.order);
+    const nextModule = sorted.find(m => m.order > module.order);
+    if (nextModule) {
+      navigate(`/course/${courseId}/module/${nextModule.order}`, { state: { module: nextModule } });
+    } else {
+      navigate(-1);
+    }
   };
 
   if (!module) return <div className="p-10 text-center">Module data not found.</div>;
@@ -425,7 +445,6 @@ const ModulePlayer = () => {
       return (
         <div className="space-y-4 w-full">
           <div className="prose prose-lg max-w-none bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-gray-100 relative">
-            <FaAlignLeft className="absolute top-8 right-8 text-gray-200 text-3xl" />
             <div
               className="ql-editor-content text-gray-700 leading-relaxed"
               dangerouslySetInnerHTML={{ __html: block.content }}
@@ -452,7 +471,7 @@ const ModulePlayer = () => {
     if (block.type === 'quiz') {
       return (
         <div className="w-full">
-          <QuizPlayer block={block} onPass={(passed) => handleQuizPass(block.id, passed)} />
+          <QuizPlayer block={block} onPass={(passed) => handleQuizPass(currentSlide, passed)} />
         </div>
       );
     }
@@ -556,39 +575,96 @@ const ModulePlayer = () => {
         </div>
 
         {/* ── Main Slide Content ── */}
-        <div className="flex-1 overflow-hidden relative">
-          <div
-            ref={slideRef}
-            className={`absolute inset-0 overflow-y-auto px-4 md:px-8 py-6 md:py-10 ${getSlideAnimClass()}`}
-            key={currentSlide}
-          >
-            <div className={`${currentBlock?.type === 'video' ? 'max-w-5xl' : 'max-w-4xl'} mx-auto w-full transition-all duration-300`}>
-              {/* Block heading / Audio Narration */}
-              {(currentBlock?.heading || (currentBlock?.type === 'text' && currentBlock?.audioUrl)) && (
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                  {currentBlock?.heading ? (
-                    <h2 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">
-                      {currentBlock.heading}
-                    </h2>
-                  ) : (
-                    <div />
-                  )}
-                  {currentBlock?.type === 'text' && currentBlock?.audioUrl && (
-                    <CustomAudioPlayer src={currentBlock.audioUrl} />
-                  )}
-                </div>
-              )}
+        <div className="flex-1 overflow-hidden relative flex flex-col lg:flex-row">
 
-              {/* Block content */}
-              {totalSlides > 0 ? (
-                renderBlockContent(currentBlock)
-              ) : (
-                <div className="py-20 text-center text-gray-500 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-                  This module has no content Chapters yet.
-                </div>
-              )}
+          {/* Left Dashboard Sidebar (Desktop only) */}
+          {leftWords.length > 0 && (
+            <div className="hidden lg:flex w-64 xl:w-80 p-6 pr-3 z-10">
+              <div className="w-full h-full bg-white/80 backdrop-blur-2xl border border-white/40 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 flex flex-col items-center text-center">
+
+                <h3 className="text-xl xl:text-2xl font-black text-slate-800 tracking-tight leading-[1.1] mb-4 mt-4 flex-shrink-0">
+                  Words to Learn
+                </h3>
+                <div className="w-12 h-1 bg-blue-900/10 rounded-full mb-6 flex-shrink-0"></div>
+
+                <ul className="text-left w-full flex-1 flex flex-col justify-evenly py-2 gap-2">
+                  {leftWords.map((word, idx) => (
+                    <li key={idx} className="flex items-center gap-4">
+                      <span className="flex-shrink-0 w-7 h-7 xl:w-9 xl:h-9 rounded-full bg-blue-100 text-blue-900 flex items-center justify-center text-xs xl:text-sm font-black">
+                        {idx + 1}
+                      </span>
+                      <span className="text-sm xl:text-base font-bold text-slate-700 leading-tight">
+                        {word}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Center Sliding Content */}
+          <div className="flex-1 relative overflow-hidden">
+            <div
+              ref={slideRef}
+              className={`absolute inset-0 overflow-y-auto px-4 md:px-8 py-6 md:py-10 ${getSlideAnimClass()}`}
+              key={currentSlide}
+            >
+              <div className={`${currentBlock?.type === 'video' ? 'max-w-5xl' : 'max-w-4xl'} mx-auto w-full transition-all duration-300`}>
+                {/* Block heading / Audio Narration */}
+                {(currentBlock?.heading || (currentBlock?.type === 'text' && currentBlock?.audioUrl)) && (
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    {currentBlock?.heading ? (
+                      <h2 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">
+                        {currentBlock.heading}
+                      </h2>
+                    ) : (
+                      <div />
+                    )}
+                    {currentBlock?.type === 'text' && currentBlock?.audioUrl && (
+                      <CustomAudioPlayer src={currentBlock.audioUrl} />
+                    )}
+                  </div>
+                )}
+
+                {/* Block content */}
+                {totalSlides > 0 ? (
+                  renderBlockContent(currentBlock)
+                ) : (
+                  <div className="py-20 text-center text-gray-500 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                    This module has no content Chapters yet.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div> {/* Close Center Sliding Content */}
+
+          {/* Right Dashboard Sidebar (Desktop only) */}
+          {rightWords.length > 0 && (
+            <div className="hidden lg:flex w-64 xl:w-80 p-6 pl-3 z-10">
+              <div className="w-full h-full bg-white/80 backdrop-blur-2xl border border-white/40 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 flex flex-col items-center text-center">
+
+                <h3 className="text-xl xl:text-2xl font-black text-slate-800 tracking-tight leading-[1.1] mb-4 mt-4 flex-shrink-0">
+                  Words to Learn
+                </h3>
+                <div className="w-12 h-1 bg-blue-900/10 rounded-full mb-6 flex-shrink-0"></div>
+
+                <ul className="text-left w-full flex-1 flex flex-col justify-evenly py-2 gap-2">
+                  {rightWords.map((word, idx) => (
+                    <li key={idx} className="flex items-center gap-4">
+                      <span className="flex-shrink-0 w-7 h-7 xl:w-9 xl:h-9 rounded-full bg-blue-100 text-blue-900 flex items-center justify-center text-xs xl:text-sm font-black">
+                        {leftWords.length + idx + 1}
+                      </span>
+                      <span className="text-sm xl:text-base font-bold text-slate-700 leading-tight">
+                        {word}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
         </div>
 
         {/* ── Bottom Navigation Bar ── */}
@@ -654,7 +730,7 @@ const ModulePlayer = () => {
                   </>
                 ) : (
                   <>
-                    <span>Next</span>
+                    <span>Next Chapter</span>
                     <FaChevronRight size={12} />
                   </>
                 )}

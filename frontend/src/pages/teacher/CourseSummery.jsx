@@ -25,6 +25,7 @@ const CourseSummery = () => {
   // NEW STATE: Blocks builder
   const [blocks, setBlocks] = useState([]);
   const [editingModule, setEditingModule] = useState(null); // Tracks which module is being edited
+  const [moduleWords, setModuleWords] = useState([]);
 
   const queryClient = useQueryClient();
   const axiosSecure = useAxiosSecure();
@@ -119,6 +120,7 @@ const CourseSummery = () => {
     registerReset();
     setBlocks([]);
     setCelebrationMsg("");
+    setModuleWords([]);
   };
 
   const deleteModuleMutation = useMutation({
@@ -149,6 +151,7 @@ const CourseSummery = () => {
     setValue("order", module.order);
     setValue("purpose", module.purpose || "");
     setCelebrationMsg(module.completionMessage || "");
+    setModuleWords(module.words || []);
 
     // Map blocks to add unique IDs for keying in UI
     const blocksWithIds = (module.blocks || []).map(b => {
@@ -247,7 +250,8 @@ const CourseSummery = () => {
       order: parseInt(data.order),
       purpose: data.purpose || "",
       completionMessage: celebrationMsg.trim(),
-      blocks: formattedBlocks
+      blocks: formattedBlocks,
+      words: moduleWords
     };
 
     const performMutation = () => {
@@ -690,6 +694,68 @@ const CourseSummery = () => {
                     placeholder={`e.g. 🌟 Spectacular work!\nYou've mastered the foundational concepts of this module.`}
                     className="textarea w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-300 rounded-xl text-sm focus:border-[#8d6e3e] focus:ring-4 focus:ring-[#8d6e3e]/5 transition-all leading-relaxed font-medium"
                   />
+                </div>
+
+                {/* Words to Learn */}
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-900 text-xl shadow-sm">📝</div>
+                    <div>
+                      <h4 className="text-[10px] font-black text-blue-900 uppercase tracking-widest">Words to Learn</h4>
+                      <p className="text-[11px] text-slate-500 mt-0.5 font-medium">Add professional key terms for students to learn in this module (displayed on split screen layout).</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      id="new-module-word-input"
+                      placeholder="e.g. Stakeholders, Intervention, Inclusive..."
+                      className="input input-bordered flex-1 bg-slate-50 border-slate-200 text-slate-900 rounded-xl font-medium focus:border-blue-900"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const val = e.target.value.trim();
+                          if (val && !moduleWords.includes(val)) {
+                            setModuleWords([...moduleWords, val]);
+                            e.target.value = "";
+                          }
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const inputEl = document.getElementById("new-module-word-input");
+                        if (inputEl) {
+                          const val = inputEl.value.trim();
+                          if (val && !moduleWords.includes(val)) {
+                            setModuleWords([...moduleWords, val]);
+                            inputEl.value = "";
+                          }
+                        }
+                      }}
+                      className="px-6 py-3 bg-blue-900 text-white hover:bg-blue-800 rounded-xl font-bold text-xs uppercase tracking-widest"
+                    >
+                      + Add Word
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {moduleWords.map((word, wIdx) => (
+                      <span key={wIdx} className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-900 px-3.5 py-1.5 rounded-full text-xs font-black border border-blue-100/50 shadow-sm">
+                        {word}
+                        <button
+                          type="button"
+                          onClick={() => setModuleWords(moduleWords.filter(w => w !== word))}
+                          className="text-blue-400 hover:text-red-500 font-black ml-1 transition-colors text-sm"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                    {moduleWords.length === 0 && (
+                      <p className="text-[10px] text-slate-400 font-medium italic">No custom words added yet.</p>
+                    )}
+                  </div>
                 </div>
 
                 {/* Blocks Area */}
