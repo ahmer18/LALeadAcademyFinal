@@ -20,10 +20,12 @@ export default function Home() {
         <HeadTag title="LALEAD Academy" />
         <Banner />
         <TrustedClients />
+        <NewCourses />
         <PopularCourses />
         <WhatSchoolsAchieve />
         <GlobalTrustSection />
         <FounderSection />
+
         {/* <WhyChoose /> */}
 
         {/* <NewCourses /> 

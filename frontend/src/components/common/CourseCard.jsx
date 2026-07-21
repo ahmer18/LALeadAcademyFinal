@@ -36,7 +36,7 @@ const CourseCard = ({ course }) => {
                 ⭐ {course.rating?.toFixed(1) || "4.9"}
               </span>
               <span className="text-gray-400 font-medium">
-                {course.totalEnrollments || 0} students
+                {(course.totalEnrolled || 0) + 178} Students
               </span>
               <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md font-bold text-[10px] uppercase">
                 {course.duration || `${course.modules?.length || 0} Modules`}
@@ -51,9 +51,16 @@ const CourseCard = ({ course }) => {
           {!course.isProgramme ? (
             <div>
               <span className="block text-[10px] text-gray-400 uppercase font-bold tracking-widest leading-none mb-1">Investment</span>
-              <span className="text-2xl font-black text-gray-900">
-                ${course.price}
-              </span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-black text-gray-900">
+                  ${course.price}
+                </span>
+                {course.originalPrice && (
+                  <span className="text-sm font-bold text-gray-400 line-through">
+                    ${course.originalPrice}
+                  </span>
+                )}
+              </div>
             </div>
           ) : (
             <div /> // Empty div to maintain flex spacing for Programmes

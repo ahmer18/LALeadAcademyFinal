@@ -198,14 +198,26 @@ export default function AddCourse() {
           </div>
 
           {/* Price, Duration & Image Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-8">
             <div className="form-control">
               <label className="label mb-2">
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600">Price ($)</span>
+                <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600">Discounted Price ($)</span>
               </label>
               <input
                 type="number"
                 {...register("price", { required: true })}
+                placeholder="e.g. 149"
+                className="input input-bordered rounded-xl bg-slate-50 border-slate-200 focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="form-control">
+              <label className="label mb-2">
+                <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600">Original Price ($)</span>
+              </label>
+              <input
+                type="number"
+                {...register("originalPrice")}
+                placeholder="e.g. 299"
                 className="input input-bordered rounded-xl bg-slate-50 border-slate-200 focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -242,7 +254,7 @@ export default function AddCourse() {
                 )}
               </div>
             </div>
-            <div className="form-control col-span-1 sm:col-span-3">
+            <div className="form-control col-span-1 sm:col-span-4">
               <label className="label mb-2 justify-between flex items-center">
                 <span className="text-xs font-bold uppercase tracking-[0.15em] text-slate-600">Course Certificate (PDF)</span>
                 {isUpdate && course?.certificateUrl && (

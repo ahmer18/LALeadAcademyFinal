@@ -13,6 +13,7 @@ import {
 import LoaderSpinner from "../../components/common/LoaderSpinner";
 import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { HiSparkles } from "react-icons/hi2";
 
 const CourseDetails = () => {
   const { id } = useParams();
@@ -151,9 +152,16 @@ const CourseDetails = () => {
           {/* RIGHT: PRICE & ACTION CARD (BENEATH THE IMAGE AREA) */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-[2.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] border border-gray-100 p-8 sticky top-28">
-              <div className="flex items-end gap-2 mb-8">
-                <span className="text-5xl font-black text-gray-900">${course.price || "199"}</span>
-                <span className="text-gray-400 font-bold mb-2 line-through opacity-50">${Math.round((course.price || 199) * 1.3)}</span>
+              <div className="mb-8">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 border border-emerald-300 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.4)] hover:shadow-[0_0_22px_rgba(16,185,129,0.7)] transition-shadow duration-300">
+                  Big Discounted Price!
+                </span>
+                <div className="flex items-end gap-2 mt-3">
+                  <span className="text-5xl font-black text-gray-900">${course.price || "199"}</span>
+                  {course.originalPrice && (
+                    <span className="text-gray-400 font-bold mb-2 line-through opacity-50">${course.originalPrice}</span>
+                  )}
+                </div>
               </div>
 
               <button
